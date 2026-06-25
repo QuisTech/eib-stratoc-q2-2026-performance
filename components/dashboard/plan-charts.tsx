@@ -13,19 +13,25 @@ import { submissionStats, challengeThemes, kpis } from "@/lib/plan-data"
 const submissionData = [
   { name: "Submitted", value: submissionStats.submitted, fill: "var(--chart-1)" },
   { name: "No challenges", value: submissionStats.noChallenges, fill: "var(--chart-2)" },
-  { name: "Awaiting", value: submissionStats.awaiting, fill: "var(--chart-3)" },
-]
+  { name: "Pending / Redacted", value: submissionStats.pending, fill: "var(--chart-3)" },
+  { name: "No response", value: submissionStats.noResponse, fill: "var(--chart-4)" },
+  { name: "N/A", value: submissionStats.notApplicable, fill: "var(--chart-5)" },
+].filter((d) => d.value > 0)
 
 const submissionConfig = {
   value: { label: "Subsidiaries" },
   Submitted: { label: "Submitted", color: "var(--chart-1)" },
   "No challenges": { label: "No challenges", color: "var(--chart-2)" },
-  Awaiting: { label: "Awaiting", color: "var(--chart-3)" },
+  "Pending / Redacted": { label: "Pending / Redacted", color: "var(--chart-3)" },
+  "No response": { label: "No response", color: "var(--chart-4)" },
+  "N/A": { label: "N/A", color: "var(--chart-5)" },
 } satisfies ChartConfig
 
 export function SubmissionDonut() {
   const responded = submissionStats.submitted + submissionStats.noChallenges
-  const rate = Math.round((responded / submissionStats.total) * 100)
+  // Exclude N/A entities (no representative assigned) from the response denominator.
+  const expected = submissionStats.total - submissionStats.notApplicable
+  const rate = Math.round((responded / expected) * 100)
   return (
     <Card className="avoid-break">
       <CardHeader>

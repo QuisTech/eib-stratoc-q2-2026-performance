@@ -6,6 +6,12 @@ import {
   ChallengeThemesChart,
   KpiTargetChart,
 } from "@/components/dashboard/plan-charts"
+import {
+  ChallengeMatrix,
+  SkillGapMatrix,
+  ResourceRequirements,
+  StrategicAlignmentMatrix,
+} from "@/components/dashboard/intelligence-matrices"
 import { KpiTable } from "@/components/plan/kpi-table"
 import { submissionStats, planMeta } from "@/lib/plan-data"
 import { Users, CheckCircle2, Clock, ShieldCheck } from "lucide-react"
@@ -37,8 +43,8 @@ const stats = [
     sub: "Reported nil",
   },
   {
-    label: "Awaiting",
-    value: submissionStats.awaiting,
+    label: "Pending / No response",
+    value: submissionStats.pending + submissionStats.noResponse,
     icon: Clock,
     accent: "var(--chart-3)",
     sub: "Follow-up required",
@@ -95,9 +101,30 @@ export default function DashboardPage() {
         <KpiTargetChart />
       </section>
 
+      {/* Consolidated intelligence */}
+      <section className="mt-8">
+        <h2 className="font-heading text-xl font-bold">Consolidated Intelligence</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Cross-subsidiary analysis from submitted Task Force data only.
+        </p>
+        <div className="mt-4 grid gap-4">
+          <ChallengeMatrix />
+          <SkillGapMatrix />
+          <ResourceRequirements />
+        </div>
+      </section>
+
+      {/* Strategic alignment */}
+      <section className="mt-8">
+        <StrategicAlignmentMatrix />
+      </section>
+
       {/* KPI detail table */}
-      <section className="mt-6">
-        <KpiTable />
+      <section className="mt-8">
+        <h2 className="font-heading text-xl font-bold">KPI Targets</h2>
+        <div className="mt-4">
+          <KpiTable />
+        </div>
       </section>
 
       <Card className="avoid-break mt-6 border-l-4 border-l-accent">

@@ -72,7 +72,7 @@ export const roadmap: MonthPlan[] = [
         impact: "Ensures training investment targets actual business problems.",
         evidence: [
           "5 subsidiaries have already submitted detailed input; 3 remain outstanding and must be closed out in Month 1.",
-          "Confirmed gaps include report writing & MS Word (EIB Stratoc), vehicle diagnostics/EV & HSE (Air Friction), avionics, QA & MRO documentation (Briech UAS).",
+          "Confirmed gaps include report writing & MS Word (EIB Stratoc), vehicle diagnostics/EV & HSE (Luftreiber Automobile), avionics, QA & MRO documentation (Briech UAS).",
         ],
       },
       {
@@ -94,7 +94,7 @@ export const roadmap: MonthPlan[] = [
         deliverable: "Internal Performance Improvement Report",
         impact: "Surfaces the sources of inefficiency that erode ROI.",
         evidence: [
-          "Power supply during production (Poctova), spare-parts delay & vendor debt (Air Friction), ageing surveillance equipment & drone batteries (EIB Stratoc), under-utilised production lines (Briech UAS).",
+          "Power supply during production (Poctova), spare-parts delay & vendor debt (Luftreiber Automobile), ageing surveillance equipment & drone batteries (EIB Stratoc), under-utilised production lines (Briech UAS).",
         ],
       },
     ],
@@ -115,7 +115,7 @@ export const roadmap: MonthPlan[] = [
         impact: "Improves service quality and employee productivity.",
         evidence: [
           "Advanced MS Word + intelligence report-writing workshops (EIB Stratoc).",
-          "Advanced diagnostics, EV/new-energy and HSE training (Air Friction).",
+          "Advanced diagnostics, EV/new-energy and HSE training (Luftreiber Automobile).",
           "Pre-deployment UAV mission training, avionics configuration & QA (Briech UAS).",
         ],
       },
@@ -235,18 +235,30 @@ export const taskForce = {
   ],
 }
 
-export type SubmissionState = "Submitted" | "Awaiting" | "No challenges"
+export type SubmissionState =
+  | "Submitted"
+  | "Pending"
+  | "No response"
+  | "No challenges"
+  | "Redacted"
+  | "Not applicable"
+  | "Morphed"
+
+export type DetailLevel = "Comprehensive" | "Basic" | "No issues" | "Pending" | "No response" | "—"
 
 export type Submission = {
   subsidiary: string
   representative: string
   department?: string
   state: SubmissionState
+  detail: DetailLevel
   challenges: string[]
   skillGaps?: string[]
   priorities?: string[]
   resources?: string[]
   note?: string
+  // For umbrella entities (e.g. BLACK) that contain their own representatives.
+  subReps?: { name: string; unit: string }[]
 }
 
 export const submissions: Submission[] = [
@@ -254,6 +266,7 @@ export const submissions: Submission[] = [
     subsidiary: "Briech Atlantic Ltd",
     representative: "Kenneth Mbadugha (General Manager)",
     state: "Submitted",
+    detail: "Comprehensive",
     challenges: [
       "Limited Business Development & revenue generation capacity — insufficient marketing resources, limited market penetration, inadequate mobility for BD personnel.",
       "Insufficient technical & operational resources — inadequate tools, equipment, and technology infrastructure for design, engineering, and project delivery.",
@@ -271,9 +284,10 @@ export const submissions: Submission[] = [
     ],
   },
   {
-    subsidiary: "Honorable (Poctova)",
+    subsidiary: "POCTOVA (Honorable)",
     representative: "Miss Princess",
     state: "Submitted",
+    detail: "Basic",
     challenges: [
       "Power supply issues during production.",
       "Insufficient tailoring staff to meet production targets — limiting rest days and pressuring production time limits.",
@@ -292,9 +306,10 @@ export const submissions: Submission[] = [
   },
   {
     subsidiary: "Briech UAS",
-    representative: "Briech UAS Chapter",
+    representative: "Francis Echefu",
     department: "UAV Mission Operations",
     state: "Submitted",
+    detail: "Comprehensive",
     challenges: [
       "Cross-functional challenges in external UAV (ISR + FPV kamikaze) missions — mission variability, cyber threats, regulatory compliance, system reliability, logistics, and adversarial interference.",
       "Limited production volume — assembly lines available but underutilised.",
@@ -314,9 +329,10 @@ export const submissions: Submission[] = [
   },
   {
     subsidiary: "EIB Stratoc Ltd",
-    representative: "Nnaji Grace Amarachi",
+    representative: "Grace Nnaji (Nnaji Grace Amarachi)",
     department: "Fusion Centre / Surveillance Operations",
     state: "Submitted",
+    detail: "Comprehensive",
     challenges: [
       "Inconsistent technical infrastructure — variability in AV/transmission equipment disrupts real-time drone feed connectivity to the Fusion Centre.",
       "Ageing and insufficient equipment inventory — degraded surveillance assets (incl. drone batteries) reduce operational endurance.",
@@ -339,19 +355,22 @@ export const submissions: Submission[] = [
     ],
   },
   {
-    subsidiary: "Air Friction Automobiles",
-    representative: "Workshop Management",
+    subsidiary: "Luftreiber Automobile",
+    representative: "Marie Pearl",
     department: "Workshop / Body Shop",
     state: "Submitted",
+    detail: "Basic",
     challenges: [
       "Lack of adequate technical training for workshop personnel.",
       "Delays in supply and availability of spare parts; insufficient workshop/body shop space.",
       "High vendor debt delaying response time and spare parts delivery.",
+      "Customer-facing service standards — front desk and service-advisor consistency.",
     ],
     skillGaps: [
       "Advanced vehicle diagnostic and fault-finding skills.",
-      "Modern mechanical repair techniques; electric/new-energy vehicle training.",
-      "HSE awareness and compliance practices.",
+      "Modern mechanical repair techniques; electric/new-energy (NEV) vehicle training.",
+      "HSE awareness, operational risk assessment, and compliance practices.",
+      "Customer care, front desk operations, and service advisor skills.",
     ],
     priorities: [
       "Advanced diagnostic & mechanical training; electric cars training.",
@@ -365,33 +384,71 @@ export const submissions: Submission[] = [
   },
   {
     subsidiary: "Giga Forensics",
-    representative: "General Manager",
+    representative: "Rejoice",
     state: "No challenges",
+    detail: "No issues",
     challenges: [],
-    note: "GM reported no operational challenges at this time.",
+    note: "Representative reported no operational challenges at this time (GM: \"Nothing from Giga\").",
   },
   {
-    subsidiary: "Bright FM (98.7 FM)",
-    representative: "—",
-    state: "Awaiting",
+    subsidiary: "BLACK",
+    representative: "4 sub-subsidiary representatives",
+    state: "Redacted",
+    detail: "Pending",
     challenges: [],
-    note: "Submission outstanding — nothing received yet.",
+    note: "Recognized subsidiary (formerly Glint Technologies). Sub-subsidiary input is being handled separately and is redacted here; BLACK's detailed breakdown will be built as a separate phase once data is supplied.",
+    subReps: [
+      { name: "Fadekemi Veronica Okunoye", unit: "RAW Subsidiary" },
+      { name: "Gideon Eden", unit: "PSAP Subsidiary" },
+      { name: "Moses H. Bayawa", unit: "SAC Subsidiary" },
+      { name: "Unande S. Geraldine", unit: "HR / Admin" },
+    ],
   },
   {
-    subsidiary: "Bright Echefu Foundation",
-    representative: "—",
-    state: "Awaiting",
+    subsidiary: "Bright Echefu Foundation (BEF)",
+    representative: "Oluwaseyi Akinfela",
+    state: "Pending",
+    detail: "Pending",
     challenges: [],
-    note: "Indicated submission will follow; space reserved for their input.",
+    note: "Indicated submission will follow \"before close of work\"; space reserved for their input.",
+  },
+  {
+    subsidiary: "Bright FM",
+    representative: "Engineer Johnson Makoji",
+    state: "No response",
+    detail: "No response",
+    challenges: [],
+    note: "No submission received — representative advised \"nothing yet\".",
+  },
+  {
+    subsidiary: "Luft (Pay TV)",
+    representative: "No representative assigned",
+    state: "Not applicable",
+    detail: "—",
+    challenges: [],
+    note: "No representative currently assigned to the Task Force.",
+  },
+  {
+    subsidiary: "Glint Technologies",
+    representative: "—",
+    state: "Morphed",
+    detail: "—",
+    challenges: [],
+    note: "Morphed into BLACK — tracked under the BLACK subsidiary above.",
   },
 ]
 
 // ── Derived analytics for the ROI dashboard ────────────────────
+// "Reporting entities" = everything except the morphed/legacy Glint record.
+const reporting = submissions.filter((s) => s.state !== "Morphed")
+
 export const submissionStats = {
-  total: submissions.length,
-  submitted: submissions.filter((s) => s.state === "Submitted").length,
-  noChallenges: submissions.filter((s) => s.state === "No challenges").length,
-  awaiting: submissions.filter((s) => s.state === "Awaiting").length,
+  total: reporting.length,
+  submitted: reporting.filter((s) => s.state === "Submitted").length,
+  noChallenges: reporting.filter((s) => s.state === "No challenges").length,
+  pending: reporting.filter((s) => s.state === "Pending" || s.state === "Redacted").length,
+  noResponse: reporting.filter((s) => s.state === "No response").length,
+  notApplicable: reporting.filter((s) => s.state === "Not applicable").length,
 }
 
 // Recurring challenge themes consolidated across all submissions.
@@ -402,4 +459,72 @@ export const challengeThemes = [
   { theme: "Supply Chain & Procurement", count: 2 },
   { theme: "Welfare & Working Conditions", count: 2 },
   { theme: "Business Development", count: 1 },
+]
+
+// 2A. Operational Challenges Matrix — theme cross-referenced to subsidiaries.
+export const challengeMatrix: { theme: string; subsidiaries: string[] }[] = [
+  { theme: "Infrastructure / equipment degradation", subsidiaries: ["EIB Stratoc", "Luftreiber Automobile", "POCTOVA"] },
+  { theme: "Workforce capacity / staffing gaps", subsidiaries: ["Briech Atlantic", "POCTOVA", "Briech UAS"] },
+  { theme: "Business development / marketing", subsidiaries: ["Briech Atlantic"] },
+  { theme: "Supply chain / spare parts / accessories", subsidiaries: ["Luftreiber Automobile", "POCTOVA"] },
+  { theme: "Technical tools / software / workstations", subsidiaries: ["Briech Atlantic", "EIB Stratoc"] },
+  { theme: "Supervisory workload / burnout", subsidiaries: ["EIB Stratoc"] },
+  { theme: "Production volume / utilization", subsidiaries: ["Briech UAS"] },
+  { theme: "Skill continuity / hands-on practice gaps", subsidiaries: ["Briech UAS"] },
+]
+
+// 2B. Skill Gap Analysis — category, gaps, subsidiaries.
+export const skillGapAnalysis: { category: string; gaps: string; subsidiaries: string[] }[] = [
+  {
+    category: "Technical",
+    gaps: "Vehicle diagnostics, UAV assembly/calibration, avionics, AV/transmission equipment",
+    subsidiaries: ["Luftreiber Automobile", "Briech UAS", "EIB Stratoc"],
+  },
+  {
+    category: "Reporting & Documentation",
+    gaps: "MS Word, intelligence report writing, technical documentation, MRO record-keeping",
+    subsidiaries: ["EIB Stratoc", "Briech UAS"],
+  },
+  {
+    category: "Operational",
+    gaps: "Time management, workload prioritization, QA inspection protocols",
+    subsidiaries: ["EIB Stratoc", "Briech UAS"],
+  },
+  {
+    category: "Emerging Tech",
+    gaps: "Electric vehicles (NEV), drone operations, live-feed management",
+    subsidiaries: ["Luftreiber Automobile", "EIB Stratoc"],
+  },
+  {
+    category: "Safety & Compliance",
+    gaps: "HSE awareness, operational risk assessment",
+    subsidiaries: ["Luftreiber Automobile"],
+  },
+  {
+    category: "Customer-Facing",
+    gaps: "Customer care, front desk operations, service advisor skills",
+    subsidiaries: ["Luftreiber Automobile"],
+  },
+]
+
+// 2D. Resource Requirements Summary — categorized for the 3-month budget submission.
+export const resourceRequirements: { category: string; items: string }[] = [
+  { category: "External trainers / specialists", items: "Technical, HSE, customer-service and report-writing facilitators" },
+  { category: "Equipment & technology", items: "Workstations, drone batteries, AV/transmission infrastructure, spare parts" },
+  { category: "Personnel recruitment", items: "Quantity Surveyor, technicians, business-development staff, tailoring staff" },
+  { category: "Infrastructure", items: "Workshop/body-shop space, facility maintenance, production power backup" },
+  { category: "Training program budgets", items: "Per-subsidiary learning sessions, drills, and certification" },
+]
+
+// Section 3. Strategic Alignment Matrix — Task Force data feeding each initiative.
+export const strategicAlignment: { n: number; initiative: string; covers: string; feed: string }[] = [
+  { n: 1, initiative: "Organization-Wide TNA", covers: "Identify skill gaps & operational challenges", feed: "All 5 submissions directly provide this" },
+  { n: 2, initiative: "Staff Competency Mapping", covers: "Categorize staff by role & competency", feed: "Briech UAS (assembly/avionics), Luftreiber (diagnostics), EIB Stratoc (reporting)" },
+  { n: 3, initiative: "Performance Bottleneck Review", covers: "Customer complaints, delays, errors", feed: "Briech Atlantic (project delays), POCTOVA (production delays), Luftreiber (spare-parts delays)" },
+  { n: 4, initiative: "Capability Improvement Program", covers: "Targeted training delivery", feed: "All training priorities submitted" },
+  { n: 5, initiative: "Staff Evaluation Framework", covers: "Competency & readiness assessments", feed: "Skill gaps inform evaluation criteria" },
+  { n: 6, initiative: "Knowledge Sharing Platform", covers: "Cross-functional learning", feed: "Briech UAS (cross-training, mentorship), EIB Stratoc (knowledge transfer)" },
+  { n: 7, initiative: "Performance Improvement Task Force", covers: "This platform IS the deliverable", feed: "Active" },
+  { n: 8, initiative: "Culture & Accountability Reinforcement", covers: "Workplace behaviors, ownership", feed: "POCTOVA (suggestion boxes, welfare), Briech UAS (ownership through mentorship)" },
+  { n: 9, initiative: "Training ROI Dashboard", covers: "Track KPIs", feed: "Baseline data from submissions establishes starting metrics" },
 ]

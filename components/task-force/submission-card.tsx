@@ -1,4 +1,4 @@
-import { CheckCircle2, Clock, MinusCircle, AlertCircle } from "lucide-react"
+import { CheckCircle2, Clock, MinusCircle, AlertCircle, EyeOff, XCircle, Slash, GitMerge } from "lucide-react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import type { Submission } from "@/lib/plan-data"
@@ -6,7 +6,11 @@ import type { Submission } from "@/lib/plan-data"
 const stateMeta = {
   Submitted: { Icon: CheckCircle2, cls: "text-[var(--chart-1)]", ring: "border-l-[var(--chart-1)]" },
   "No challenges": { Icon: MinusCircle, cls: "text-[var(--chart-2)]", ring: "border-l-[var(--chart-2)]" },
-  Awaiting: { Icon: Clock, cls: "text-[oklch(0.55_0.12_70)]", ring: "border-l-[var(--chart-3)]" },
+  Pending: { Icon: Clock, cls: "text-[oklch(0.55_0.12_70)]", ring: "border-l-[var(--chart-3)]" },
+  Redacted: { Icon: EyeOff, cls: "text-[oklch(0.55_0.12_70)]", ring: "border-l-[var(--chart-3)]" },
+  "No response": { Icon: XCircle, cls: "text-[var(--chart-4)]", ring: "border-l-[var(--chart-4)]" },
+  "Not applicable": { Icon: Slash, cls: "text-muted-foreground", ring: "border-l-border" },
+  Morphed: { Icon: GitMerge, cls: "text-muted-foreground", ring: "border-l-border" },
 }
 
 function Block({ title, items }: { title: string; items?: string[] }) {
@@ -51,6 +55,23 @@ export function SubmissionCard({ s }: { s: Submission }) {
           <div className="flex items-start gap-2 rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             {s.note}
+          </div>
+        ) : null}
+        {s.subReps && s.subReps.length > 0 ? (
+          <div className="flex flex-col gap-1.5">
+            <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Sub-subsidiary representatives
+            </h4>
+            <ul className="flex flex-col gap-1.5">
+              {s.subReps.map((r) => (
+                <li key={r.name} className="flex items-center justify-between gap-2 text-sm">
+                  <span className="font-medium text-foreground">{r.name}</span>
+                  <span className="shrink-0 rounded bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+                    {r.unit}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         ) : null}
         <Block title="Top operational challenges" items={s.challenges} />
