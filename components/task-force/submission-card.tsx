@@ -78,6 +78,31 @@ export function SubmissionCard({ s }: { s: Submission }) {
         <Block title="Critical skill gaps" items={s.skillGaps} />
         <Block title="Proposed interventions" items={s.priorities} />
         <Block title="Estimated resources" items={s.resources} />
+        {s.budget && s.budget.length > 0 ? (
+          <div className="flex flex-col gap-1.5">
+            <h4 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+              Submitted budget estimates
+            </h4>
+            <dl className="overflow-hidden rounded-lg border border-border">
+              {s.budget.map((b, i) => {
+                const isTotal = i === s.budget!.length - 1
+                return (
+                  <div
+                    key={b.area}
+                    className={cn(
+                      "flex items-center justify-between gap-3 px-3 py-2 text-sm",
+                      i % 2 === 0 && !isTotal ? "bg-muted/40" : "",
+                      isTotal ? "bg-primary text-primary-foreground font-semibold" : "",
+                    )}
+                  >
+                    <dt className={isTotal ? "" : "text-foreground"}>{b.area}</dt>
+                    <dd className="shrink-0 font-mono text-xs tabular-nums">{b.cost}</dd>
+                  </div>
+                )
+              })}
+            </dl>
+          </div>
+        ) : null}
       </CardContent>
     </Card>
   )

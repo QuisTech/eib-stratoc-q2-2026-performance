@@ -71,8 +71,8 @@ export const roadmap: MonthPlan[] = [
         deliverable: "Group Training Needs Assessment Report",
         impact: "Ensures training investment targets actual business problems.",
         evidence: [
-          "5 subsidiaries have already submitted detailed input; 3 remain outstanding and must be closed out in Month 1.",
-          "Confirmed gaps include report writing & MS Word (EIB Stratoc), vehicle diagnostics/EV & HSE (Luftreiber Automobile), avionics, QA & MRO documentation (Briech UAS).",
+          "7 subsidiaries have submitted detailed input; BLACK is being handled as a separate phase and Luft (Pay TV) has no representative assigned.",
+          "Confirmed gaps include report writing & MS Word (EIB Stratoc), vehicle diagnostics/EV & HSE (Luftreiber Automobile), avionics/QA/MRO (Briech UAS), project management/M&E/finance (BEF), and presentation/content/marketing (Bright FM).",
         ],
       },
       {
@@ -117,6 +117,8 @@ export const roadmap: MonthPlan[] = [
           "Advanced MS Word + intelligence report-writing workshops (EIB Stratoc).",
           "Advanced diagnostics, EV/new-energy and HSE training (Luftreiber Automobile).",
           "Pre-deployment UAV mission training, avionics configuration & QA (Briech UAS).",
+          "Project management, M&E, financial management & leadership training with costed budget (BEF).",
+          "Presentation/storytelling, content production, digital engagement & sponsorship-sales training (Bright FM).",
         ],
       },
       {
@@ -244,7 +246,14 @@ export type SubmissionState =
   | "Not applicable"
   | "Morphed"
 
-export type DetailLevel = "Comprehensive" | "Basic" | "No issues" | "Pending" | "No response" | "—"
+export type DetailLevel =
+  | "Comprehensive"
+  | "Structured"
+  | "Basic"
+  | "No issues"
+  | "Pending"
+  | "No response"
+  | "—"
 
 export type Submission = {
   subsidiary: string
@@ -257,6 +266,8 @@ export type Submission = {
   priorities?: string[]
   resources?: string[]
   note?: string
+  // Submitted budget estimates (e.g. BEF), shown as a small costed table.
+  budget?: { area: string; cost: string }[]
   // For umbrella entities (e.g. BLACK) that contain their own representatives.
   subReps?: { name: string; unit: string }[]
 }
@@ -407,18 +418,68 @@ export const submissions: Submission[] = [
   {
     subsidiary: "Bright Echefu Foundation (BEF)",
     representative: "Oluwaseyi Akinfela",
-    state: "Pending",
-    detail: "Pending",
-    challenges: [],
-    note: "Indicated submission will follow \"before close of work\"; space reserved for their input.",
+    department: "Programs / Operations",
+    state: "Submitted",
+    detail: "Structured",
+    challenges: [
+      "Capacity gaps in structured project planning, implementation, and risk management.",
+      "Limited monitoring & evaluation (M&E) and data-driven impact measurement.",
+      "Financial management, budgeting, and leadership/team-management development needs.",
+    ],
+    skillGaps: [
+      "Project management — planning, implementation, risk management, and reporting.",
+      "Monitoring & evaluation — data collection, analysis, and impact measurement.",
+      "Financial management — budgeting and budget development.",
+      "Leadership and team management.",
+    ],
+    priorities: [
+      "Project Management training for program staff.",
+      "M&E training with practical data tools.",
+      "Financial management & budgeting training.",
+      "Leadership & team-management training.",
+    ],
+    resources: [
+      "External facilitators across the four training areas.",
+      "Costed budget submitted (see estimates).",
+    ],
+    budget: [
+      { area: "Project Management Training", cost: "₦100,000 – ₦300,000" },
+      { area: "M&E Training", cost: "₦250,000 – ₦450,000" },
+      { area: "Financial Management & Budget Training", cost: "₦200,000 – ₦550,000" },
+      { area: "Leadership & Team Management Training", cost: "₦300,000 – ₦600,000" },
+      { area: "BEF Total Range", cost: "₦850,000 – ₦1,900,000" },
+    ],
   },
   {
     subsidiary: "Bright FM",
     representative: "Engineer Johnson Makoji",
-    state: "No response",
-    detail: "No response",
-    challenges: [],
-    note: "No submission received — representative advised \"nothing yet\".",
+    department: "Broadcast / Station Operations",
+    state: "Submitted",
+    detail: "Comprehensive",
+    challenges: [
+      "Manpower shortage — insufficient staffing across presentation, content, and operations.",
+      "Marketing, sales, and sponsorship development gaps limiting revenue growth.",
+      "Resource constraints — content production, digital, and operational tooling.",
+    ],
+    skillGaps: [
+      "Radio presentation, storytelling, and on-air delivery.",
+      "Content development and production.",
+      "Online audience engagement and digital content.",
+      "Radio marketing, sales, and sponsorship development.",
+      "Operational coordination across the station.",
+    ],
+    priorities: [
+      "Presentation & storytelling training for on-air staff.",
+      "Content development and production workshops.",
+      "Digital audience engagement and social content training.",
+      "Marketing, sales, and sponsorship development training.",
+    ],
+    resources: [
+      "Human — additional presentation, content, and operations staff.",
+      "Training — external media and marketing facilitators.",
+      "Content & Marketing — production and digital tooling.",
+      "Operational — station infrastructure support.",
+    ],
   },
   {
     subsidiary: "Luft (Pay TV)",
@@ -453,24 +514,26 @@ export const submissionStats = {
 
 // Recurring challenge themes consolidated across all submissions.
 export const challengeThemes = [
+  { theme: "Staffing & Workforce Capacity", count: 5 },
+  { theme: "Technical Skills & Training", count: 5 },
   { theme: "Equipment & Infrastructure", count: 4 },
-  { theme: "Staffing & Workforce Capacity", count: 4 },
-  { theme: "Technical Skills & Training", count: 4 },
+  { theme: "Business Development & Marketing", count: 2 },
   { theme: "Supply Chain & Procurement", count: 2 },
   { theme: "Welfare & Working Conditions", count: 2 },
-  { theme: "Business Development", count: 1 },
+  { theme: "Content & Audience Growth", count: 1 },
 ]
 
 // 2A. Operational Challenges Matrix — theme cross-referenced to subsidiaries.
 export const challengeMatrix: { theme: string; subsidiaries: string[] }[] = [
   { theme: "Infrastructure / equipment degradation", subsidiaries: ["EIB Stratoc", "Luftreiber Automobile", "POCTOVA"] },
-  { theme: "Workforce capacity / staffing gaps", subsidiaries: ["Briech Atlantic", "POCTOVA", "Briech UAS"] },
-  { theme: "Business development / marketing", subsidiaries: ["Briech Atlantic"] },
+  { theme: "Workforce capacity / staffing gaps", subsidiaries: ["Briech Atlantic", "POCTOVA", "Briech UAS", "Bright FM"] },
+  { theme: "Business development / marketing", subsidiaries: ["Briech Atlantic", "Bright FM"] },
   { theme: "Supply chain / spare parts / accessories", subsidiaries: ["Luftreiber Automobile", "POCTOVA"] },
   { theme: "Technical tools / software / workstations", subsidiaries: ["Briech Atlantic", "EIB Stratoc"] },
   { theme: "Supervisory workload / burnout", subsidiaries: ["EIB Stratoc"] },
   { theme: "Production volume / utilization", subsidiaries: ["Briech UAS"] },
   { theme: "Skill continuity / hands-on practice gaps", subsidiaries: ["Briech UAS"] },
+  { theme: "Content / audience growth", subsidiaries: ["Bright FM"] },
 ]
 
 // 2B. Skill Gap Analysis — category, gaps, subsidiaries.
@@ -505,6 +568,41 @@ export const skillGapAnalysis: { category: string; gaps: string; subsidiaries: s
     gaps: "Customer care, front desk operations, service advisor skills",
     subsidiaries: ["Luftreiber Automobile"],
   },
+  {
+    category: "Project Management",
+    gaps: "Project planning, implementation, risk management, and reporting",
+    subsidiaries: ["BEF"],
+  },
+  {
+    category: "M&E / Data",
+    gaps: "Monitoring, evaluation, data collection, analysis, and impact measurement",
+    subsidiaries: ["BEF"],
+  },
+  {
+    category: "Financial",
+    gaps: "Financial management, budgeting, and budget development",
+    subsidiaries: ["BEF"],
+  },
+  {
+    category: "Leadership",
+    gaps: "Leadership skills and team management",
+    subsidiaries: ["BEF"],
+  },
+  {
+    category: "Media & Content",
+    gaps: "Radio presentation, storytelling, content development, and production",
+    subsidiaries: ["Bright FM"],
+  },
+  {
+    category: "Digital Media",
+    gaps: "Online audience engagement and digital content",
+    subsidiaries: ["Bright FM"],
+  },
+  {
+    category: "Marketing & Sales",
+    gaps: "Radio marketing, sales, and sponsorship development",
+    subsidiaries: ["Bright FM"],
+  },
 ]
 
 // 2D. Resource Requirements Summary — categorized for the 3-month budget submission.
@@ -518,9 +616,9 @@ export const resourceRequirements: { category: string; items: string }[] = [
 
 // Section 3. Strategic Alignment Matrix — Task Force data feeding each initiative.
 export const strategicAlignment: { n: number; initiative: string; covers: string; feed: string }[] = [
-  { n: 1, initiative: "Organization-Wide TNA", covers: "Identify skill gaps & operational challenges", feed: "All 5 submissions directly provide this" },
-  { n: 2, initiative: "Staff Competency Mapping", covers: "Categorize staff by role & competency", feed: "Briech UAS (assembly/avionics), Luftreiber (diagnostics), EIB Stratoc (reporting)" },
-  { n: 3, initiative: "Performance Bottleneck Review", covers: "Customer complaints, delays, errors", feed: "Briech Atlantic (project delays), POCTOVA (production delays), Luftreiber (spare-parts delays)" },
+  { n: 1, initiative: "Organization-Wide TNA", covers: "Identify skill gaps & operational challenges", feed: "All 7 submissions directly provide this" },
+  { n: 2, initiative: "Staff Competency Mapping", covers: "Categorize staff by role & competency", feed: "Briech UAS (assembly/avionics), Luftreiber (diagnostics), EIB Stratoc (reporting), BEF (project mgmt, M&E, finance, leadership), Bright FM (presentation, content, marketing)" },
+  { n: 3, initiative: "Performance Bottleneck Review", covers: "Customer complaints, delays, errors", feed: "Briech Atlantic (project delays), POCTOVA (production delays), Luftreiber (spare-parts delays), Bright FM (audience engagement gaps)" },
   { n: 4, initiative: "Capability Improvement Program", covers: "Targeted training delivery", feed: "All training priorities submitted" },
   { n: 5, initiative: "Staff Evaluation Framework", covers: "Competency & readiness assessments", feed: "Skill gaps inform evaluation criteria" },
   { n: 6, initiative: "Knowledge Sharing Platform", covers: "Cross-functional learning", feed: "Briech UAS (cross-training, mentorship), EIB Stratoc (knowledge transfer)" },
