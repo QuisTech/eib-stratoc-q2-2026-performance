@@ -2,14 +2,16 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Target, CalendarRange, BarChart3, Users, ShieldCheck } from "lucide-react"
+import { LayoutDashboard, Compass, CalendarRange, BarChart3, Users, GraduationCap, ShieldCheck } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const nav = [
-  { href: "/", label: "Strategic Plan", icon: Target },
-  { href: "/roadmap", label: "90-Day Roadmap", icon: CalendarRange },
+  { href: "/", label: "Overview", icon: LayoutDashboard },
+  { href: "/strategy", label: "Strategic Plan", icon: Compass },
+  { href: "/roadmap", label: "Roadmap", icon: CalendarRange },
   { href: "/dashboard", label: "ROI Dashboard", icon: BarChart3 },
   { href: "/input", label: "Subsidiary Input", icon: Users },
+  { href: "/lms", label: "LMS Vision", icon: GraduationCap },
 ]
 
 export function SiteHeader() {

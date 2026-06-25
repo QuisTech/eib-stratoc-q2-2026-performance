@@ -626,3 +626,122 @@ export const strategicAlignment: { n: number; initiative: string; covers: string
   { n: 8, initiative: "Culture & Accountability Reinforcement", covers: "Workplace behaviors, ownership", feed: "POCTOVA (suggestion boxes, welfare), Briech UAS (ownership through mentorship)" },
   { n: 9, initiative: "Training ROI Dashboard", covers: "Track KPIs", feed: "Baseline data from submissions establishes starting metrics" },
 ]
+
+// ── Strategic narrative (the "say it in a sentence" layer) ──────
+export const strategy = {
+  // The single-sentence pitch executives keep asking for.
+  oneLiner:
+    "Over the next 90 days, transform EIB Group's Training & OD function from reactive, ad-hoc training into a structured, data-driven capability engine — by diagnosing skill gaps across all subsidiaries, delivering targeted training tied to measurable KPIs, and standing up a permanent system to sustain it.",
+  mission:
+    "To build a high-performing, continuously-learning workforce that drives measurable business results across every EIB Group subsidiary.",
+  vision:
+    "A self-sustaining, group-wide capability-development system where every employee's growth is mapped, measured, and tied directly to organizational performance.",
+  // The three things every executive wants to hear, in order.
+  pillars: [
+    {
+      label: "The Goal",
+      question: "Where are we going?",
+      statement:
+        "A measurable, self-sustaining group-wide capability-development system that outlives any single quarter.",
+    },
+    {
+      label: "The Objectives",
+      question: "What will we achieve?",
+      statement:
+        "Close priority skill gaps in every subsidiary, establish a TNA and staff-evaluation framework, and build the LMS as the permanent home for learning.",
+    },
+    {
+      label: "The Roadmap",
+      question: "How will we get there?",
+      statement:
+        "Month 1 — diagnose & baseline. Month 2 — deliver targeted training. Month 3 — measure ROI, embed the system, and launch the LMS pilot.",
+    },
+  ],
+  // Why this counts as strategy, not a to-do list.
+  principles: [
+    "Tied to business outcomes, not activity counts — every initiative maps to efficiency, effectiveness, or ROI.",
+    "Evidence-based — grounded in real subsidiary submissions, not assumptions.",
+    "Measurable — baselines established now, targets tracked monthly.",
+    "Sustainable — ends with a permanent platform (LMS), not a one-off training calendar.",
+  ],
+}
+
+// ── LMS vision & maturity roadmap ──────────────────────────────
+export type LmsPhaseStatus = "Live now" | "Next" | "Planned" | "Future"
+
+export type LmsPhase = {
+  phase: string
+  status: LmsPhaseStatus
+  title: string
+  summary: string
+  features: string[]
+  unlocks: string
+}
+
+export const lmsVision = {
+  headline: "From a 90-day plan to a permanent learning platform",
+  intro:
+    "The dashboards you see today are the intelligence layer — the diagnosis. A Learning Management System is the delivery layer — the cure. Each phase below builds directly on the data already captured, so nothing is thrown away.",
+  // How current assets map onto LMS capabilities.
+  bridge: [
+    { have: "Training Needs Analysis per subsidiary", becomes: "Courses mapped to those exact needs" },
+    { have: "Skill-gap matrix", becomes: "Learner enrollment & assignment by gap" },
+    { have: "KPI / ROI targets", becomes: "Real completion, scores & progress tracking" },
+    { have: "Subsidiary submissions", becomes: "User accounts, roles & departments" },
+    { have: "The 9 strategic initiatives", becomes: "Curriculum, certification & evaluation framework" },
+  ],
+  phases: [
+    {
+      phase: "Phase 0",
+      status: "Live now",
+      title: "Intelligence Layer",
+      summary: "Diagnose needs and establish the baseline — the current app.",
+      features: [
+        "Strategic plan & 90-day roadmap",
+        "Consolidated subsidiary input (TNA)",
+        "Skill-gap & challenge matrices",
+        "ROI dashboard with KPI targets",
+      ],
+      unlocks: "A clear, evidence-based picture of what to teach and why.",
+    },
+    {
+      phase: "Phase 1",
+      status: "Next",
+      title: "Foundation & Course Catalog",
+      summary: "Stand up accounts, roles, and a catalog of courses mapped to real skill gaps.",
+      features: [
+        "User accounts & roles (admin, subsidiary lead, learner)",
+        "Course catalog mapped to the skill-gap matrix",
+        "Enrollment & assignment by subsidiary / gap",
+        "Secure database, authentication & file storage",
+      ],
+      unlocks: "Learners can be assigned the exact training their gaps call for.",
+    },
+    {
+      phase: "Phase 2",
+      status: "Planned",
+      title: "Content, Assessment & Certification",
+      summary: "Deliver real learning content and prove competency.",
+      features: [
+        "Video, PDF & SCORM course content",
+        "Quizzes, assessments & pass thresholds",
+        "Completion certificates",
+        "Staff evaluation framework (Initiative #5)",
+      ],
+      unlocks: "Competency is measured and certified, not assumed.",
+    },
+    {
+      phase: "Phase 3",
+      status: "Future",
+      title: "Live ROI & Continuous Improvement",
+      summary: "Close the loop — the ROI dashboard runs on real completion data.",
+      features: [
+        "Real participation, scores & readiness feeding the dashboard",
+        "Knowledge-sharing & mentorship spaces (Initiative #6)",
+        "Manager analytics per subsidiary",
+        "Quarter-over-quarter capability trends",
+      ],
+      unlocks: "Training ROI becomes a measured fact, sustained beyond any 90-day window.",
+    },
+  ] as LmsPhase[],
+}
