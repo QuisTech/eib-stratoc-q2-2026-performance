@@ -1,118 +1,205 @@
 import Link from "next/link"
-import { ArrowRight, AlertTriangle, CheckCircle2, Minus } from "lucide-react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
 import { PrintActions } from "@/components/print-actions"
-import { KpiCards } from "@/components/dashboard/kpi-cards"
+import { KpiTable } from "@/components/plan/kpi-table"
 import {
-  ComplianceDonut,
-  SubmissionBarChart,
-  TrendChart,
-} from "@/components/dashboard/compliance-charts"
-import { SubsidiaryTable } from "@/components/dashboard/subsidiary-table"
-import { ImplementationProgress } from "@/components/dashboard/implementation-progress"
-import { interventions, summaryRatings, reportMeta } from "@/lib/report-data"
+  ArrowRight,
+  Target,
+  CheckCircle2,
+  Building2,
+  Settings2,
+  TrendingUp,
+  CalendarRange,
+} from "lucide-react"
+import {
+  planMeta,
+  strategicGoal,
+  objectives,
+  roadmap,
+  outcomes,
+  executiveSummary,
+  submissionStats,
+} from "@/lib/plan-data"
 
-const toneIcon = {
-  good: { Icon: CheckCircle2, cls: "text-[var(--chart-1)]" },
-  warn: { Icon: AlertTriangle, cls: "text-[oklch(0.55_0.12_70)]" },
-  bad: { Icon: Minus, cls: "text-[var(--chart-4)]" },
-}
+export default function OverviewPage() {
+  const outcomeGroups = [
+    { title: "Organizational", icon: Building2, items: outcomes.organizational, accent: "var(--chart-2)" },
+    { title: "Operational", icon: Settings2, items: outcomes.operational, accent: "var(--chart-3)" },
+    { title: "Financial / ROI", icon: TrendingUp, items: outcomes.financial, accent: "var(--chart-1)" },
+  ]
 
-export default function DashboardPage() {
   return (
-    <main className="mx-auto max-w-7xl px-4 py-6 md:px-6 md:py-8">
+    <main className="mx-auto max-w-7xl px-4 py-8 md:px-6">
       {/* Hero */}
-      <section className="mb-8 overflow-hidden rounded-xl border border-border bg-sidebar text-sidebar-foreground">
-        <div className="flex flex-col gap-5 p-6 md:flex-row md:items-end md:justify-between md:p-8">
-          <div className="flex flex-col gap-3">
-            <span className="inline-flex w-fit items-center gap-2 rounded-full border border-sidebar-border bg-sidebar-accent px-3 py-1 text-xs font-medium tracking-wide">
-              {reportMeta.classification} · {reportMeta.period}
+      <section className="avoid-break overflow-hidden rounded-xl border bg-primary text-primary-foreground">
+        <div className="px-6 py-10 md:px-10 md:py-12">
+          <p className="text-xs font-medium uppercase tracking-[0.18em] text-primary-foreground/70">
+            {planMeta.office}
+          </p>
+          <h1 className="mt-3 max-w-3xl text-balance font-heading text-3xl font-bold leading-tight md:text-5xl">
+            {planMeta.title}
+          </h1>
+          <p className="mt-3 max-w-2xl text-pretty text-sm text-primary-foreground/80 md:text-base">
+            {planMeta.tagline}
+          </p>
+          <div className="mt-6 flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-foreground/10 px-3 py-1 text-xs font-medium">
+              <CalendarRange className="h-3.5 w-3.5" /> {planMeta.window}
             </span>
-            <h1 className="text-balance font-heading text-3xl font-bold leading-tight md:text-4xl">
-              Group Training &amp; OD Performance Evaluation
-            </h1>
-            <p className="max-w-2xl text-pretty text-sm text-sidebar-foreground/75">
-              Consolidated training delivery, compliance, and capacity-building performance across all eleven EIB Group
-              subsidiaries. Prepared for the {reportMeta.to} · {reportMeta.date}.
-            </p>
+            <span className="rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground">
+              {planMeta.horizonDays}-Day Horizon
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary-foreground/10 px-3 py-1 text-xs font-medium">
+              <CheckCircle2 className="h-3.5 w-3.5" /> {submissionStats.submitted} subsidiary submissions received
+            </span>
           </div>
-          <div className="flex flex-col items-start gap-3 md:items-end">
-            <PrintActions label="dashboard" />
-            <Link href="/report" className={buttonVariants({ variant: "secondary", size: "sm" })}>
-              Open full report <ArrowRight className="ml-2 h-4 w-4" />
+          <div className="no-print mt-7 flex flex-wrap gap-3">
+            <Link href="/roadmap" className={buttonVariants({ variant: "default", size: "sm" })}>
+              View 90-day roadmap <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
+            <Link href="/input" className={buttonVariants({ variant: "secondary", size: "sm" })}>
+              Subsidiary input
+            </Link>
+            <PrintActions label="strategic plan" />
           </div>
         </div>
       </section>
 
-      {/* KPIs */}
-      <KpiCards />
-
-      {/* Charts */}
-      <div className="mt-6 grid gap-4 lg:grid-cols-3">
-        <ComplianceDonut />
-        <SubmissionBarChart />
-        <TrendChart />
-      </div>
-
-      {/* Subsidiary table */}
-      <div className="mt-6">
-        <SubsidiaryTable />
-      </div>
-
-      {/* Progress + interventions */}
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
-        <ImplementationProgress />
-        <Card className="avoid-break">
+      {/* Strategic goal + objectives */}
+      <section className="mt-8 grid gap-6 lg:grid-cols-5">
+        <Card className="avoid-break lg:col-span-2">
           <CardHeader>
-            <CardTitle>Areas Requiring Management Intervention</CardTitle>
-            <CardDescription>Escalations recommended to the EVP</CardDescription>
+            <CardTitle className="flex items-center gap-2 font-heading">
+              <Target className="h-5 w-5 text-accent" /> Strategic Goal
+            </CardTitle>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4">
-            {interventions.map((i) => (
-              <div key={i.area} className="rounded-lg border border-border bg-muted/40 p-4">
-                <div className="flex items-start gap-2">
-                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-[oklch(0.55_0.12_70)]" />
-                  <div className="flex flex-col gap-1.5">
-                    <span className="text-sm font-semibold text-foreground">{i.area}</span>
-                    <p className="text-xs leading-relaxed text-muted-foreground">{i.details}</p>
-                    <p className="text-xs leading-relaxed text-foreground">
-                      <span className="font-medium">Action: </span>
-                      {i.action}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            ))}
+          <CardContent>
+            <p className="text-pretty leading-relaxed text-muted-foreground">{strategicGoal}</p>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Summary ratings */}
-      <Card className="mt-6 avoid-break">
-        <CardHeader>
-          <CardTitle>Q2 2026 Performance Summary</CardTitle>
-          <CardDescription>Management review ratings by focus area</CardDescription>
-        </CardHeader>
-        <CardContent className="grid gap-3 sm:grid-cols-2">
-          {summaryRatings.map((r) => {
-            const { Icon, cls } = toneIcon[r.tone as keyof typeof toneIcon] ?? toneIcon.good
+        <Card className="avoid-break lg:col-span-3">
+          <CardHeader>
+            <CardTitle className="font-heading">Key Objectives</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="grid gap-3 sm:grid-cols-2">
+              {objectives.map((o) => (
+                <li key={o} className="flex gap-2.5 text-sm leading-relaxed">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--chart-1)]" />
+                  <span>{o}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      </section>
+
+      {/* Roadmap snapshot */}
+      <section className="mt-8">
+        <div className="mb-4 flex items-end justify-between gap-4">
+          <div>
+            <h2 className="font-heading text-2xl font-semibold">The 90-Day Roadmap</h2>
+            <p className="text-sm text-muted-foreground">
+              Three phases, nine initiatives — each tied to measurable business impact.
+            </p>
+          </div>
+          <Link
+            href="/roadmap"
+            className="no-print text-sm font-medium text-accent-foreground hover:underline"
+          >
+            Full detail →
+          </Link>
+        </div>
+        <div className="grid gap-4 md:grid-cols-3">
+          {roadmap.map((m) => {
+            const accent =
+              m.month === 1 ? "var(--chart-2)" : m.month === 2 ? "var(--chart-3)" : "var(--chart-1)"
             return (
-              <div
-                key={r.area}
-                className="flex items-start justify-between gap-3 rounded-lg border border-border p-4"
-              >
-                <span className="text-sm font-medium text-foreground">{r.area}</span>
-                <span className={`flex shrink-0 items-center gap-1.5 text-xs font-semibold ${cls}`}>
-                  <Icon className="h-4 w-4" />
-                  <span className="max-w-[10rem] text-right">{r.rating}</span>
-                </span>
-              </div>
+              <Card key={m.month} className="avoid-break">
+                <CardHeader className="gap-1">
+                  <span
+                    className="flex h-9 w-9 items-center justify-center rounded-md font-heading font-bold text-background"
+                    style={{ backgroundColor: accent }}
+                  >
+                    {m.month}
+                  </span>
+                  <CardTitle className="mt-2 font-heading text-base">{m.phase}</CardTitle>
+                  <p className="text-xs uppercase tracking-wide text-muted-foreground">{m.window}</p>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2 text-sm">
+                    {m.initiatives.map((i) => (
+                      <li key={i.n} className="flex gap-2">
+                        <span className="font-semibold" style={{ color: accent }}>
+                          {i.n}
+                        </span>
+                        <span className="leading-snug">{i.title}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
             )
           })}
-        </CardContent>
-      </Card>
+        </div>
+      </section>
+
+      {/* KPI targets */}
+      <section className="mt-8">
+        <KpiTable />
+      </section>
+
+      {/* Expected outcomes */}
+      <section className="mt-8">
+        <h2 className="mb-4 font-heading text-2xl font-semibold">Expected Outcomes After 90 Days</h2>
+        <div className="grid gap-4 md:grid-cols-3">
+          {outcomeGroups.map((g) => {
+            const Icon = g.icon
+            return (
+              <Card key={g.title} className="avoid-break">
+                <CardHeader className="gap-1">
+                  <span
+                    className="flex h-9 w-9 items-center justify-center rounded-md"
+                    style={{ backgroundColor: `color-mix(in oklch, ${g.accent} 15%, transparent)` }}
+                  >
+                    <Icon className="h-5 w-5" style={{ color: g.accent }} />
+                  </span>
+                  <CardTitle className="mt-2 font-heading text-base">{g.title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2 text-sm text-muted-foreground">
+                    {g.items.map((it) => (
+                      <li key={it} className="flex gap-2">
+                        <span aria-hidden style={{ color: g.accent }}>
+                          •
+                        </span>
+                        <span>{it}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* Executive summary */}
+      <section className="mt-8">
+        <Card className="avoid-break border-l-4 border-l-accent">
+          <CardHeader>
+            <CardTitle className="font-heading">Executive Summary for Management</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-pretty leading-relaxed text-muted-foreground">{executiveSummary}</p>
+            <p className="rounded-md bg-muted/60 p-4 text-sm italic leading-relaxed">
+              {planMeta.positioning}
+            </p>
+          </CardContent>
+        </Card>
+      </section>
     </main>
   )
 }

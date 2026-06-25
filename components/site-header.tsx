@@ -2,14 +2,14 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, FileText, Users, ClipboardList, ShieldCheck } from "lucide-react"
+import { Target, CalendarRange, BarChart3, Users, ShieldCheck } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const nav = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/report", label: "Full Report", icon: FileText },
-  { href: "/task-force", label: "Task Force", icon: Users },
-  { href: "/template", label: "Q3 Template", icon: ClipboardList },
+  { href: "/", label: "Strategic Plan", icon: Target },
+  { href: "/roadmap", label: "90-Day Roadmap", icon: CalendarRange },
+  { href: "/dashboard", label: "ROI Dashboard", icon: BarChart3 },
+  { href: "/input", label: "Subsidiary Input", icon: Users },
 ]
 
 export function SiteHeader() {
@@ -27,7 +27,7 @@ export function SiteHeader() {
               EIB GROUP
             </span>
             <span className="block text-xs text-sidebar-foreground/70">
-              Training &amp; OD · Q2 2026
+              Training &amp; OD · 90-Day Plan
             </span>
           </span>
         </Link>

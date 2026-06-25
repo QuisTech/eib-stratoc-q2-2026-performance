@@ -1,7 +1,7 @@
 import { CheckCircle2, Clock, MinusCircle, AlertCircle } from "lucide-react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
-import type { Submission } from "@/lib/report-data"
+import type { Submission } from "@/lib/plan-data"
 
 const stateMeta = {
   Submitted: { Icon: CheckCircle2, cls: "text-[var(--chart-1)]", ring: "border-l-[var(--chart-1)]" },
