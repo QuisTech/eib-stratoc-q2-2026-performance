@@ -62,15 +62,15 @@ export function SubsidiaryTable() {
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
-          <Table>
+          <Table className="lg:table-fixed">
             <TableHeader>
               <TableRow>
                 <TableHead className="w-10">#</TableHead>
-                <TableHead>Subsidiary</TableHead>
-                <TableHead className="hidden md:table-cell">Sector</TableHead>
+                <TableHead className="w-[160px]">Subsidiary</TableHead>
+                <TableHead className="hidden w-[170px] md:table-cell">Sector</TableHead>
                 <TableHead className="hidden lg:table-cell">Q2 Training Activity</TableHead>
-                <TableHead>Submitted</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead className="w-[90px]">Submitted</TableHead>
+                <TableHead className="w-[150px]">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -79,8 +79,8 @@ export function SubsidiaryTable() {
                   <TableCell className="text-muted-foreground">{s.id}</TableCell>
                   <TableCell className="font-medium">{s.name}</TableCell>
                   <TableCell className="hidden text-muted-foreground md:table-cell">{s.sector}</TableCell>
-                  <TableCell className="hidden max-w-md text-sm text-muted-foreground lg:table-cell">
-                    {s.activity}
+                  <TableCell className="hidden align-top text-sm text-muted-foreground lg:table-cell">
+                    <span className="line-clamp-2">{s.activity}</span>
                   </TableCell>
                   <TableCell className={cn("font-semibold", submittedTone[s.submitted])}>
                     {s.submitted}
