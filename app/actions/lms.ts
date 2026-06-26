@@ -273,16 +273,16 @@ export async function getViewerContext() {
 export async function getAdminReport(): Promise<AdminReport> {
   const viewer = await getSessionUser()
   const role = viewer.role ?? "learner"
-  if (role !== "admin" && role !== "lead") throw new Error("Forbidden")
+  const orgWide = role === "admin" || role === "group_head"
+  if (!orgWide && role !== "lead") throw new Error("Forbidden")
 
-  const learnerRows =
-    role === "admin"
-      ? await db.select().from(user).orderBy(asc(user.subsidiary), asc(user.name))
-      : await db
-          .select()
-          .from(user)
-          .where(eq(user.subsidiary, viewer.subsidiary ?? "__none__"))
-          .orderBy(asc(user.name))
+  const learnerRows = orgWide
+    ? await db.select().from(user).orderBy(asc(user.subsidiary), asc(user.name))
+    : await db
+        .select()
+        .from(user)
+        .where(eq(user.subsidiary, viewer.subsidiary ?? "__none__"))
+        .orderBy(asc(user.name))
 
   const ids = learnerRows.map((u) => u.id)
   const allEnrollments = ids.length
@@ -345,7 +345,7 @@ export async function getAdminReport(): Promise<AdminReport> {
     .slice(0, 8)
 
   return {
-    scope: role === "admin" ? "all" : viewer.subsidiary ?? "—",
+    scope: orgWide ? "all" : viewer.subsidiary ?? "—",
     viewerRole: role,
     totals: {
       learners: learners.length,

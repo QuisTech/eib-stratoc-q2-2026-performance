@@ -26,7 +26,8 @@ export default async function AdminPage() {
   if (!session?.user) redirect("/sign-in")
 
   const role = (session.user as { role?: string }).role ?? "learner"
-  if (role !== "lead" && role !== "admin") {
+  const orgWide = role === "admin" || role === "group_head"
+  if (!orgWide && role !== "lead") {
     // Learners don't have a team view — send them to their own portal.
     redirect("/lms")
   }
@@ -37,7 +38,7 @@ export default async function AdminPage() {
     totals.enrollments > 0 ? Math.round((totals.completions / totals.enrollments) * 100) : 0
 
   const stats = [
-    { label: role === "admin" ? "Learners (all)" : "Team members", value: totals.learners, icon: Users },
+    { label: orgWide ? "Learners (all)" : "Team members", value: totals.learners, icon: Users },
     { label: "Total enrollments", value: totals.enrollments, icon: BookOpen },
     { label: "Courses completed", value: totals.completions, icon: GraduationCap },
     { label: "Certificates issued", value: totals.certificates, icon: Award },
@@ -57,12 +58,12 @@ export default async function AdminPage() {
           <h1 className="font-heading text-2xl font-bold tracking-tight md:text-3xl">
             Team Learning Admin
           </h1>
-          <Badge variant={role === "admin" ? "default" : "secondary"}>
-            {role === "admin" ? "Group-wide" : report.scope}
+          <Badge variant={orgWide ? "default" : "secondary"}>
+            {orgWide ? "Group-wide" : report.scope}
           </Badge>
         </div>
         <p className="max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground">
-          {role === "admin"
+          {orgWide
             ? "Enrollment and completion across every EIB Group subsidiary."
             : `Enrollment and completion for ${report.scope}. You see only your subsidiary's learners.`}
         </p>
@@ -72,7 +73,7 @@ export default async function AdminPage() {
         <CardContent className="flex flex-wrap items-center justify-between gap-3 p-5">
           <div>
             <p className="text-xs uppercase tracking-wide text-muted-foreground">
-              Training investment {role === "admin" ? "(group-wide)" : `(${report.scope})`}
+              Training investment {orgWide ? "(group-wide)" : `(${report.scope})`}
             </p>
             <p className="mt-1 font-heading text-3xl font-bold tabular-nums">
               {formatNaira(totals.trainingValue)}
@@ -80,7 +81,7 @@ export default async function AdminPage() {
           </div>
           <p className="max-w-sm text-pretty text-sm leading-relaxed text-muted-foreground">
             Combined market value of all training enrolled in by your{" "}
-            {role === "admin" ? "organization" : "team"}, fully sponsored by EIB Group.
+            {orgWide ? "organization" : "team"}, fully sponsored by EIB Group.
           </p>
         </CardContent>
       </Card>
@@ -123,7 +124,7 @@ export default async function AdminPage() {
                   <thead>
                     <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
                       <th className="px-3 py-2 font-medium">Learner</th>
-                      {role === "admin" && <th className="px-3 py-2 font-medium">Subsidiary</th>}
+                      {orgWide && <th className="px-3 py-2 font-medium">Subsidiary</th>}
                       <th className="px-3 py-2 text-center font-medium">Enrolled</th>
                       <th className="px-3 py-2 text-center font-medium">In progress</th>
                       <th className="px-3 py-2 text-center font-medium">Completed</th>
@@ -150,7 +151,7 @@ export default async function AdminPage() {
                             )}
                           </div>
                         </td>
-                        {role === "admin" && (
+                        {orgWide && (
                           <td className="px-3 py-3 text-muted-foreground">{l.subsidiary ?? "—"}</td>
                         )}
                         <td className="px-3 py-3 text-center tabular-nums">{l.enrolled}</td>

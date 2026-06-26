@@ -20,7 +20,7 @@ export function SiteHeader() {
   const pathname = usePathname()
   const { data: session, isPending } = useSession()
   const role = (session?.user as { role?: string } | undefined)?.role
-  const isManager = role === "lead" || role === "admin"
+  const isManager = role === "lead" || role === "admin" || role === "group_head"
 
   return (
     <header className="no-print sticky top-0 z-40 border-b border-sidebar-border bg-sidebar text-sidebar-foreground">

@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2, ShieldCheck } from "lucide-react"
 
 const SUBSIDIARIES = [
+  "EIB Group", // parent company — Group Heads register here
   "EIB Stratoc",
   "Luftreiber Automobile",
   "POCTOVA",
@@ -25,8 +26,15 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [subsidiary, setSubsidiary] = useState(SUBSIDIARIES[0])
-  const [role, setRole] = useState<"learner" | "lead">("learner")
+  // Default learners to the first operating subsidiary, not the parent company.
+  const [subsidiary, setSubsidiary] = useState("EIB Stratoc")
+  const [role, setRole] = useState<"learner" | "lead" | "group_head">("learner")
+
+  // Group Heads belong to the parent company; keep their subsidiary aligned.
+  function handleRoleChange(next: "learner" | "lead" | "group_head") {
+    setRole(next)
+    if (next === "group_head") setSubsidiary("EIB Group")
+  }
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -120,14 +128,19 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
               <select
                 id="role"
                 value={role}
-                onChange={(e) => setRole(e.target.value as "learner" | "lead")}
+                onChange={(e) => handleRoleChange(e.target.value as "learner" | "lead" | "group_head")}
                 className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none ring-ring focus-visible:ring-2"
               >
                 <option value="learner">Learner — enroll and study</option>
                 <option value="lead">Subsidiary Lead — also track my team</option>
+                <option value="group_head">Group Head — oversight across all subsidiaries</option>
               </select>
               <p className="text-xs text-muted-foreground">
-                Leads can view enrollment and completion across their own subsidiary.
+                {role === "group_head"
+                  ? "Group Heads see learning across the whole organization — every subsidiary."
+                  : role === "lead"
+                    ? "Leads can view enrollment and completion across their own subsidiary."
+                    : "Learners enroll in courses and track their own progress."}
               </p>
             </div>
           )}
