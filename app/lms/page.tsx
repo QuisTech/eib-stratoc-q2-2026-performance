@@ -4,6 +4,7 @@ import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
 import { getCourses, getMyEnrollments } from "@/app/actions/lms"
 import { CourseCard } from "@/components/lms/course-card"
+import { formatNaira } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
 import { PrintActions } from "@/components/print-actions"
@@ -39,12 +40,16 @@ export default async function LmsPage() {
 
   // Signed-out: marketing / vision view with sign-up CTA.
   if (!session?.user) {
-    return <SignedOutView courseCount={courses.length} />
+    const catalogValue = courses.reduce((s, c) => s + c.priceNaira, 0)
+    return <SignedOutView courseCount={courses.length} catalogValue={catalogValue} />
   }
 
   const enrollments = await getMyEnrollments()
   const enrollMap = new Map(enrollments.map((e) => [e.courseId, e]))
   const myCourses = courses.filter((c) => enrollMap.has(c.id))
+
+  const myValue = myCourses.reduce((s, c) => s + c.priceNaira, 0)
+  const catalogValue = courses.reduce((s, c) => s + c.priceNaira, 0)
 
   const completed = enrollments.filter((e) => e.status === "completed").length
   const inProgress = enrollments.filter((e) => e.status === "in_progress").length
@@ -87,6 +92,19 @@ export default async function LmsPage() {
         <StatCard icon={CheckCircle2} label="Avg. progress" value={`${avg}%`} />
       </section>
 
+      {myValue > 0 && (
+        <Card className="mt-3 border-accent/40 bg-accent/5">
+          <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
+            <p className="text-sm text-muted-foreground">
+              Training value you&apos;ve unlocked so far, fully sponsored by EIB Group
+            </p>
+            <span className="font-heading text-2xl font-bold tabular-nums text-foreground">
+              {formatNaira(myValue)}
+            </span>
+          </CardContent>
+        </Card>
+      )}
+
       {/* My Learning */}
       <section className="mt-10">
         <h2 className="font-heading text-xl font-bold">My Learning</h2>
@@ -117,7 +135,8 @@ export default async function LmsPage() {
       <section className="mt-12">
         <h2 className="font-heading text-xl font-bold">Course Catalog</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          {courses.length} courses across {byCategory.size} skill-gap categories.
+          {courses.length} courses across {byCategory.size} skill-gap categories ·{" "}
+          {formatNaira(catalogValue)} in total training value.
         </p>
 
         <div className="mt-5 space-y-10">
@@ -169,7 +188,13 @@ function StatCard({
   )
 }
 
-function SignedOutView({ courseCount }: { courseCount: number }) {
+function SignedOutView({
+  courseCount,
+  catalogValue,
+}: {
+  courseCount: number
+  catalogValue: number
+}) {
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 md:px-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -192,7 +217,8 @@ function SignedOutView({ courseCount }: { courseCount: number }) {
             </Link>
           </div>
           <p className="mt-3 text-sm text-muted-foreground">
-            {courseCount} live courses are ready — sign in to enroll and track progress.
+            {courseCount} live courses worth {formatNaira(catalogValue)} in training value are ready
+            — sign in to enroll and track progress.
           </p>
         </div>
         <PrintActions label="LMS vision" />

@@ -67,6 +67,7 @@ export const courses = pgTable("courses", {
   level: text("level").notNull().default("Intermediate"), // Beginner | Intermediate | Advanced
   format: text("format").notNull().default("Workshop"), // Workshop | Online | Blended
   durationHours: integer("durationHours").notNull().default(8),
+  priceNaira: integer("priceNaira").notNull().default(0), // course value in Nigerian Naira (₦)
   subsidiaries: text("subsidiaries"), // comma-separated subsidiary tags
   initiative: integer("initiative"), // links to one of the 9 strategic initiatives
   createdAt: timestamp("createdAt").notNull().defaultNow(),

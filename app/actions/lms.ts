@@ -247,7 +247,13 @@ export type LearnerReportRow = {
 export type AdminReport = {
   scope: "all" | string
   viewerRole: string
-  totals: { learners: number; enrollments: number; completions: number; certificates: number }
+  totals: {
+    learners: number
+    enrollments: number
+    completions: number
+    certificates: number
+    trainingValue: number // ₦ value of all enrollments in scope
+  }
   learners: LearnerReportRow[]
   topCourses: { courseId: number; title: string; enrolled: number; completed: number }[]
 }
@@ -287,6 +293,7 @@ export async function getAdminReport(): Promise<AdminReport> {
     : []
   const allCourses = await db.select().from(courses)
   const courseTitle = new Map(allCourses.map((c) => [c.id, c.title]))
+  const coursePrice = new Map(allCourses.map((c) => [c.id, c.priceNaira]))
 
   const enrByUser = new Map<string, Enrollment[]>()
   for (const e of allEnrollments) {
@@ -345,6 +352,7 @@ export async function getAdminReport(): Promise<AdminReport> {
       enrollments: allEnrollments.length,
       completions: allEnrollments.filter((e) => e.status === "completed").length,
       certificates: allCerts.length,
+      trainingValue: allEnrollments.reduce((s, e) => s + (coursePrice.get(e.courseId) ?? 0), 0),
     },
     learners,
     topCourses,

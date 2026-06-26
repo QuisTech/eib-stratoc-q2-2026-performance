@@ -5,6 +5,7 @@ import { Progress } from "@/components/ui/progress"
 import { buttonVariants } from "@/components/ui/button"
 import { EnrollButton } from "@/components/lms/enroll-button"
 import type { Course } from "@/lib/db/schema"
+import { formatNaira } from "@/lib/utils"
 import { Clock, Layers, Building2, ArrowRight } from "lucide-react"
 
 const levelClass: Record<string, string> = {
@@ -46,6 +47,15 @@ export function CourseCard({
         <p className="text-pretty text-sm leading-relaxed text-muted-foreground">
           {course.description}
         </p>
+
+        {course.priceNaira > 0 && (
+          <div className="flex items-baseline gap-2">
+            <span className="font-heading text-xl font-bold tabular-nums text-foreground">
+              {formatNaira(course.priceNaira)}
+            </span>
+            <span className="text-xs text-muted-foreground">course value</span>
+          </div>
+        )}
 
         <ul className="grid gap-1.5 text-xs text-muted-foreground">
           <li className="flex items-center gap-2">

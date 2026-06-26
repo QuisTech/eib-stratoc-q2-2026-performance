@@ -6,6 +6,7 @@ import { getAdminReport } from "@/app/actions/lms"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
+import { formatNaira } from "@/lib/utils"
 import { ArrowLeft, Users, BookOpen, GraduationCap, Award } from "lucide-react"
 
 export const dynamic = "force-dynamic"
@@ -66,6 +67,23 @@ export default async function AdminPage() {
             : `Enrollment and completion for ${report.scope}. You see only your subsidiary's learners.`}
         </p>
       </header>
+
+      <Card className="mb-6 border-accent/40 bg-accent/5">
+        <CardContent className="flex flex-wrap items-center justify-between gap-3 p-5">
+          <div>
+            <p className="text-xs uppercase tracking-wide text-muted-foreground">
+              Training investment {role === "admin" ? "(group-wide)" : `(${report.scope})`}
+            </p>
+            <p className="mt-1 font-heading text-3xl font-bold tabular-nums">
+              {formatNaira(totals.trainingValue)}
+            </p>
+          </div>
+          <p className="max-w-sm text-pretty text-sm leading-relaxed text-muted-foreground">
+            Combined market value of all training enrolled in by your{" "}
+            {role === "admin" ? "organization" : "team"}, fully sponsored by EIB Group.
+          </p>
+        </CardContent>
+      </Card>
 
       <section className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {stats.map((s) => {

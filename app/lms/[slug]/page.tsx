@@ -11,6 +11,7 @@ import {
   getMyCertificateForCourse,
 } from "@/app/actions/lms"
 import { getLessons } from "@/lib/lms-content"
+import { formatNaira } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -199,6 +200,17 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
         <aside className="lg:sticky lg:top-20 lg:self-start">
           <Card>
             <CardContent className="flex flex-col gap-5 p-6">
+              {course.priceNaira > 0 && (
+                <div className="border-b border-border pb-4">
+                  <span className="font-heading text-3xl font-bold tabular-nums">
+                    {formatNaira(course.priceNaira)}
+                  </span>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Equivalent market value of this training, fully sponsored for EIB Group staff.
+                  </p>
+                </div>
+              )}
+
               {!signedIn ? (
                 <>
                   <p className="text-sm text-muted-foreground">
