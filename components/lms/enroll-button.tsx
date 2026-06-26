@@ -10,7 +10,7 @@ type Props = {
   courseId: number
   enrolled: boolean
   size?: "sm" | "default"
-  variant?: "default" | "secondary" | "outline"
+  variant?: "default" | "secondary" | "outline" | "ghost"
 }
 
 export function EnrollButton({ courseId, enrolled, size = "sm", variant }: Props) {
