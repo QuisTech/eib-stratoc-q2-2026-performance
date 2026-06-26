@@ -295,7 +295,7 @@ export const submissions: Submission[] = [
     ],
   },
   {
-    subsidiary: "POCTOVA (Honorable)",
+    subsidiary: "POCTOVA",
     representative: "Miss Princess",
     state: "Submitted",
     detail: "Basic",
