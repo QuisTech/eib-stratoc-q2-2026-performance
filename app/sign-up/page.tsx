@@ -1,0 +1,21 @@
+import type { Metadata } from "next"
+import { redirect } from "next/navigation"
+import { headers } from "next/headers"
+import { auth } from "@/lib/auth"
+import { AuthForm } from "@/components/auth-form"
+
+export const metadata: Metadata = {
+  title: "Create Account | EIB Group LMS",
+  description: "Create an account on the EIB Group Learning Management System.",
+}
+
+export default async function SignUpPage() {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (session?.user) redirect("/lms")
+
+  return (
+    <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-10">
+      <AuthForm mode="sign-up" />
+    </main>
+  )
+}
