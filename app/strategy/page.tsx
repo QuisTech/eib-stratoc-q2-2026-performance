@@ -13,7 +13,6 @@ import {
   Flag,
   Eye,
   ArrowRight,
-  GraduationCap,
 } from "lucide-react"
 import { strategy, objectives, planMeta } from "@/lib/plan-data"
 
@@ -155,9 +154,6 @@ export default function StrategyPage() {
       <section className="no-print mt-8 flex flex-wrap gap-3">
         <Link href="/roadmap" className={buttonVariants({ variant: "default", size: "sm" })}>
           See the 90-day roadmap <ArrowRight className="ml-2 h-4 w-4" />
-        </Link>
-        <Link href="/lms" className={buttonVariants({ variant: "secondary", size: "sm" })}>
-          <GraduationCap className="mr-2 h-4 w-4" /> How it becomes an LMS
         </Link>
         <Link href="/dashboard" className={buttonVariants({ variant: "outline", size: "sm" })}>
           ROI dashboard

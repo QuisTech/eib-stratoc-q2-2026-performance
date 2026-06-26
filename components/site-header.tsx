@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { LayoutDashboard, Compass, CalendarRange, BarChart3, Users, GraduationCap, ShieldCheck } from "lucide-react"
+import { LayoutDashboard, Compass, CalendarRange, BarChart3, Users, ShieldCheck } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const nav = [
@@ -11,7 +11,6 @@ const nav = [
   { href: "/roadmap", label: "Roadmap", icon: CalendarRange },
   { href: "/dashboard", label: "ROI Dashboard", icon: BarChart3 },
   { href: "/input", label: "Subsidiary Input", icon: Users },
-  { href: "/lms", label: "LMS Vision", icon: GraduationCap },
 ]
 
 export function SiteHeader() {
