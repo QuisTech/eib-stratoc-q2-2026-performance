@@ -3,12 +3,19 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
-import { getCourseBySlug, getMyEnrollmentForCourse } from "@/app/actions/lms"
+import {
+  getCourseBySlug,
+  getMyEnrollmentForCourse,
+  getMyLessonProgress,
+  getMyQuizAttempts,
+  getMyCertificateForCourse,
+} from "@/app/actions/lms"
+import { getLessons } from "@/lib/lms-content"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
 import { buttonVariants } from "@/components/ui/button"
 import { EnrollButton } from "@/components/lms/enroll-button"
-import { ProgressControls } from "@/components/lms/progress-controls"
 import {
   ArrowLeft,
   Clock,
@@ -18,6 +25,9 @@ import {
   BookOpen,
   Lock,
   CheckCircle2,
+  ClipboardCheck,
+  Award,
+  PlayCircle,
 } from "lucide-react"
 
 type Params = { slug: string }
@@ -36,29 +46,27 @@ export async function generateMetadata({
   }
 }
 
-// A deterministic module outline derived from the course so the detail page
-// reads like a real curriculum without needing a separate lessons table.
-function buildModules(title: string, durationHours: number) {
-  const base = [
-    { name: "Orientation & objectives", note: "What you'll achieve and how it maps to your role." },
-    { name: "Core concepts", note: "The essential knowledge and terminology." },
-    { name: "Hands-on practice", note: "Guided exercises on real scenarios." },
-    { name: "Applied workshop", note: "Apply the skills to a subsidiary use case." },
-    { name: "Assessment & certification", note: "Demonstrate competency and earn your record." },
-  ]
-  const perModule = Math.max(1, Math.round(durationHours / base.length))
-  return base.map((m, i) => ({ ...m, index: i + 1, hours: perModule }))
-}
-
 export default async function CourseDetailPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params
   const course = await getCourseBySlug(slug)
   if (!course) notFound()
 
   const session = await auth.api.getSession({ headers: await headers() })
-  const enrollment = session?.user ? await getMyEnrollmentForCourse(course.id) : null
+  const signedIn = Boolean(session?.user)
+
+  const enrollment = signedIn ? await getMyEnrollmentForCourse(course.id) : null
   const enrolled = Boolean(enrollment)
-  const modules = buildModules(course.title, course.durationHours)
+
+  const lessons = getLessons(course)
+  const completedKeys = enrolled ? new Set(await getMyLessonProgress(course.id)) : new Set<string>()
+  const attempts = enrolled ? await getMyQuizAttempts(course.id) : []
+  const certificate = enrolled ? await getMyCertificateForCourse(course.id) : null
+  const quizPassed = attempts.some((a) => a.passed)
+  const bestPercent = attempts.reduce((m, a) => Math.max(m, Math.round((a.score / a.total) * 100)), 0)
+
+  const firstIncomplete = lessons.find((l) => !completedKeys.has(l.key))
+  const continueHref = `/lms/${slug}/learn/${(firstIncomplete ?? lessons[0]).key}`
+  const allLessonsDone = completedKeys.size >= lessons.length
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8 md:px-6">
@@ -96,6 +104,9 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
             <span className="flex items-center gap-2">
               <Clock className="h-4 w-4 text-accent" /> {course.durationHours} hours
             </span>
+            <span className="flex items-center gap-2">
+              <BookOpen className="h-4 w-4 text-accent" /> {lessons.length} lessons + assessment
+            </span>
             {course.subsidiaries && (
               <span className="flex items-center gap-2">
                 <Building2 className="h-4 w-4 text-accent" />
@@ -110,37 +121,76 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
               <BookOpen className="h-5 w-5 text-primary" /> Curriculum
             </h2>
             <ol className="mt-4 flex flex-col gap-3">
-              {modules.map((m) => {
-                const moduleDone =
-                  enrolled && (enrollment?.progress ?? 0) >= (m.index / modules.length) * 100
+              {lessons.map((l, i) => {
+                const done = completedKeys.has(l.key)
                 return (
-                  <li key={m.index}>
+                  <li key={l.key}>
                     <Card className="avoid-break">
                       <CardContent className="flex items-start gap-4 p-4">
                         <span
                           className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
-                            moduleDone
+                            done
                               ? "bg-[var(--chart-1)] text-background"
                               : "bg-muted text-muted-foreground"
                           }`}
                         >
-                          {moduleDone ? <CheckCircle2 className="h-4 w-4" /> : m.index}
+                          {done ? <CheckCircle2 className="h-4 w-4" /> : i + 1}
                         </span>
                         <div className="flex-1">
                           <div className="flex flex-wrap items-center justify-between gap-2">
-                            <p className="font-medium">{m.name}</p>
+                            {enrolled ? (
+                              <Link
+                                href={`/lms/${slug}/learn/${l.key}`}
+                                className="font-medium hover:text-primary"
+                              >
+                                {l.title}
+                              </Link>
+                            ) : (
+                              <p className="font-medium">{l.title}</p>
+                            )}
                             <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                              {!enrolled && <Lock className="h-3 w-3" />}
-                              {m.hours}h
+                              {!enrolled && <Lock className="h-3 w-3" />}~{l.minutes}m
                             </span>
                           </div>
-                          <p className="mt-0.5 text-sm text-muted-foreground">{m.note}</p>
+                          <p className="mt-0.5 text-sm text-muted-foreground">{l.summary}</p>
                         </div>
                       </CardContent>
                     </Card>
                   </li>
                 )
               })}
+              {/* Assessment row */}
+              <li>
+                <Card className="avoid-break">
+                  <CardContent className="flex items-start gap-4 p-4">
+                    <span
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
+                        quizPassed ? "bg-[var(--chart-1)] text-background" : "bg-muted text-muted-foreground"
+                      }`}
+                    >
+                      {quizPassed ? <CheckCircle2 className="h-4 w-4" /> : <ClipboardCheck className="h-4 w-4" />}
+                    </span>
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        {enrolled ? (
+                          <Link href={`/lms/${slug}/quiz`} className="font-medium hover:text-primary">
+                            Final assessment
+                          </Link>
+                        ) : (
+                          <p className="font-medium">Final assessment</p>
+                        )}
+                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                          {!enrolled && <Lock className="h-3 w-3" />}
+                          {quizPassed ? "Passed" : "Quiz"}
+                        </span>
+                      </div>
+                      <p className="mt-0.5 text-sm text-muted-foreground">
+                        Demonstrate competency and earn your certificate.
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </li>
             </ol>
           </section>
         </div>
@@ -149,7 +199,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
         <aside className="lg:sticky lg:top-20 lg:self-start">
           <Card>
             <CardContent className="flex flex-col gap-5 p-6">
-              {!session?.user ? (
+              {!signedIn ? (
                 <>
                   <p className="text-sm text-muted-foreground">
                     Sign in to enroll in this course and track your progress.
@@ -168,18 +218,61 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
                 </>
               ) : enrolled ? (
                 <>
-                  <div className="flex items-center gap-2 text-sm font-medium text-[var(--chart-1)]">
-                    <CheckCircle2 className="h-4 w-4" /> You&apos;re enrolled
+                  <div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-medium">Your progress</span>
+                      <span className="tabular-nums text-muted-foreground">
+                        {enrollment?.progress ?? 0}%
+                        {enrollment?.status === "completed" ? " · Completed" : ""}
+                      </span>
+                    </div>
+                    <Progress value={enrollment?.progress ?? 0} className="mt-2 h-2" />
                   </div>
-                  <ProgressControls courseId={course.id} progress={enrollment?.progress ?? 0} />
+
+                  {enrollment?.status === "completed" ? (
+                    <div className="flex items-center gap-2 text-sm font-medium text-[var(--chart-1)]">
+                      <CheckCircle2 className="h-4 w-4" /> Course complete
+                    </div>
+                  ) : (
+                    <Link href={continueHref} className={buttonVariants({ size: "sm" })}>
+                      <PlayCircle className="mr-2 h-4 w-4" />
+                      {completedKeys.size === 0 ? "Start learning" : "Continue learning"}
+                    </Link>
+                  )}
+
+                  <Link
+                    href={`/lms/${slug}/quiz`}
+                    className={buttonVariants({
+                      variant: allLessonsDone && !quizPassed ? "default" : "outline",
+                      size: "sm",
+                    })}
+                  >
+                    <ClipboardCheck className="mr-2 h-4 w-4" />
+                    {quizPassed
+                      ? `Assessment passed (${bestPercent}%)`
+                      : attempts.length > 0
+                        ? "Retake assessment"
+                        : "Take assessment"}
+                  </Link>
+
+                  {certificate && (
+                    <Link
+                      href={`/lms/${slug}/certificate`}
+                      className={buttonVariants({ variant: "secondary", size: "sm" })}
+                    >
+                      <Award className="mr-2 h-4 w-4" /> View certificate
+                    </Link>
+                  )}
+
                   <div className="border-t border-border pt-4">
-                    <EnrollButton courseId={course.id} enrolled variant="outline" />
+                    <EnrollButton courseId={course.id} enrolled variant="ghost" />
                   </div>
                 </>
               ) : (
                 <>
                   <p className="text-sm text-muted-foreground">
-                    Enroll to unlock the full curriculum and start tracking your progress.
+                    Enroll to unlock the {lessons.length} lessons, the assessment, and your
+                    certificate.
                   </p>
                   <EnrollButton courseId={course.id} enrolled={false} />
                 </>

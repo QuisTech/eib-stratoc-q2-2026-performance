@@ -20,7 +20,9 @@ export const auth = betterAuth({
         type: "string",
         required: false,
         defaultValue: "learner",
-        input: false,
+        // Accepted from sign-up; the form only offers "learner" or "lead".
+        // Full cross-subsidiary "admin" is granted in the database, never self-served.
+        input: true,
       },
       subsidiary: {
         type: "string",

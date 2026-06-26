@@ -26,6 +26,7 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [subsidiary, setSubsidiary] = useState(SUBSIDIARIES[0])
+  const [role, setRole] = useState<"learner" | "lead">("learner")
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -40,8 +41,9 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
           email,
           password,
           name,
-          // additional field configured in lib/auth.ts
+          // additional fields configured in lib/auth.ts
           subsidiary,
+          role,
         } as Parameters<typeof authClient.signUp.email>[0])
         if (error) throw new Error(error.message ?? "Could not create account")
       } else {
@@ -107,6 +109,26 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
                   </option>
                 ))}
               </select>
+            </div>
+          )}
+
+          {isSignUp && (
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="role" className="text-sm font-medium">
+                Account type
+              </label>
+              <select
+                id="role"
+                value={role}
+                onChange={(e) => setRole(e.target.value as "learner" | "lead")}
+                className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none ring-ring focus-visible:ring-2"
+              >
+                <option value="learner">Learner — enroll and study</option>
+                <option value="lead">Subsidiary Lead — also track my team</option>
+              </select>
+              <p className="text-xs text-muted-foreground">
+                Leads can view enrollment and completion across their own subsidiary.
+              </p>
             </div>
           )}
 
