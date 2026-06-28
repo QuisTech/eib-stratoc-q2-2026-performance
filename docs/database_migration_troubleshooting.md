@@ -23,7 +23,7 @@ Instead of relying on `drizzle-kit push` during deployment, we created an explic
 ### Key Implementation Details
 
 1. **Direct SQL Execution**: We bypassed `drizzle-kit` and wrote direct `CREATE TABLE` queries for the entire schema (Auth tables and LMS application tables).
-2. **Auto-Seeding**: Because the LMS relies on curated courses mapped to a Skill-Gap Analysis, we included an `INSERT INTO` block that dynamically generates and seeds 13 courses into the database if the `courses` table is found to be empty.
+2. **Auto-Seeding**: Because the LMS relies on curated courses mapped to a Skill-Gap Analysis, we included an `INSERT INTO` block that dynamically generates and seeds exactly 17 carefully curated courses into the database if the `courses` table is found to be empty.
 3. **Execution Context**: By running this inside an API route (`/api/db/setup`), the code executes in Vercel's Serverless environment at *runtime*, where the `POSTGRES_URL` is fully populated and authorized to communicate with Neon.
 
 > [!TIP]
