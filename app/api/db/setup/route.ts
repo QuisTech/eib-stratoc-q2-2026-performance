@@ -1,8 +1,21 @@
 import { pool } from "@/lib/db"
 import { NextResponse } from "next/server"
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
+    const { searchParams } = new URL(request.url)
+    const reset = searchParams.get("reset")
+
+    if (reset === "true") {
+      await pool.query(`
+        DROP TABLE IF EXISTS "certificates" CASCADE;
+        DROP TABLE IF EXISTS "quiz_attempts" CASCADE;
+        DROP TABLE IF EXISTS "lesson_progress" CASCADE;
+        DROP TABLE IF EXISTS "enrollments" CASCADE;
+        DROP TABLE IF EXISTS "courses" CASCADE;
+      `)
+    }
+
     await pool.query(`
       CREATE TABLE IF NOT EXISTS "user" (
         id TEXT PRIMARY KEY,
