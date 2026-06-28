@@ -54,14 +54,13 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
           email,
           password,
           name,
-          // additional fields configured in lib/auth.ts
           subsidiary,
           role,
         } as Parameters<typeof authClient.signUp.email>[0])
-        if (error) throw new Error(error.message ?? "Could not create account")
+        if (error) throw new Error(`SignUp Error: ${error.status} - ${error.message} - ${JSON.stringify(error)}`)
       } else {
         const { error } = await authClient.signIn.email({ email, password })
-        if (error) throw new Error(error.message ?? "Invalid email or password")
+        if (error) throw new Error(`SignIn Error: ${error.status} - ${error.message} - ${JSON.stringify(error)}`)
       }
       router.push("/lms")
       router.refresh()
