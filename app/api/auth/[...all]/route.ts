@@ -58,6 +58,58 @@ async function ensureTables() {
         "createdAt" TIMESTAMP NOT NULL DEFAULT NOW(),
         "updatedAt" TIMESTAMP NOT NULL DEFAULT NOW()
       );
+
+      CREATE TABLE IF NOT EXISTS "courses" (
+        id SERIAL PRIMARY KEY,
+        slug TEXT NOT NULL UNIQUE,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL,
+        category TEXT NOT NULL,
+        level TEXT NOT NULL DEFAULT 'Intermediate',
+        format TEXT NOT NULL DEFAULT 'Workshop',
+        "durationHours" INTEGER NOT NULL DEFAULT 8,
+        "priceNaira" INTEGER NOT NULL DEFAULT 0,
+        subsidiaries TEXT,
+        initiative INTEGER,
+        "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS "enrollments" (
+        id SERIAL PRIMARY KEY,
+        "userId" TEXT NOT NULL,
+        "courseId" INTEGER NOT NULL,
+        status TEXT NOT NULL DEFAULT 'enrolled',
+        progress INTEGER NOT NULL DEFAULT 0,
+        "enrolledAt" TIMESTAMP NOT NULL DEFAULT NOW(),
+        "completedAt" TIMESTAMP
+      );
+
+      CREATE TABLE IF NOT EXISTS "lesson_progress" (
+        id SERIAL PRIMARY KEY,
+        "userId" TEXT NOT NULL,
+        "courseId" INTEGER NOT NULL,
+        "lessonKey" TEXT NOT NULL,
+        "completedAt" TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS "quiz_attempts" (
+        id SERIAL PRIMARY KEY,
+        "userId" TEXT NOT NULL,
+        "courseId" INTEGER NOT NULL,
+        score INTEGER NOT NULL,
+        total INTEGER NOT NULL,
+        passed BOOLEAN NOT NULL DEFAULT false,
+        answers TEXT,
+        "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS "certificates" (
+        id SERIAL PRIMARY KEY,
+        "userId" TEXT NOT NULL,
+        "courseId" INTEGER NOT NULL,
+        serial TEXT NOT NULL UNIQUE,
+        "issuedAt" TIMESTAMP NOT NULL DEFAULT NOW()
+      );
     `)
     tablesEnsured = true
     console.log("AUTH TABLES: ensured successfully")
