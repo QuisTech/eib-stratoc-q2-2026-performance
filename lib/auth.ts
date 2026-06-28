@@ -3,7 +3,13 @@ import { pool } from "@/lib/db"
 
 export const auth = betterAuth({
   database: pool,
-
+  baseURL: {
+    allowedHosts: [
+      "eib-stratoc-q2-2026-performance.vercel.app",
+      "eib-stratoc-q2-2026-performance-theta.vercel.app",
+    ],
+    protocol: "https",
+  },
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
