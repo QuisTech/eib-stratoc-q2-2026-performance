@@ -101,15 +101,7 @@ export default async function CertificatePage({ params }: { params: Promise<Para
             )}
           </div>
 
-          {course.priceNaira > 0 && (
-            <p className="mt-4 text-sm text-muted-foreground">
-              Training valued at{" "}
-              <span className="font-semibold text-foreground">
-                {formatNaira(course.priceNaira)}
-              </span>
-              , fully sponsored by EIB Group.
-            </p>
-          )}
+
 
           <div className="mt-10 grid w-full max-w-lg gap-6 sm:grid-cols-2">
             <div className="border-t border-border pt-2 text-center">
