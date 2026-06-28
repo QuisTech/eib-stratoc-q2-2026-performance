@@ -8,7 +8,11 @@ export const auth = betterAuth({
       "eib-stratoc-q2-2026-performance.vercel.app",
       "eib-stratoc-q2-2026-performance-theta.vercel.app",
     ],
-    protocol: "https",
+    protocol: process.env.NODE_ENV === "development" ? "http" : "https",
+    fallback: "https://eib-stratoc-q2-2026-performance.vercel.app"
+  },
+  advanced: {
+    trustedProxyHeaders: true,
   },
   emailAndPassword: {
     enabled: true,
