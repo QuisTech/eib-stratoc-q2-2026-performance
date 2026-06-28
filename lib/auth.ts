@@ -1,8 +1,11 @@
 import { betterAuth } from "better-auth"
-import { pool } from "@/lib/db"
+import { drizzleAdapter } from "better-auth/adapters/drizzle"
+import { db } from "@/lib/db"
 
 export const auth = betterAuth({
-  database: pool,
+  database: drizzleAdapter(db, {
+    provider: "pg"
+  }),
   baseURL: {
     allowedHosts: [
       "eib-stratoc-q2-2026-performance.vercel.app",
