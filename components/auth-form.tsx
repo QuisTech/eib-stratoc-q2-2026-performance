@@ -46,8 +46,11 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
 
     try {
       if (isSignUp) {
+        if (role === "group_head" && email.toLowerCase().trim() !== "michael.marquis@eibgroup.com") {
+          throw new Error("LMS Admin oversight is restricted. Only the Group Head of Training & OD may register with this role.")
+        }
         if (role === "group_head" && accessCode.trim().toUpperCase() !== "EIB-GH-2026") {
-          throw new Error("Invalid Group Head access code. Please contact the administrator.")
+          throw new Error("Invalid Group Head access code.")
         }
 
         const { error } = await authClient.signUp.email({
@@ -137,11 +140,11 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
               >
                 <option value="learner">Learner — enroll and study</option>
                 <option value="lead">Subsidiary Lead — also track my team</option>
-                <option value="group_head">Group Head — oversight across all subsidiaries</option>
+                <option value="group_head">Group Head (Training & OD) — LMS Super Admin</option>
               </select>
               <p className="text-xs text-muted-foreground">
                 {role === "group_head"
-                  ? "Group Heads see learning across the whole organization — every subsidiary."
+                  ? "Exclusive to the Group Head of Training & OD. Grants full LMS oversight across all subsidiaries."
                   : role === "lead"
                     ? "Leads can view enrollment and completion across their own subsidiary."
                     : "Learners enroll in courses and track their own progress."}
