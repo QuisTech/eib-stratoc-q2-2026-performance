@@ -61,6 +61,14 @@ export default async function AdminPage() {
           <Badge variant={orgWide ? "default" : "secondary"}>
             {orgWide ? "Group-wide" : report.scope}
           </Badge>
+          {orgWide && (
+            <Link
+              href="/courses/new"
+              className="ml-auto inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+            >
+              Create New Course
+            </Link>
+          )}
         </div>
         <p className="max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground">
           {orgWide

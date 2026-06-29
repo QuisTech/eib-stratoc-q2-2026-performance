@@ -376,3 +376,77 @@ export async function getAdminReport(): Promise<AdminReport> {
     topCourses,
   }
 }
+
+export async function createCourse(data: {
+  title: string
+  description: string
+  category: string
+  level: string
+  format: string
+  durationHours: number
+  priceNaira: number
+  subsidiaries: string
+}) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session?.user) throw new Error("Unauthorized")
+
+  const role = session.user.role as string
+  if (role !== "admin" && role !== "group_head") throw new Error("Forbidden: Only Group Heads can create courses")
+
+  const slug = data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+
+  await db.insert(courses).values({
+    slug,
+    title: data.title,
+    description: data.description,
+    category: data.category,
+    level: data.level,
+    format: data.format,
+    durationHours: data.durationHours,
+    priceNaira: data.priceNaira,
+    subsidiaries: data.subsidiaries,
+  })
+
+  revalidatePath("/lms")
+  revalidatePath("/lms/admin")
+}
+
+export async function autoEnrollOnboarding(subsidiary: string) {
+  try {
+    const userId = await getUserId()
+
+    // 1. Find global orientation
+    const globalCourse = await db.select().from(courses).where(eq(courses.title, "EIB Group Global Orientation")).limit(1)
+
+    // 2. Find subsidiary specific course
+    let subCourseTitle: string | null = null
+    if (subsidiary === "DCI - SAC") subCourseTitle = "Special Operations Brief"
+    else if (subsidiary === "DCI - RAW") subCourseTitle = "Information Security & Clearance Protocols"
+    else if (subsidiary === "DCI - PSAP") subCourseTitle = "Public Safety Comms"
+    else if (subsidiary === "DCI - Intel") subCourseTitle = "Intelligence Report Writing & MS Word Essentials"
+    
+    let subCourse = null
+    if (subCourseTitle) {
+      const res = await db.select().from(courses).where(eq(courses.title, subCourseTitle)).limit(1)
+      subCourse = res[0] ?? null
+    }
+
+    // 3. Enroll
+    const toEnroll = []
+    if (globalCourse.length > 0) toEnroll.push(globalCourse[0].id)
+    if (subCourse) toEnroll.push(subCourse.id)
+
+    for (const courseId of toEnroll) {
+      const existing = await db
+        .select()
+        .from(enrollments)
+        .where(and(eq(enrollments.userId, userId), eq(enrollments.courseId, courseId)))
+        .limit(1)
+      if (existing.length === 0) {
+        await db.insert(enrollments).values({ userId, courseId, status: "enrolled", progress: 0 })
+      }
+    }
+  } catch (e) {
+    console.error("Auto enroll failed", e)
+  }
+}

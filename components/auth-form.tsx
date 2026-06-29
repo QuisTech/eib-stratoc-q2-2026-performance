@@ -80,6 +80,13 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
           role: role === "group_head_standard" ? "lead" : role,
         } as Parameters<typeof authClient.signUp.email>[0])) as any
         if (res?.error) throw new Error(`SignUp Error: ${res.error.status} - ${res.error.message}`)
+
+        try {
+          const { autoEnrollOnboarding } = await import("@/app/actions/lms")
+          await autoEnrollOnboarding(subsidiary)
+        } catch (e) {
+          console.error("Auto enroll onboarding failed:", e)
+        }
       } else {
         const res = (await authClient.signIn.email({ email, password })) as any
         if (res?.error) throw new Error(`SignIn Error: ${res.error.status} - ${res.error.message}`)

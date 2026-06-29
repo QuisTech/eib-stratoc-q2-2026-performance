@@ -663,6 +663,41 @@ const CONCEPT_BANK: Record<string, BankQuestion[]> = {
       explanation: "Lasting sales come from trust, relationships, and delivery.",
     },
   ],
+  "Intelligence & Security": [
+    {
+      prompt: "When handling classified or highly sensitive operational intelligence, what is the primary rule?",
+      options: [
+        "Share it widely to get diverse opinions",
+        "Apply the 'Need to Know' principle and follow strict clearance protocols",
+        "Store it on personal unencrypted devices for quick access",
+        "Discuss it casually in public settings",
+      ],
+      correctIndex: 1,
+      explanation: "The 'Need to Know' principle ensures sensitive intelligence is restricted only to cleared individuals whose duties require it.",
+    },
+    {
+      prompt: "What is the core objective of a Special Activity operational brief?",
+      options: [
+        "To maximize budget expenditure",
+        "To clearly align field operatives on mission objectives, risks, and extraction protocols",
+        "To avoid documentation",
+        "To socialize with the team",
+      ],
+      correctIndex: 1,
+      explanation: "Operational briefs exist to ensure absolute clarity on objectives, safety, and protocols before field deployment.",
+    },
+    {
+      prompt: "In Public Safety and Intelligence operations, what dictates the priority of response?",
+      options: [
+        "The seniority of the reporting officer",
+        "The immediacy of the threat to life, security, and mission integrity",
+        "The convenience of the response team",
+        "Media attention",
+      ],
+      correctIndex: 1,
+      explanation: "Imminent threats to life and critical security always take precedence in operational triage.",
+    },
+  ],
 }
 
 // Build the quiz for a course: concept questions for its category plus two
