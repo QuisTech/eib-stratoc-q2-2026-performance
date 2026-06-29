@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { formatNaira } from "@/lib/utils"
-import { ArrowLeft, Users, BookOpen, GraduationCap, Award } from "lucide-react"
+import { ArrowLeft, Users, BookOpen, GraduationCap, Award, Edit } from "lucide-react"
 
 export const dynamic = "force-dynamic"
 
@@ -215,6 +215,53 @@ export default async function AdminPage() {
           </CardContent>
         </Card>
       </section>
+
+      {orgWide && (
+        <section>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Course Management</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {report.allCourses.length === 0 ? (
+                <p className="py-8 text-center text-sm text-muted-foreground">
+                  No courses exist yet.
+                </p>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
+                        <th className="px-3 py-2 font-medium">Course Title</th>
+                        <th className="px-3 py-2 font-medium">Category</th>
+                        <th className="px-3 py-2 font-medium">Price</th>
+                        <th className="px-3 py-2 text-right font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {report.allCourses.map((c) => (
+                        <tr key={c.id} className="border-b last:border-0 hover:bg-muted/50">
+                          <td className="px-3 py-3 font-medium">{c.title}</td>
+                          <td className="px-3 py-3 text-muted-foreground">{c.category}</td>
+                          <td className="px-3 py-3 tabular-nums">{formatNaira(c.priceNaira)}</td>
+                          <td className="px-3 py-3 text-right">
+                            <Link
+                              href={`/lms/admin/courses/${c.slug}/edit`}
+                              className="inline-flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-accent hover:text-accent-foreground"
+                            >
+                              <Edit className="h-3.5 w-3.5" /> Edit Metadata
+                            </Link>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </section>
+      )}
     </main>
   )
 }
