@@ -8,16 +8,27 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2, ShieldCheck } from "lucide-react"
 
-const SUBSIDIARIES = [
-  "EIB Group", // parent company — Group Heads register here
-  "EIB Stratoc",
-  "Luftreiber Automobile",
-  "POCTOVA",
-  "Briech Atlantic",
-  "Briech UAS",
-  "Bright FM",
-  "BEF",
-]
+const SUBSIDIARY_GROUPS = {
+  "Group Leadership": [
+    "EIB Group",
+    "Directorate of Clandestine & Intelligence"
+  ],
+  "Directorate of Clandestine & Intelligence (DCI)": [
+    "DCI - SAC",
+    "DCI - PSAP",
+    "DCI - RAW",
+    "DCI - Intel"
+  ],
+  "Commercial & Operational": [
+    "EIB Stratoc",
+    "Luftreiber Automobile",
+    "POCTOVA",
+    "Briech Atlantic",
+    "Briech UAS",
+    "Bright FM",
+    "BEF"
+  ]
+}
 
 export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
   const router = useRouter()
@@ -118,10 +129,14 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
                 onChange={(e) => setSubsidiary(e.target.value)}
                 className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none ring-ring focus-visible:ring-2"
               >
-                {SUBSIDIARIES.map((s) => (
-                  <option key={s} value={s}>
-                    {s}
-                  </option>
+                {Object.entries(SUBSIDIARY_GROUPS).map(([groupName, subs]) => (
+                  <optgroup key={groupName} label={groupName}>
+                    {subs.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </div>

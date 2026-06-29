@@ -15,7 +15,7 @@ import {
   type Certificate,
 } from "@/lib/db/schema"
 import { getLessons, gradeQuiz } from "@/lib/lms-content"
-import { and, asc, desc, eq, inArray } from "drizzle-orm"
+import { and, asc, desc, eq, inArray, like } from "drizzle-orm"
 import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 
@@ -283,13 +283,24 @@ export async function getAdminReport(): Promise<AdminReport> {
   const orgWide = role === "admin" || role === "group_head"
   if (!orgWide && role !== "lead") throw new Error("Forbidden")
 
-  const learnerRows = orgWide
-    ? await db.select().from(user).orderBy(asc(user.subsidiary), asc(user.name))
-    : await db
+  const isDCIHead = role === "lead" && viewer.subsidiary === "Directorate of Clandestine & Intelligence"
+
+  let learnerRows;
+  if (orgWide) {
+    learnerRows = await db.select().from(user).orderBy(asc(user.subsidiary), asc(user.name))
+  } else if (isDCIHead) {
+    learnerRows = await db
+      .select()
+      .from(user)
+      .where(like(user.subsidiary, "DCI - %"))
+      .orderBy(asc(user.subsidiary), asc(user.name))
+  } else {
+    learnerRows = await db
         .select()
         .from(user)
         .where(eq(user.subsidiary, viewer.subsidiary ?? "__none__"))
         .orderBy(asc(user.name))
+  }
 
   const ids = learnerRows.map((u) => u.id)
   const allEnrollments = ids.length
