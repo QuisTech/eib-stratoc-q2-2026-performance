@@ -396,8 +396,53 @@ export async function createCourse(data: {
 
   const slug = data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
 
-  await db.insert(courses).values({
-    slug,
+  const existing = await db.select().from(courses).where(eq(courses.slug, slug))
+  if (existing.length > 0) {
+    throw new Error("A course with this title already exists! Please use a different title or edit the existing one.")
+  }
+
+  try {
+    await db.insert(courses).values({
+      slug,
+      title: data.title,
+      description: data.description,
+      category: data.category,
+      level: data.level,
+      format: data.format,
+      durationHours: data.durationHours,
+      priceNaira: data.priceNaira,
+      subsidiaries: data.subsidiaries,
+      videoUrl: data.videoUrl,
+    })
+  } catch (err: any) {
+    throw new Error("Database insertion failed. If you recently upgraded the system, you MUST visit the reset link to upgrade the database tables: /api/db/setup?reset=true")
+  }
+
+  revalidatePath("/lms")
+  revalidatePath("/lms/admin")
+}
+
+export async function updateCourse(slug: string, data: {
+  title: string
+  description: string
+  category: string
+  level: string
+  format: string
+  durationHours: number
+  priceNaira: number
+  subsidiaries: string
+  videoUrl?: string
+}) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session?.user) throw new Error("Unauthorized")
+
+  const role = session.user.role as string
+  if (role !== "admin" && role !== "group_head") throw new Error("Forbidden: Only Group Heads can edit courses")
+
+  const newSlug = data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+
+  await db.update(courses).set({
+    slug: newSlug,
     title: data.title,
     description: data.description,
     category: data.category,
@@ -407,7 +452,7 @@ export async function createCourse(data: {
     priceNaira: data.priceNaira,
     subsidiaries: data.subsidiaries,
     videoUrl: data.videoUrl,
-  })
+  }).where(eq(courses.slug, slug))
 
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
