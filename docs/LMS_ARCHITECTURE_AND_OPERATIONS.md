@@ -69,5 +69,12 @@ If the database ever needs to be manually reset or re-seeded (e.g., on a fresh V
 ### Adding a New Subsidiary
 To add a new company or sub-unit, simply open `components/auth-form.tsx` and add the new name to the `SUBSIDIARY_GROUPS` object. It will instantly appear in the dropdown and be fully integrated into the RBAC logic without requiring any database changes.
 
-### Editing Course Content
-Course catalog metadata, lesson text, and quizzes are hardcoded as a single source of truth in `lib/lms-content.ts`. To change a price, duration, or a quiz question, simply update that file and commit the code.
+### Editing & Creating Course Content (Generative Engine)
+The LMS uses a "Generative Learning Engine" to drastically reduce administrative overhead. 
+*   **Creating Courses**: You do not need to manually write lessons or build quizzes. A Group Head or Admin can navigate to `Admin Dashboard -> Create New Course` (`/courses/new`). Simply input the title, description, and category. Once published, the system automatically synthesizes a 5-lesson structure and a specialized quiz for that course based on its category (e.g., Intelligence & Security, Technical, Leadership).
+*   **Modifying Quizzes**: To update the quiz bank or the lesson generator template, edit the `lib/lms-content.ts` file.
+
+### Automated Onboarding Pipeline
+The platform intercepts user registration to automate mandatory training:
+*   **Global Standard**: Every new hire is automatically enrolled in the *EIB Group Global Orientation* course the moment they sign up.
+*   **Subsidiary-Specific Tracks**: The system reads the user's selected subsidiary and automatically enrolls them in specialized tracks. For example, DCI recruits are instantly enrolled in *Special Operations Brief* (SAC), *Information Security & Clearance Protocols* (RAW), or *Public Safety Comms* (PSAP) without requiring manual intervention.
