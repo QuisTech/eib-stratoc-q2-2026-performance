@@ -63,6 +63,14 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
         if (role === "group_head" && accessCode.trim().toUpperCase() !== "EIB-GH-2026") {
           throw new Error("Invalid Group Head access code.")
         }
+        if (role === "group_head_standard") {
+          if (subsidiary === "Directorate of Clandestine & Intelligence" && accessCode.trim().toUpperCase() !== "DCI-GH-2026") {
+            throw new Error("Invalid DCI Directorate Head access code.")
+          }
+          if (subsidiary === "EIB Group" && accessCode.trim().toUpperCase() !== "EIB-GH-2026") {
+            throw new Error("Invalid Group Head access code.")
+          }
+        }
 
         const res = (await authClient.signUp.email({
           email,
@@ -170,10 +178,10 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
             </div>
           )}
 
-          {isSignUp && role === "group_head" && (
+          {isSignUp && (role === "group_head" || role === "group_head_standard") && (
             <div className="flex flex-col gap-1.5">
               <label htmlFor="accessCode" className="text-sm font-medium text-destructive">
-                Group Head Access Code
+                {subsidiary === "Directorate of Clandestine & Intelligence" ? "DCI Head Access Code" : "Group Head Access Code"}
               </label>
               <input
                 id="accessCode"
@@ -182,7 +190,7 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
                 value={accessCode}
                 onChange={(e) => setAccessCode(e.target.value)}
                 className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none ring-ring focus-visible:ring-2"
-                placeholder="Required for Group Head"
+                placeholder="Required for leadership roles"
               />
             </div>
           )}
