@@ -374,6 +374,7 @@ export async function getAdminReport(): Promise<AdminReport> {
     },
     learners,
     topCourses,
+    allCourses,
   }
 }
 
