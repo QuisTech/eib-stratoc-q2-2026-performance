@@ -64,7 +64,7 @@ export function getLessons(course: Course): Lesson[] {
       title: "Orientation & Objectives",
       minutes: Math.round(mins * 0.6),
       summary: `Why ${course.title} matters and what you will be able to do by the end.`,
-      videoUrl: "https://www.youtube.com/embed/jNQXAC9IVRw", // Sample YouTube Embed
+      videoUrl: course.videoUrl || undefined,
       sections: [
         {
           heading: "What this course is about",

@@ -386,6 +386,7 @@ export async function createCourse(data: {
   durationHours: number
   priceNaira: number
   subsidiaries: string
+  videoUrl?: string
 }) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) throw new Error("Unauthorized")
@@ -405,6 +406,7 @@ export async function createCourse(data: {
     durationHours: data.durationHours,
     priceNaira: data.priceNaira,
     subsidiaries: data.subsidiaries,
+    videoUrl: data.videoUrl,
   })
 
   revalidatePath("/lms")

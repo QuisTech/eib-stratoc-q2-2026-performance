@@ -28,6 +28,7 @@ export default function NewCoursePage() {
         durationHours: parseInt(formData.get("durationHours") as string),
         priceNaira: parseInt(formData.get("priceNaira") as string) || 0,
         subsidiaries: formData.get("subsidiaries") as string,
+        videoUrl: (formData.get("videoUrl") as string) || undefined,
       })
       router.push("/lms/admin")
       router.refresh()
@@ -117,6 +118,11 @@ export default function NewCoursePage() {
                 <label htmlFor="subsidiaries" className="text-sm font-medium">Target Subsidiaries</label>
                 <input id="subsidiaries" name="subsidiaries" required className="h-10 rounded-md border border-input bg-background px-3 text-sm" placeholder="e.g. Briech UAS, DCI - SAC" />
               </div>
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="videoUrl" className="text-sm font-medium">Video Embed URL (Optional)</label>
+              <input id="videoUrl" name="videoUrl" className="h-10 rounded-md border border-input bg-background px-3 text-sm" placeholder="e.g. https://www.youtube.com/embed/..." />
             </div>
 
             <button

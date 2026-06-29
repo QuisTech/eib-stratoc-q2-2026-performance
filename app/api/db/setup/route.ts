@@ -77,6 +77,7 @@ export async function GET(request: Request) {
         "priceNaira" INTEGER NOT NULL DEFAULT 0,
         subsidiaries TEXT,
         initiative INTEGER,
+        "videoUrl" TEXT,
         "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
       );
 

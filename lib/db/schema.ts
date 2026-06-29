@@ -70,6 +70,7 @@ export const courses = pgTable("courses", {
   priceNaira: integer("priceNaira").notNull().default(0), // course value in Nigerian Naira (₦)
   subsidiaries: text("subsidiaries"), // comma-separated subsidiary tags
   initiative: integer("initiative"), // links to one of the 9 strategic initiatives
+  videoUrl: text("videoUrl"), // dynamic video embed link
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 
