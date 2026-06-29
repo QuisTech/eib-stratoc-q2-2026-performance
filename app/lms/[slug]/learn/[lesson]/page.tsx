@@ -114,6 +114,17 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
             <Clock className="h-4 w-4" /> ~{lesson.minutes} min · {lesson.summary}
           </p>
 
+          {lesson.videoUrl && (
+            <div className="mt-6 aspect-video w-full overflow-hidden rounded-xl border border-border shadow-sm">
+              <iframe
+                src={lesson.videoUrl}
+                className="h-full w-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          )}
+
           <div className="mt-7 flex flex-col gap-7">
             {lesson.sections.map((s) => (
               <section key={s.heading}>
