@@ -459,6 +459,22 @@ export async function updateCourse(slug: string, data: {
   revalidatePath("/lms/admin")
 }
 
+export async function saveCustomCourseContent(slug: string, contentJson: string) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session?.user) throw new Error("Unauthorized")
+
+  const role = session.user.role as string
+  if (role !== "admin" && role !== "group_head") throw new Error("Forbidden: Only Group Heads can edit courses")
+
+  await db.update(courses).set({
+    customContent: contentJson,
+  }).where(eq(courses.slug, slug))
+
+  revalidatePath(`/lms/${slug}`)
+  revalidatePath("/lms")
+  revalidatePath("/lms/admin")
+}
+
 export async function autoEnrollOnboarding(subsidiary: string) {
   try {
     const userId = await getUserId()

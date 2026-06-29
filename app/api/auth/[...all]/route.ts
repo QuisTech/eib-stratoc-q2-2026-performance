@@ -72,6 +72,7 @@ async function ensureTables() {
         subsidiaries TEXT,
         initiative INTEGER,
         "videoUrl" TEXT,
+        "customContent" TEXT,
         "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
       );
 

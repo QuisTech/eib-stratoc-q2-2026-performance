@@ -52,6 +52,17 @@ function subsidiaryPhrase(course: Course): string {
 // Five lessons per course: Orientation, Core concepts, Hands-on practice,
 // Applied workshop, and Review & readiness. Copy is tailored to the course.
 export function getLessons(course: Course): Lesson[] {
+  if (course.customContent) {
+    try {
+      const parsed = JSON.parse(course.customContent)
+      if (parsed.lessons && Array.isArray(parsed.lessons)) {
+        return parsed.lessons
+      }
+    } catch (e) {
+      console.error("Failed to parse custom lessons for", course.slug, e)
+    }
+  }
+
   const subs = subsidiaryPhrase(course)
   const initiative =
     course.initiative != null ? INITIATIVE_NAMES[course.initiative] ?? null : null
@@ -703,6 +714,17 @@ const CONCEPT_BANK: Record<string, BankQuestion[]> = {
 // Build the quiz for a course: concept questions for its category plus two
 // data-derived questions whose answers come straight from the course record.
 export function getQuiz(course: Course): QuizQuestion[] {
+  if (course.customContent) {
+    try {
+      const parsed = JSON.parse(course.customContent)
+      if (parsed.quiz && Array.isArray(parsed.quiz)) {
+        return parsed.quiz
+      }
+    } catch (e) {
+      console.error("Failed to parse custom quiz for", course.slug, e)
+    }
+  }
+
   const concept = (CONCEPT_BANK[course.category] ?? []).slice(0, 3)
   const questions: QuizQuestion[] = concept.map((q, i) => ({ id: `c${i + 1}`, ...q }))
 

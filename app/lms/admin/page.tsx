@@ -244,12 +244,18 @@ export default async function AdminPage() {
                           <td className="px-3 py-3 font-medium">{c.title}</td>
                           <td className="px-3 py-3 text-muted-foreground">{c.category}</td>
                           <td className="px-3 py-3 tabular-nums">{formatNaira(c.priceNaira)}</td>
-                          <td className="px-3 py-3 text-right">
+                          <td className="px-3 py-3 text-right space-x-2">
                             <Link
                               href={`/lms/admin/courses/${c.slug}/edit`}
                               className="inline-flex items-center gap-1.5 rounded-md border border-input bg-background px-3 py-1.5 text-xs font-medium text-foreground hover:bg-accent hover:text-accent-foreground"
                             >
                               <Edit className="h-3.5 w-3.5" /> Edit Metadata
+                            </Link>
+                            <Link
+                              href={`/lms/admin/courses/${c.slug}/builder`}
+                              className="inline-flex items-center gap-1.5 rounded-md border border-primary bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary hover:text-primary-foreground"
+                            >
+                              <BookOpen className="h-3.5 w-3.5" /> Build Content
                             </Link>
                           </td>
                         </tr>

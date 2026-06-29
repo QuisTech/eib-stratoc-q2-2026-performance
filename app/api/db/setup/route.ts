@@ -78,6 +78,7 @@ export async function GET(request: Request) {
         subsidiaries TEXT,
         initiative INTEGER,
         "videoUrl" TEXT,
+        "customContent" TEXT,
         "createdAt" TIMESTAMP NOT NULL DEFAULT NOW()
       );
 
