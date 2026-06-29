@@ -64,17 +64,17 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
           throw new Error("Invalid Group Head access code.")
         }
 
-        const { error } = await authClient.signUp.email({
+        const res = (await authClient.signUp.email({
           email,
           password,
           name,
           subsidiary,
           role: role === "group_head_standard" ? "lead" : role,
-        } as Parameters<typeof authClient.signUp.email>[0])
-        if (error) throw new Error(`SignUp Error: ${error.status} - ${error.message} - ${JSON.stringify(error)}`)
+        } as Parameters<typeof authClient.signUp.email>[0])) as any
+        if (res?.error) throw new Error(`SignUp Error: ${res.error.status} - ${res.error.message}`)
       } else {
-        const { error } = await authClient.signIn.email({ email, password })
-        if (error) throw new Error(`SignIn Error: ${error.status} - ${error.message} - ${JSON.stringify(error)}`)
+        const res = (await authClient.signIn.email({ email, password })) as any
+        if (res?.error) throw new Error(`SignIn Error: ${res.error.status} - ${res.error.message}`)
       }
       router.push("/lms")
       router.refresh()
