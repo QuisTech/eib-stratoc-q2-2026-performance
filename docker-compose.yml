@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:15-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: lms_admin
+      POSTGRES_PASSWORD: SecurePassword123!
+      POSTGRES_DB: eib_lms
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lms_admin -d eib_lms"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  lms-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://lms_admin:SecurePassword123!@db:5432/eib_lms
+      - POSTGRES_URL=postgresql://lms_admin:SecurePassword123!@db:5432/eib_lms
+      - BETTER_AUTH_SECRET=generate_a_secure_random_string_here_12345
+      - BETTER_AUTH_URL=http://localhost:3000
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  db_data:
