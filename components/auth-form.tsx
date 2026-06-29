@@ -28,13 +28,13 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
   const [password, setPassword] = useState("")
   // Default learners to the first operating subsidiary, not the parent company.
   const [subsidiary, setSubsidiary] = useState("EIB Stratoc")
-  const [role, setRole] = useState<"learner" | "lead" | "group_head">("learner")
+  const [role, setRole] = useState<"learner" | "lead" | "group_head_standard" | "group_head">("learner")
   const [accessCode, setAccessCode] = useState("")
 
   // Group Heads belong to the parent company; keep their subsidiary aligned.
-  function handleRoleChange(next: "learner" | "lead" | "group_head") {
+  function handleRoleChange(next: "learner" | "lead" | "group_head_standard" | "group_head") {
     setRole(next)
-    if (next === "group_head") setSubsidiary("EIB Group")
+    if (next === "group_head" || next === "group_head_standard") setSubsidiary("EIB Group")
   }
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
@@ -58,7 +58,7 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
           password,
           name,
           subsidiary,
-          role,
+          role: role === "group_head_standard" ? "lead" : role,
         } as Parameters<typeof authClient.signUp.email>[0])
         if (error) throw new Error(`SignUp Error: ${error.status} - ${error.message} - ${JSON.stringify(error)}`)
       } else {
@@ -135,18 +135,21 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
               <select
                 id="role"
                 value={role}
-                onChange={(e) => handleRoleChange(e.target.value as "learner" | "lead" | "group_head")}
+                onChange={(e) => handleRoleChange(e.target.value as any)}
                 className="h-10 rounded-md border border-input bg-background px-3 text-sm outline-none ring-ring focus-visible:ring-2"
               >
                 <option value="learner">Learner — enroll and study</option>
-                <option value="lead">Subsidiary Lead — also track my team</option>
-                <option value="group_head">Group Head (Training & OD) — LMS Super Admin</option>
+                <option value="lead">Subsidiary Managers — also track my team</option>
+                <option value="group_head_standard">Group Heads</option>
+                <option value="group_head">Group Head (Training & OD)</option>
               </select>
               <p className="text-xs text-muted-foreground">
                 {role === "group_head"
-                  ? "Exclusive to the Group Head of Training & OD. Grants full LMS oversight across all subsidiaries."
+                  ? "Exclusive to the Group Head of Training & OD."
+                  : role === "group_head_standard"
+                    ? "Group Heads oversee their respective departments within the parent company."
                   : role === "lead"
-                    ? "Leads can view enrollment and completion across their own subsidiary."
+                    ? "Managers can view enrollment and completion across their own subsidiary."
                     : "Learners enroll in courses and track their own progress."}
               </p>
             </div>
