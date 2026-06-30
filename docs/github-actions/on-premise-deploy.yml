@@ -1,0 +1,38 @@
+name: On-Premise Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    # This ensures the job only runs on the specific Linux VM you install the runner on
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Build Next.js App
+        run: npm run build
+        env:
+          # Note: The actual environment variables like DATABASE_URL, BETTER_AUTH_SECRET, etc.
+          # should be stored in a .env file directly on the Linux VM, not in GitHub.
+          # Next.js will pick them up from the .env file during runtime and build time if needed.
+          CI: true
+
+      - name: Restart PM2 Process
+        run: |
+          # Reload the app using PM2 for zero-downtime deployments
+          pm2 reload ecosystem.config.js --env production || pm2 start ecosystem.config.js --env production
+          pm2 save
