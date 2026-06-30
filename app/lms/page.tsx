@@ -86,7 +86,12 @@ export default async function LmsPage() {
             progress toward measurable capability targets.
           </p>
         </div>
-        <PrintActions label="learning portal" />
+        <div className="flex items-center gap-2">
+          <Link href="/lms/settings" className={buttonVariants({ variant: "outline", size: "sm" })}>
+            Account Settings
+          </Link>
+          <PrintActions label="learning portal" />
+        </div>
       </div>
 
       {/* Stats */}

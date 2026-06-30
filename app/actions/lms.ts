@@ -515,3 +515,24 @@ export async function autoEnrollOnboarding(subsidiary: string) {
     console.error("Auto enroll failed", e)
   }
 }
+
+export async function adminResetUserPassword(userId: string) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session?.user) throw new Error("Unauthorized")
+
+  const role = session.user.role as string
+  if (role !== "admin" && role !== "group_head" && role !== "lead") {
+    throw new Error("Forbidden: Only Group Heads can reset passwords")
+  }
+
+  // Force reset to a default password
+  await auth.api.setUserPassword({
+    headers: await headers(),
+    body: {
+      userId,
+      newPassword: "EIB2026!"
+    }
+  })
+
+  revalidatePath("/lms/admin")
+}

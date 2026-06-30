@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { formatNaira } from "@/lib/utils"
 import { ArrowLeft, Users, BookOpen, GraduationCap, Award, Edit, Server } from "lucide-react"
+import { ResetPasswordButton } from "./reset-password-button"
 
 export const dynamic = "force-dynamic"
 
@@ -155,6 +156,7 @@ export default async function AdminPage() {
                       <th className="px-3 py-2 text-center font-medium">Completed</th>
                       <th className="px-3 py-2 text-center font-medium">Certs</th>
                       <th className="px-3 py-2 font-medium">Avg progress</th>
+                      <th className="px-3 py-2 text-right font-medium">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -190,6 +192,9 @@ export default async function AdminPage() {
                               {l.avgProgress}%
                             </span>
                           </div>
+                        </td>
+                        <td className="px-3 py-3 text-right">
+                          <ResetPasswordButton userId={l.id} userName={l.name} />
                         </td>
                       </tr>
                     ))}
