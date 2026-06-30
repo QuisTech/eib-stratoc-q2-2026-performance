@@ -19,6 +19,7 @@ export type Lesson = {
   videoUrl?: string
   sections: LessonSection[]
   takeaways: string[]
+  attachments?: { title: string; url: string }[]
 }
 export type QuizQuestion = {
   id: string

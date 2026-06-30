@@ -11,7 +11,18 @@ import {
 import { getLessons } from "@/lib/lms-content"
 import { Card, CardContent } from "@/components/ui/card"
 import { LessonCompleteButton } from "@/components/lms/lesson-complete-button"
-import { ArrowLeft, CheckCircle2, Circle, Clock, Lightbulb, Lock } from "lucide-react"
+import { ArrowLeft, CheckCircle2, Circle, Clock, Lightbulb, Lock, Paperclip } from "lucide-react"
+
+function parseMarkdown(text: string) {
+  let html = text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+  html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+  html = html.replace(/\*(.*?)\*/g, "<em>$1</em>")
+  html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-primary underline underline-offset-4 hover:text-primary/80">$1</a>')
+  return html
+}
 
 type Params = { slug: string; lesson: string }
 
@@ -131,14 +142,36 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
                 <h2 className="font-heading text-xl font-bold">{s.heading}</h2>
                 <div className="mt-2 flex flex-col gap-3">
                   {s.body.map((p, i) => (
-                    <p key={i} className="text-pretty leading-relaxed text-muted-foreground">
-                      {p}
-                    </p>
+                    <p 
+                      key={i} 
+                      className="text-pretty leading-relaxed text-muted-foreground"
+                      dangerouslySetInnerHTML={{ __html: parseMarkdown(p) }}
+                    />
                   ))}
                 </div>
               </section>
             ))}
           </div>
+
+          {lesson.attachments && lesson.attachments.length > 0 && (
+            <div className="mt-8 flex flex-col gap-3">
+              <h3 className="font-heading text-lg font-bold">Attachments & Links</h3>
+              <div className="flex flex-col gap-2">
+                {lesson.attachments.map((att, i) => (
+                  <a
+                    key={i}
+                    href={att.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex w-fit items-center gap-2 rounded-md border bg-card px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
+                  >
+                    <Paperclip className="h-4 w-4" />
+                    {att.title || att.url}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
 
           <Card className="mt-8 border-l-4" style={{ borderLeftColor: "var(--accent)" }}>
             <CardContent className="p-5">

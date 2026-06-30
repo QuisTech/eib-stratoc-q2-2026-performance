@@ -51,6 +51,7 @@ export default function CourseBuilderClient({ course }: { course: any }) {
         videoUrl: "",
         sections: [{ heading: "", body: [""] }],
         takeaways: [""],
+        attachments: [],
       },
     ])
   }
@@ -81,6 +82,25 @@ export default function CourseBuilderClient({ course }: { course: any }) {
   const addSection = (lessonIndex: number) => {
     const updated = [...lessons]
     updated[lessonIndex].sections.push({ heading: "", body: [""] })
+    setLessons(updated)
+  }
+
+  const addAttachment = (lessonIndex: number) => {
+    const updated = [...lessons]
+    if (!updated[lessonIndex].attachments) updated[lessonIndex].attachments = []
+    updated[lessonIndex].attachments.push({ title: "", url: "" })
+    setLessons(updated)
+  }
+
+  const updateAttachment = (lessonIndex: number, attIndex: number, field: string, value: string) => {
+    const updated = [...lessons]
+    updated[lessonIndex].attachments[attIndex] = { ...updated[lessonIndex].attachments[attIndex], [field]: value }
+    setLessons(updated)
+  }
+
+  const removeAttachment = (lessonIndex: number, attIndex: number) => {
+    const updated = [...lessons]
+    updated[lessonIndex].attachments = updated[lessonIndex].attachments.filter((_: any, i: number) => i !== attIndex)
     setLessons(updated)
   }
 
@@ -218,7 +238,7 @@ export default function CourseBuilderClient({ course }: { course: any }) {
                         value={sec.body.join("\n\n")}
                         onChange={(e) => updateSectionBody(lIndex, sIndex, e.target.value)}
                         className="w-full min-h-[100px] resize-y rounded-md border bg-background p-3 text-sm"
-                        placeholder="Paragraph 1&#10;&#10;Paragraph 2"
+                        placeholder="Paragraph 1 (Supports Markdown: **bold**, *italic*, [link](url))&#10;&#10;Paragraph 2"
                       />
                     </div>
                   ))}
@@ -236,10 +256,44 @@ export default function CourseBuilderClient({ course }: { course: any }) {
                 <textarea
                   value={lesson.takeaways.join("\n")}
                   onChange={(e) => updateLesson(lIndex, "takeaways", e.target.value.split("\n"))}
-                  className="w-full resize-y rounded-md border bg-background p-3 text-sm"
+                  className="w-full resize-y rounded-md border bg-background p-3 text-sm mb-6"
                   rows={3}
                   placeholder="Takeaway 1&#10;Takeaway 2"
                 />
+              </div>
+
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Attachments & Links</label>
+                <div className="space-y-3">
+                  {(lesson.attachments || []).map((att: any, aIndex: number) => (
+                    <div key={aIndex} className="flex items-center gap-2">
+                      <input
+                        value={att.title}
+                        onChange={(e) => updateAttachment(lIndex, aIndex, "title", e.target.value)}
+                        className="w-1/3 rounded-md border bg-background px-3 py-2 text-sm"
+                        placeholder="Link Title (e.g. PDF Guide)"
+                      />
+                      <input
+                        value={att.url}
+                        onChange={(e) => updateAttachment(lIndex, aIndex, "url", e.target.value)}
+                        className="flex-1 rounded-md border bg-background px-3 py-2 text-sm"
+                        placeholder="URL (https://...)"
+                      />
+                      <button
+                        onClick={() => removeAttachment(lIndex, aIndex)}
+                        className="p-2 text-muted-foreground hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                  <button
+                    onClick={() => addAttachment(lIndex)}
+                    className="text-xs font-medium text-primary hover:underline"
+                  >
+                    + Add Attachment
+                  </button>
+                </div>
               </div>
             </div>
           ))}
