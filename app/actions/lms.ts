@@ -168,22 +168,23 @@ export async function getMyCertificateForCourse(courseId: number): Promise<Certi
 }
 
 export async function getCertificateForCourse(courseId: number, targetUserId?: string): Promise<Certificate | null> {
-  const viewer = await getSessionUser()
-  const viewerRole = viewer.role ?? "learner"
-  
-  let userIdToFetch = viewer.id
-  
-  if (targetUserId && targetUserId !== viewer.id) {
-    if (viewerRole !== "admin" && viewerRole !== "group_head" && viewerRole !== "lead") {
-      throw new Error("Forbidden: Cannot view other users' certificates")
-    }
-    userIdToFetch = targetUserId
+  // If a specific target is requested, allow public verification.
+  // The userId is a long string, acting as a secure verification token.
+  if (targetUserId) {
+    const rows = await db
+      .select()
+      .from(certificates)
+      .where(and(eq(certificates.userId, targetUserId), eq(certificates.courseId, courseId)))
+      .limit(1)
+    return rows[0] ?? null
   }
 
+  // Otherwise, fallback to the current authenticated user viewing their own certificate.
+  const viewer = await getSessionUser()
   const rows = await db
     .select()
     .from(certificates)
-    .where(and(eq(certificates.userId, userIdToFetch), eq(certificates.courseId, courseId)))
+    .where(and(eq(certificates.userId, viewer.id), eq(certificates.courseId, courseId)))
     .limit(1)
   return rows[0] ?? null
 }

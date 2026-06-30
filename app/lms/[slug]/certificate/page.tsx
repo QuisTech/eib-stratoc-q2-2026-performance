@@ -38,14 +38,16 @@ export default async function CertificatePage({
   if (!course) notFound()
 
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) redirect("/sign-in")
+  
+  if (!targetUserId && !session?.user) {
+    redirect("/sign-in")
+  }
 
   const certificate = await getCertificateForCourse(course.id, targetUserId)
   if (!certificate) redirect(`/lms/${slug}`)
 
-  // Get the name for the certificate. If admin is viewing someone else's, fetch their name.
-  let certName = session.user.name || session.user.email
-  if (targetUserId && targetUserId !== session.user.id) {
+  let certName = session?.user?.name || session?.user?.email || "Learner"
+  if (targetUserId && targetUserId !== session?.user?.id) {
     const targetUser = await db.select({ name: user.name, email: user.email }).from(user).where(eq(user.id, targetUserId)).limit(1)
     if (targetUser[0]) {
       certName = targetUser[0].name || targetUser[0].email
