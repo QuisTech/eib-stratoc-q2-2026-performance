@@ -63,8 +63,8 @@ The CI/CD pipeline (`.github/workflows/on-premise-deploy.yml`) will automaticall
 npm install
 npm run build
 
-# Apply the database schema
-npx drizzle-kit push
+# Apply the database schema (Enterprise migrations)
+npm run db:migrate
 
 # Start the application using PM2
 pm2 start ecosystem.config.js --env production
