@@ -115,16 +115,18 @@ export default async function AdminPage() {
 
       {orgWide && (
         <section className="mb-8">
-          <Card className="border-[var(--chart-2)] bg-[var(--chart-2)]/5 hover:bg-[var(--chart-2)]/10 transition-colors cursor-pointer" onClick={() => window.location.href = '/lms/admin/sync'}>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-[var(--chart-2)]">Hybrid Sync</CardTitle>
-              <Server className="h-4 w-4 text-[var(--chart-2)]" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-lg font-bold text-[var(--chart-2)]">Database Sync</div>
-              <p className="text-xs text-muted-foreground">Push/Pull to Cloud</p>
-            </CardContent>
-          </Card>
+          <Link href="/lms/admin/sync" className="block">
+            <Card className="border-[var(--chart-2)] bg-[var(--chart-2)]/5 hover:bg-[var(--chart-2)]/10 transition-colors cursor-pointer">
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium text-[var(--chart-2)]">Hybrid Sync</CardTitle>
+                <Server className="h-4 w-4 text-[var(--chart-2)]" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-lg font-bold text-[var(--chart-2)]">Database Sync</div>
+                <p className="text-xs text-muted-foreground">Push/Pull to Cloud</p>
+              </CardContent>
+            </Card>
+          </Link>
         </section>
       )}
 
