@@ -263,6 +263,7 @@ export type AdminReport = {
   }
   learners: LearnerReportRow[]
   topCourses: { courseId: number; title: string; enrolled: number; completed: number }[]
+  allCourses: Course[]
 }
 
 /** Returns the viewer's role + subsidiary so the UI can gate the admin link. */
