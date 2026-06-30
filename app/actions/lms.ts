@@ -599,7 +599,10 @@ export async function exportAdminCSV(): Promise<string> {
   const certMap = new Map(allCerts.map(c => [`${c.userId}-${c.courseId}`, c]))
 
   let csv = "Name,Email,Subsidiary,Course,Status,Progress (%),Certificate Link\n"
-  const baseUrl = process.env.BETTER_AUTH_URL || "http://localhost:3000"
+  
+  const host = (await headers()).get("host") || "localhost:3000"
+  const protocol = host.includes("localhost") ? "http" : "https"
+  const baseUrl = `${protocol}://${host}`
 
   for (const e of allEnrollments) {
     const u = userMap.get(e.userId)
