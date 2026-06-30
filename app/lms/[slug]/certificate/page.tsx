@@ -3,7 +3,10 @@ import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
-import { getCourseBySlug, getMyCertificateForCourse } from "@/app/actions/lms"
+import { getCourseBySlug, getCertificateForCourse } from "@/app/actions/lms"
+import { db } from "@/lib/db"
+import { user } from "@/lib/db/schema"
+import { eq } from "drizzle-orm"
 import { INITIATIVE_NAMES } from "@/lib/lms-content"
 import { formatNaira } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
@@ -22,16 +25,32 @@ export async function generateMetadata({
   return { title: course ? `Certificate · ${course.title} | EIB Group LMS` : "Certificate" }
 }
 
-export default async function CertificatePage({ params }: { params: Promise<Params> }) {
+export default async function CertificatePage({ 
+  params,
+  searchParams
+}: { 
+  params: Promise<Params>,
+  searchParams: Promise<{ userId?: string }>
+}) {
   const { slug } = await params
+  const { userId: targetUserId } = await searchParams
   const course = await getCourseBySlug(slug)
   if (!course) notFound()
 
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) redirect("/sign-in")
 
-  const certificate = await getMyCertificateForCourse(course.id)
+  const certificate = await getCertificateForCourse(course.id, targetUserId)
   if (!certificate) redirect(`/lms/${slug}`)
+
+  // Get the name for the certificate. If admin is viewing someone else's, fetch their name.
+  let certName = session.user.name || session.user.email
+  if (targetUserId && targetUserId !== session.user.id) {
+    const targetUser = await db.select({ name: user.name, email: user.email }).from(user).where(eq(user.id, targetUserId)).limit(1)
+    if (targetUser[0]) {
+      certName = targetUser[0].name || targetUser[0].email
+    }
+  }
 
   const issued = new Date(certificate.issuedAt).toLocaleDateString("en-US", {
     year: "numeric",
@@ -75,7 +94,7 @@ export default async function CertificatePage({ params }: { params: Promise<Para
           </h1>
           <p className="mt-5 text-sm text-muted-foreground">This certifies that</p>
           <p className="mt-2 font-heading text-2xl font-bold text-primary md:text-3xl">
-            {session.user.name || session.user.email}
+            {certName}
           </p>
           <p className="mt-4 max-w-xl text-pretty leading-relaxed text-muted-foreground">
             has successfully completed all lessons and passed the assessment for

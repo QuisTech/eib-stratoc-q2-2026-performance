@@ -167,6 +167,27 @@ export async function getMyCertificateForCourse(courseId: number): Promise<Certi
   return rows[0] ?? null
 }
 
+export async function getCertificateForCourse(courseId: number, targetUserId?: string): Promise<Certificate | null> {
+  const viewer = await getSessionUser()
+  const viewerRole = viewer.role ?? "learner"
+  
+  let userIdToFetch = viewer.id
+  
+  if (targetUserId && targetUserId !== viewer.id) {
+    if (viewerRole !== "admin" && viewerRole !== "group_head" && viewerRole !== "lead") {
+      throw new Error("Forbidden: Cannot view other users' certificates")
+    }
+    userIdToFetch = targetUserId
+  }
+
+  const rows = await db
+    .select()
+    .from(certificates)
+    .where(and(eq(certificates.userId, userIdToFetch), eq(certificates.courseId, courseId)))
+    .limit(1)
+  return rows[0] ?? null
+}
+
 export async function getMyCertificates(): Promise<Certificate[]> {
   const userId = await getUserId()
   return db
@@ -536,4 +557,70 @@ export async function adminResetUserPassword(userId: string) {
   })
 
   revalidatePath("/lms/admin")
+}
+
+export async function exportAdminCSV(): Promise<string> {
+  const viewer = await getSessionUser()
+  const role = viewer.role ?? "learner"
+  const orgWide = role === "admin" || role === "group_head"
+  if (!orgWide && role !== "lead") throw new Error("Forbidden")
+
+  const isDCIHead = role === "lead" && viewer.subsidiary === "Directorate of Clandestine & Intelligence"
+
+  let learnerRows;
+  if (orgWide) {
+    learnerRows = await db.select().from(user).orderBy(asc(user.subsidiary), asc(user.name))
+  } else if (isDCIHead) {
+    learnerRows = await db
+      .select()
+      .from(user)
+      .where(like(user.subsidiary, "DCI - %"))
+      .orderBy(asc(user.subsidiary), asc(user.name))
+  } else {
+    learnerRows = await db
+        .select()
+        .from(user)
+        .where(eq(user.subsidiary, viewer.subsidiary ?? "__none__"))
+        .orderBy(asc(user.name))
+  }
+
+  const ids = learnerRows.map((u) => u.id)
+  const allEnrollments = ids.length
+    ? await db.select().from(enrollments).where(inArray(enrollments.userId, ids))
+    : []
+  const allCerts = ids.length
+    ? await db.select().from(certificates).where(inArray(certificates.userId, ids))
+    : []
+  const allCourses = await db.select().from(courses)
+  const courseBySlug = new Map(allCourses.map((c) => [c.id, c.slug]))
+  const courseTitle = new Map(allCourses.map((c) => [c.id, c.title]))
+
+  const userMap = new Map(learnerRows.map(u => [u.id, u]))
+  const certMap = new Map(allCerts.map(c => [`${c.userId}-${c.courseId}`, c]))
+
+  let csv = "Name,Email,Subsidiary,Course,Status,Progress (%),Certificate Link\n"
+  const baseUrl = process.env.BETTER_AUTH_URL || "http://localhost:3000"
+
+  for (const e of allEnrollments) {
+    const u = userMap.get(e.userId)
+    if (!u) continue
+    const title = courseTitle.get(e.courseId) || "Unknown Course"
+    const slug = courseBySlug.get(e.courseId) || ""
+    const cert = certMap.get(`${e.userId}-${e.courseId}`)
+    
+    const certLink = cert ? `${baseUrl}/lms/${slug}/certificate?userId=${e.userId}` : ""
+    
+    const row = [
+      `"${u.name || ""}"`,
+      `"${u.email}"`,
+      `"${u.subsidiary || ""}"`,
+      `"${title}"`,
+      e.status,
+      e.progress,
+      `"${certLink}"`
+    ]
+    csv += row.join(",") + "\n"
+  }
+
+  return csv
 }

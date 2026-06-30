@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress"
 import { formatNaira } from "@/lib/utils"
 import { ArrowLeft, Users, BookOpen, GraduationCap, Award, Edit, Server } from "lucide-react"
 import { ResetPasswordButton } from "./reset-password-button"
+import { ExportCsvButton } from "./export-csv-button"
 
 export const dynamic = "force-dynamic"
 
@@ -134,10 +135,13 @@ export default async function AdminPage() {
       <section className="mb-8">
         <Card>
           <CardHeader className="flex-row items-center justify-between gap-2">
-            <CardTitle className="text-base">Learners</CardTitle>
-            <span className="text-sm text-muted-foreground tabular-nums">
-              {completionRate}% completion rate
-            </span>
+            <div className="flex items-center gap-4">
+              <CardTitle className="text-base">Learners</CardTitle>
+              <span className="text-sm text-muted-foreground tabular-nums">
+                {completionRate}% completion rate
+              </span>
+            </div>
+            <ExportCsvButton />
           </CardHeader>
           <CardContent>
             {report.learners.length === 0 ? (
