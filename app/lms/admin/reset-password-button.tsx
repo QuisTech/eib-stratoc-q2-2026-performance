@@ -10,7 +10,7 @@ export function ResetPasswordButton({ userId, userName }: { userId: string; user
   const [done, setDone] = useState(false)
 
   async function handleReset() {
-    if (!confirm(`Are you sure you want to reset the password for ${userName}? The new password will be EIB2026!`)) {
+    if (!confirm(`Are you sure you want to reset the password for ${userName}? They will be given a temporary password.`)) {
       return
     }
     
@@ -39,7 +39,7 @@ export function ResetPasswordButton({ userId, userName }: { userId: string; user
       ) : (
         <KeyRound className="mr-2 h-3.5 w-3.5" />
       )}
-      {done ? "Reset to EIB2026!" : "Reset Password"}
+      {done ? "Password Reset!" : "Reset Password"}
     </Button>
   )
 }
