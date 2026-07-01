@@ -7,6 +7,7 @@ import { authClient } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2, ShieldCheck } from "lucide-react"
+import { autoEnrollOnboarding, setInitialRole } from "@/app/actions/lms"
 
 const SUBSIDIARY_GROUPS = {
   "Group Leadership": [
@@ -81,7 +82,6 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
         if (res?.error) throw new Error(`SignUp Error: ${res.error.status} - ${res.error.message}`)
 
         try {
-          const { autoEnrollOnboarding, setInitialRole } = await import("@/app/actions/lms")
           const finalRole = role === "group_head_standard" ? "lead" : role;
           if (finalRole !== "learner") {
             await setInitialRole(res.data.user.id, finalRole)
@@ -94,8 +94,7 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
         const res = (await authClient.signIn.email({ email, password })) as any
         if (res?.error) throw new Error(`SignIn Error: ${res.error.status} - ${res.error.message}`)
       }
-      router.push("/lms")
-      router.refresh()
+      window.location.href = "/lms"
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong")
       setLoading(false)
