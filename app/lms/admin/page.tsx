@@ -160,7 +160,7 @@ export default async function AdminPage() {
                       <th className="px-3 py-2 text-center font-medium">Completed</th>
                       <th className="px-3 py-2 text-center font-medium">Certs</th>
                       <th className="px-3 py-2 font-medium">Avg progress</th>
-                      <th className="px-3 py-2 text-right font-medium">Actions</th>
+                      {role === "admin" && <th className="px-3 py-2 text-right font-medium">Actions</th>}
                     </tr>
                   </thead>
                   <tbody>
@@ -197,9 +197,11 @@ export default async function AdminPage() {
                             </span>
                           </div>
                         </td>
-                        <td className="px-3 py-3 text-right">
-                          <ResetPasswordButton userId={l.id} userName={l.name} />
-                        </td>
+                        {role === "admin" && (
+                          <td className="px-3 py-3 text-right">
+                            <ResetPasswordButton userId={l.id} userName={l.name} />
+                          </td>
+                        )}
                       </tr>
                     ))}
                   </tbody>

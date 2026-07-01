@@ -325,20 +325,25 @@ export async function getAdminReport(): Promise<AdminReport> {
         .orderBy(asc(user.name))
   }
 
-  const ids = learnerRows.map((u) => u.id)
-  const allEnrollments = ids.length
-    ? await db.select().from(enrollments).where(inArray(enrollments.userId, ids))
-    : []
-  const allCerts = ids.length
-    ? await db.select().from(certificates).where(inArray(certificates.userId, ids))
-    : []
   const allDbCourses = await db.select().from(courses)
   const courseTitle = new Map(allDbCourses.map((c) => [c.id, c.title]))
   const coursePrice = new Map(allDbCourses.map((c) => [c.id, c.priceNaira]))
-
   let allCourses = allDbCourses
+  const ids = learnerRows.map((u) => u.id)
+  let allEnrollments = ids.length ? await db.select().from(enrollments).where(inArray(enrollments.userId, ids)) : []
+  let allCerts = ids.length ? await db.select().from(certificates).where(inArray(certificates.userId, ids)) : []
+
   if (role !== "admin") {
     allCourses = allCourses.filter(c => c.authorId === viewer.id)
+    const myCourseIds = new Set(allCourses.map(c => c.id))
+    
+    // Only include enrollments and certs for courses authored by the viewer
+    allEnrollments = allEnrollments.filter(e => myCourseIds.has(e.courseId))
+    allCerts = allCerts.filter(c => myCourseIds.has(c.courseId))
+
+    // Only show learners who have at least one enrollment in the viewer's courses
+    const myLearnerIds = new Set(allEnrollments.map(e => e.userId))
+    learnerRows = learnerRows.filter(u => myLearnerIds.has(u.id))
   }
 
   const enrByUser = new Map<string, Enrollment[]>()
