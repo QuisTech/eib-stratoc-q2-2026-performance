@@ -9,6 +9,7 @@ import {
   quizAttempts,
   certificates,
   user,
+  account,
   type Course,
   type Enrollment,
   type QuizAttempt,
