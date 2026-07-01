@@ -63,7 +63,7 @@ export default async function AdminPage() {
           <Badge variant={orgWide ? "default" : "secondary"}>
             {orgWide ? "Group-wide" : report.scope}
           </Badge>
-          {orgWide && (
+          {(orgWide || role === "lead") && (
             <Link
               href="/lms/admin/courses/new"
               className="ml-auto inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
@@ -242,7 +242,7 @@ export default async function AdminPage() {
         </Card>
       </section>
 
-      {orgWide && (
+      {(orgWide || role === "lead") && (
         <section>
           <Card>
             <CardHeader>

@@ -18,10 +18,11 @@ export default async function EditCoursePage({
   if (!session?.user) redirect("/sign-in")
 
   const role = session.user.role as string
-  if (role !== "admin" && role !== "group_head") redirect("/lms")
+  if (role !== "admin" && role !== "group_head" && role !== "lead") redirect("/lms")
 
   const [course] = await db.select().from(courses).where(eq(courses.slug, slug))
   if (!course) redirect("/lms/admin")
+  if (role === "lead" && course.authorId !== session.user.id) redirect("/lms/admin")
 
   async function handleUpdate(formData: FormData) {
     "use server"

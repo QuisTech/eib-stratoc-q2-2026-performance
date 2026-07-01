@@ -72,6 +72,7 @@ export const courses = pgTable("courses", {
   initiative: integer("initiative"), // links to one of the 9 strategic initiatives
   videoUrl: text("videoUrl"), // dynamic video embed link
   customContent: text("customContent"), // JSON string containing custom lessons and quiz
+  authorId: text("authorId"), // tracks the manager/admin who created this course
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 

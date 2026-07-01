@@ -332,7 +332,10 @@ export async function getAdminReport(): Promise<AdminReport> {
   const allCerts = ids.length
     ? await db.select().from(certificates).where(inArray(certificates.userId, ids))
     : []
-  const allCourses = await db.select().from(courses)
+  let allCourses = await db.select().from(courses)
+  if (!orgWide && role === "lead") {
+    allCourses = allCourses.filter(c => c.authorId === viewer.id)
+  }
   const courseTitle = new Map(allCourses.map((c) => [c.id, c.title]))
   const coursePrice = new Map(allCourses.map((c) => [c.id, c.priceNaira]))
 
@@ -416,7 +419,7 @@ export async function createCourse(data: {
   if (!session?.user) throw new Error("Unauthorized")
 
   const role = session.user.role as string
-  if (role !== "admin" && role !== "group_head") throw new Error("Forbidden: Only Group Heads can create courses")
+  if (role !== "admin" && role !== "group_head" && role !== "lead") throw new Error("Forbidden: Only Group Heads and Leads can create courses")
 
   const slug = data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
 
@@ -437,6 +440,7 @@ export async function createCourse(data: {
       priceNaira: data.priceNaira,
       subsidiaries: data.subsidiaries,
       videoUrl: data.videoUrl,
+      authorId: session.user.id,
     })
   } catch (err: any) {
     throw new Error("Database insertion failed. If you recently upgraded the system, you MUST visit the reset link to upgrade the database tables: /api/db/setup?reset=true")
@@ -461,7 +465,13 @@ export async function updateCourse(slug: string, data: {
   if (!session?.user) throw new Error("Unauthorized")
 
   const role = session.user.role as string
-  if (role !== "admin" && role !== "group_head") throw new Error("Forbidden: Only Group Heads can edit courses")
+  if (role !== "admin" && role !== "group_head" && role !== "lead") throw new Error("Forbidden: Only Group Heads and Leads can edit courses")
+
+  const existing = await db.select().from(courses).where(eq(courses.slug, slug)).limit(1)
+  if (existing.length === 0) throw new Error("Course not found")
+  if (role === "lead" && existing[0].authorId !== session.user.id) {
+    throw new Error("Forbidden: You can only edit courses that you created")
+  }
 
   const newSlug = data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
 
@@ -487,7 +497,13 @@ export async function saveCustomCourseContent(slug: string, contentJson: string)
   if (!session?.user) throw new Error("Unauthorized")
 
   const role = session.user.role as string
-  if (role !== "admin" && role !== "group_head") throw new Error("Forbidden: Only Group Heads can edit courses")
+  if (role !== "admin" && role !== "group_head" && role !== "lead") throw new Error("Forbidden: Only Group Heads and Leads can edit courses")
+
+  const existing = await db.select().from(courses).where(eq(courses.slug, slug)).limit(1)
+  if (existing.length === 0) throw new Error("Course not found")
+  if (role === "lead" && existing[0].authorId !== session.user.id) {
+    throw new Error("Forbidden: You can only edit content for courses that you created")
+  }
 
   await db.update(courses).set({
     customContent: contentJson,
