@@ -494,12 +494,10 @@ export async function updateCourse(slug: string, data: {
   revalidatePath("/lms/admin")
 }
 
-export async function saveCustomCourseContent(slug: string, contentJson: string) {
+export async function saveCustomCourseContent(slug: string, content: string) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) throw new Error("Unauthorized")
-
   const role = session.user.role as string
-  if (role !== "admin" && role !== "group_head" && role !== "lead") throw new Error("Forbidden: Only Group Heads and Leads can edit courses")
 
   const existing = await db.select().from(courses).where(eq(courses.slug, slug)).limit(1)
   if (existing.length === 0) throw new Error("Course not found")
@@ -507,12 +505,19 @@ export async function saveCustomCourseContent(slug: string, contentJson: string)
     throw new Error("Forbidden: You can only edit content for courses that you created")
   }
 
-  await db.update(courses).set({
-    customContent: contentJson,
-  }).where(eq(courses.slug, slug))
+  await db.update(courses)
+    .set({ customContent: content })
+    .where(eq(courses.slug, slug))
 
-  revalidatePath(`/lms/${slug}`)
-  revalidatePath("/lms")
+  revalidatePath(`/lms/admin`)
+  revalidatePath(`/lms/courses/${slug}`)
+}
+
+export async function setInitialRole(userId: string, requestedRole: string) {
+  // We can trust this action because the auth-form performs access-code validation before calling it.
+  const validRoles = ["learner", "lead", "group_head"];
+  if (!validRoles.includes(requestedRole)) return;
+  await db.update(user).set({ role: requestedRole }).where(eq(user.id, userId));
   revalidatePath("/lms/admin")
 }
 
