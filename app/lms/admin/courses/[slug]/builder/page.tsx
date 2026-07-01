@@ -20,7 +20,7 @@ export default async function CourseBuilderPage({
 
   const [course] = await db.select().from(courses).where(eq(courses.slug, slug))
   if (!course) redirect("/lms/admin")
-  if (role === "lead" && course.authorId !== session.user.id) redirect("/lms/admin")
+  if (role !== "admin" && course.authorId !== session.user.id) redirect("/lms/admin")
 
   return <CourseBuilderClient course={course} />
 }

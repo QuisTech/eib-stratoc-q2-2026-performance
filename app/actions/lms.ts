@@ -332,12 +332,14 @@ export async function getAdminReport(): Promise<AdminReport> {
   const allCerts = ids.length
     ? await db.select().from(certificates).where(inArray(certificates.userId, ids))
     : []
-  let allCourses = await db.select().from(courses)
-  if (!orgWide && role === "lead") {
+  const allDbCourses = await db.select().from(courses)
+  const courseTitle = new Map(allDbCourses.map((c) => [c.id, c.title]))
+  const coursePrice = new Map(allDbCourses.map((c) => [c.id, c.priceNaira]))
+
+  let allCourses = allDbCourses
+  if (role !== "admin") {
     allCourses = allCourses.filter(c => c.authorId === viewer.id)
   }
-  const courseTitle = new Map(allCourses.map((c) => [c.id, c.title]))
-  const coursePrice = new Map(allCourses.map((c) => [c.id, c.priceNaira]))
 
   const enrByUser = new Map<string, Enrollment[]>()
   for (const e of allEnrollments) {
@@ -469,7 +471,7 @@ export async function updateCourse(slug: string, data: {
 
   const existing = await db.select().from(courses).where(eq(courses.slug, slug)).limit(1)
   if (existing.length === 0) throw new Error("Course not found")
-  if (role === "lead" && existing[0].authorId !== session.user.id) {
+  if (role !== "admin" && existing[0].authorId !== session.user.id) {
     throw new Error("Forbidden: You can only edit courses that you created")
   }
 
@@ -501,7 +503,7 @@ export async function saveCustomCourseContent(slug: string, contentJson: string)
 
   const existing = await db.select().from(courses).where(eq(courses.slug, slug)).limit(1)
   if (existing.length === 0) throw new Error("Course not found")
-  if (role === "lead" && existing[0].authorId !== session.user.id) {
+  if (role !== "admin" && existing[0].authorId !== session.user.id) {
     throw new Error("Forbidden: You can only edit content for courses that you created")
   }
 
