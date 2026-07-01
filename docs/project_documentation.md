@@ -14,21 +14,23 @@ This document serves as the comprehensive, up-to-date record of the architecture
 
 ## 2. Key Features Implemented
 
-### A. Role-Based Access Control (RBAC)
-The platform supports hierarchical access levels:
-- **Learner**: Can enroll in courses, view modules, and take quizzes.
-- **Lead**: Elevated privileges for team oversight.
-- **Group Head / Admin**: Full access to the Admin Dashboard, course creation, sync controls, and learner password management.
+### A. Role-Based Access Control (RBAC) & Visibility
+The platform supports strict hierarchical access levels to silo data appropriately:
+- **Learner (`learner`)**: Can enroll in courses, view modules, take quizzes, and track personal progress via their own portal.
+- **Subsidiary Manager (`lead`)**: Elevated privileges. Has access to the Team Admin dashboard but can *only* see staff belonging to their specific subsidiary, as well as anyone enrolled in courses they authored.
+- **Group Head (`group_head` & `group_head_standard`)**: Strategic oversight. Has access to the Team Admin dashboard but can *only* see the enrollment and progress metrics for the specific courses they have authored.
+- **Super Admin (`admin`)**: Full, unrestricted global access. Can view all users across all subsidiaries, reset any user's password, and delete user accounts.
 
 ### B. Custom Course Builder (Offline-First)
 - **Static/Programmatic Generation**: Instead of relying on external LLMs that require internet access, the platform includes a deterministic course builder.
 - **Rich Content Attachments**: Group Heads can attach URLs and text content to lessons.
 - **Schema**: Supports robust relational data models linking `Course` -> `Module` -> `Lesson` -> `Quiz`.
 
-### C. Password Management (Email-less Failsafe)
+### C. User & Password Management (Admin Utilities)
 Designed specifically for the constraints of an on-premise, internal deployment where setting up an SMTP email server is undesirable:
 - **Self-Service**: Logged-in users can change their password securely from the `/lms/settings` page.
-- **Admin Failsafe Reset**: Group Heads can instantly force-reset a forgotten user's password from the Admin Dashboard to a configurable temporary default (e.g., `ChangeMeImmediately123!`).
+- **Admin Failsafe Reset**: Super Admins can instantly force-reset a forgotten user's password from the Admin Dashboard to a configurable temporary default. This was implemented natively using `better-auth/crypto` to securely hash the password and update the database directly, bypassing restrictive plugin requirements.
+- **Secure User Deletion**: Super Admins have the ability to permanently delete test accounts or separated staff. This triggers a cascading deletion, ensuring all related data (enrollments, lesson progress, quiz attempts, and certificates) are safely purged without leaving dangling references in the database.
 
 ### D. Hybrid Sync Engine (Cloud ↔ On-Premise)
 To ensure the on-premise database and the cloud database remain identical:
