@@ -6,12 +6,11 @@ module.exports = {
       args: "start",
       env: {
         NODE_ENV: "production",
+        PORT: 3000
       },
-      // Ensures PM2 restarts the app if it crashes
       autorestart: true,
-      // Log files
-      error_file: "logs/err.log",
-      out_file: "logs/out.log",
+      error_file: "./logs/err.log",
+      out_file: "./logs/out.log",
       log_date_format: "YYYY-MM-DD HH:mm Z"
     }
   ]

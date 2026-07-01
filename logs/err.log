@@ -1,0 +1,410 @@
+2026-06-30 20:05 +01:00: ⨯ Failed to start server
+2026-06-30 20:05 +01:00: Error: listen EADDRINUSE: address already in use :::3000
+2026-06-30 20:05 +01:00:     at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+2026-06-30 20:05 +01:00:     at new Promise (<anonymous>) {
+2026-06-30 20:05 +01:00:   code: 'EADDRINUSE',
+2026-06-30 20:05 +01:00:   errno: -98,
+2026-06-30 20:05 +01:00:   syscall: 'listen',
+2026-06-30 20:05 +01:00:   address: '::',
+2026-06-30 20:05 +01:00:   port: 3000
+2026-06-30 20:05 +01:00: }
+2026-06-30 20:05 +01:00: ⨯ Failed to start server
+2026-06-30 20:05 +01:00: Error: listen EADDRINUSE: address already in use :::3000
+2026-06-30 20:05 +01:00:     at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+2026-06-30 20:05 +01:00:     at new Promise (<anonymous>) {
+2026-06-30 20:05 +01:00:   code: 'EADDRINUSE',
+2026-06-30 20:05 +01:00:   errno: -98,
+2026-06-30 20:05 +01:00:   syscall: 'listen',
+2026-06-30 20:05 +01:00:   address: '::',
+2026-06-30 20:05 +01:00:   port: 3000
+2026-06-30 20:05 +01:00: }
+2026-06-30 20:05 +01:00: ⨯ Failed to start server
+2026-06-30 20:05 +01:00: Error: listen EADDRINUSE: address already in use :::3000
+2026-06-30 20:05 +01:00:     at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+2026-06-30 20:05 +01:00:     at new Promise (<anonymous>) {
+2026-06-30 20:05 +01:00:   code: 'EADDRINUSE',
+2026-06-30 20:05 +01:00:   errno: -98,
+2026-06-30 20:05 +01:00:   syscall: 'listen',
+2026-06-30 20:05 +01:00:   address: '::',
+2026-06-30 20:05 +01:00:   port: 3000
+2026-06-30 20:05 +01:00: }
+2026-06-30 20:05 +01:00: ⨯ Failed to start server
+2026-06-30 20:05 +01:00: Error: listen EADDRINUSE: address already in use :::3000
+2026-06-30 20:05 +01:00:     at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+2026-06-30 20:05 +01:00:     at new Promise (<anonymous>) {
+2026-06-30 20:05 +01:00:   code: 'EADDRINUSE',
+2026-06-30 20:05 +01:00:   errno: -98,
+2026-06-30 20:05 +01:00:   syscall: 'listen',
+2026-06-30 20:05 +01:00:   address: '::',
+2026-06-30 20:05 +01:00:   port: 3000
+2026-06-30 20:05 +01:00: }
+2026-06-30 20:05 +01:00: ⨯ Failed to start server
+2026-06-30 20:05 +01:00: Error: listen EADDRINUSE: address already in use :::3000
+2026-06-30 20:05 +01:00:     at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+2026-06-30 20:05 +01:00:     at new Promise (<anonymous>) {
+2026-06-30 20:05 +01:00:   code: 'EADDRINUSE',
+2026-06-30 20:05 +01:00:   errno: -98,
+2026-06-30 20:05 +01:00:   syscall: 'listen',
+2026-06-30 20:05 +01:00:   address: '::',
+2026-06-30 20:05 +01:00:   port: 3000
+2026-06-30 20:05 +01:00: }
+2026-06-30 20:05 +01:00: ⨯ Failed to start server
+2026-06-30 20:05 +01:00: Error: listen EADDRINUSE: address already in use :::3000
+2026-06-30 20:05 +01:00:     at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+2026-06-30 20:05 +01:00:     at new Promise (<anonymous>) {
+2026-06-30 20:05 +01:00:   code: 'EADDRINUSE',
+2026-06-30 20:05 +01:00:   errno: -98,
+2026-06-30 20:05 +01:00:   syscall: 'listen',
+2026-06-30 20:05 +01:00:   address: '::',
+2026-06-30 20:05 +01:00:   port: 3000
+2026-06-30 20:05 +01:00: }
+2026-06-30 20:05 +01:00: ⨯ Failed to start server
+2026-06-30 20:05 +01:00: Error: listen EADDRINUSE: address already in use :::3000
+2026-06-30 20:05 +01:00:     at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+2026-06-30 20:05 +01:00:     at new Promise (<anonymous>) {
+2026-06-30 20:05 +01:00:   code: 'EADDRINUSE',
+2026-06-30 20:05 +01:00:   errno: -98,
+2026-06-30 20:05 +01:00:   syscall: 'listen',
+2026-06-30 20:05 +01:00:   address: '::',
+2026-06-30 20:05 +01:00:   port: 3000
+2026-06-30 20:05 +01:00: }
+2026-06-30 20:05 +01:00: ⨯ Failed to start server
+2026-06-30 20:05 +01:00: Error: listen EADDRINUSE: address already in use :::3000
+2026-06-30 20:05 +01:00:     at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+2026-06-30 20:05 +01:00:     at new Promise (<anonymous>) {
+2026-06-30 20:05 +01:00:   code: 'EADDRINUSE',
+2026-06-30 20:05 +01:00:   errno: -98,
+2026-06-30 20:05 +01:00:   syscall: 'listen',
+2026-06-30 20:05 +01:00:   address: '::',
+2026-06-30 20:05 +01:00:   port: 3000
+2026-06-30 20:05 +01:00: }
+2026-06-30 20:05 +01:00: ⨯ Failed to start server
+2026-06-30 20:05 +01:00: Error: listen EADDRINUSE: address already in use :::3000
+2026-06-30 20:05 +01:00:     at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+2026-06-30 20:05 +01:00:     at new Promise (<anonymous>) {
+2026-06-30 20:05 +01:00:   code: 'EADDRINUSE',
+2026-06-30 20:05 +01:00:   errno: -98,
+2026-06-30 20:05 +01:00:   syscall: 'listen',
+2026-06-30 20:05 +01:00:   address: '::',
+2026-06-30 20:05 +01:00:   port: 3000
+2026-06-30 20:05 +01:00: }
+2026-06-30 20:05 +01:00: ⨯ Failed to start server
+2026-06-30 20:05 +01:00: Error: listen EADDRINUSE: address already in use :::3000
+2026-06-30 20:05 +01:00:     at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+2026-06-30 20:05 +01:00:     at new Promise (<anonymous>) {
+2026-06-30 20:05 +01:00:   code: 'EADDRINUSE',
+2026-06-30 20:05 +01:00:   errno: -98,
+2026-06-30 20:05 +01:00:   syscall: 'listen',
+2026-06-30 20:05 +01:00:   address: '::',
+2026-06-30 20:05 +01:00:   port: 3000
+2026-06-30 20:05 +01:00: }
+2026-06-30 20:05 +01:00: ⨯ Failed to start server
+2026-06-30 20:05 +01:00: Error: listen EADDRINUSE: address already in use :::3000
+2026-06-30 20:05 +01:00:     at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+2026-06-30 20:05 +01:00:     at new Promise (<anonymous>) {
+2026-06-30 20:05 +01:00:   code: 'EADDRINUSE',
+2026-06-30 20:05 +01:00:   errno: -98,
+2026-06-30 20:05 +01:00:   syscall: 'listen',
+2026-06-30 20:05 +01:00:   address: '::',
+2026-06-30 20:05 +01:00:   port: 3000
+2026-06-30 20:05 +01:00: }
+2026-06-30 20:05 +01:00: ⨯ Failed to start server
+2026-06-30 20:05 +01:00: Error: listen EADDRINUSE: address already in use :::3000
+2026-06-30 20:05 +01:00:     at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+2026-06-30 20:05 +01:00:     at new Promise (<anonymous>) {
+2026-06-30 20:05 +01:00:   code: 'EADDRINUSE',
+2026-06-30 20:05 +01:00:   errno: -98,
+2026-06-30 20:05 +01:00:   syscall: 'listen',
+2026-06-30 20:05 +01:00:   address: '::',
+2026-06-30 20:05 +01:00:   port: 3000
+2026-06-30 20:05 +01:00: }
+2026-06-30 20:05 +01:00: ⨯ Failed to start server
+2026-06-30 20:05 +01:00: Error: listen EADDRINUSE: address already in use :::3000
+2026-06-30 20:05 +01:00:     at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+2026-06-30 20:05 +01:00:     at new Promise (<anonymous>) {
+2026-06-30 20:05 +01:00:   code: 'EADDRINUSE',
+2026-06-30 20:05 +01:00:   errno: -98,
+2026-06-30 20:05 +01:00:   syscall: 'listen',
+2026-06-30 20:05 +01:00:   address: '::',
+2026-06-30 20:05 +01:00:   port: 3000
+2026-06-30 20:05 +01:00: }
+2026-06-30 20:05 +01:00: ⨯ Failed to start server
+2026-06-30 20:05 +01:00: Error: listen EADDRINUSE: address already in use :::3000
+2026-06-30 20:05 +01:00:     at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+2026-06-30 20:05 +01:00:     at new Promise (<anonymous>) {
+2026-06-30 20:05 +01:00:   code: 'EADDRINUSE',
+2026-06-30 20:05 +01:00:   errno: -98,
+2026-06-30 20:05 +01:00:   syscall: 'listen',
+2026-06-30 20:05 +01:00:   address: '::',
+2026-06-30 20:05 +01:00:   port: 3000
+2026-06-30 20:05 +01:00: }
+2026-06-30 20:05 +01:00: ⨯ Failed to start server
+2026-06-30 20:05 +01:00: Error: listen EADDRINUSE: address already in use :::3000
+2026-06-30 20:05 +01:00:     at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+2026-06-30 20:05 +01:00:     at new Promise (<anonymous>) {
+2026-06-30 20:05 +01:00:   code: 'EADDRINUSE',
+2026-06-30 20:05 +01:00:   errno: -98,
+2026-06-30 20:05 +01:00:   syscall: 'listen',
+2026-06-30 20:05 +01:00:   address: '::',
+2026-06-30 20:05 +01:00:   port: 3000
+2026-06-30 20:05 +01:00: }
+2026-06-30 20:05 +01:00: ⨯ Failed to start server
+2026-06-30 20:05 +01:00: Error: listen EADDRINUSE: address already in use :::3000
+2026-06-30 20:05 +01:00:     at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+2026-06-30 20:05 +01:00:     at new Promise (<anonymous>) {
+2026-06-30 20:05 +01:00:   code: 'EADDRINUSE',
+2026-06-30 20:05 +01:00:   errno: -98,
+2026-06-30 20:05 +01:00:   syscall: 'listen',
+2026-06-30 20:05 +01:00:   address: '::',
+2026-06-30 20:05 +01:00:   port: 3000
+2026-06-30 20:05 +01:00: }
+2026-06-30 20:05 +01:00: ⨯ Failed to start server
+2026-06-30 20:05 +01:00: Error: listen EADDRINUSE: address already in use :::3000
+2026-06-30 20:05 +01:00:     at <unknown> (Error: listen EADDRINUSE: address already in use :::3000)
+2026-06-30 20:05 +01:00:     at new Promise (<anonymous>) {
+2026-06-30 20:05 +01:00:   code: 'EADDRINUSE',
+2026-06-30 20:05 +01:00:   errno: -98,
+2026-06-30 20:05 +01:00:   syscall: 'listen',
+2026-06-30 20:05 +01:00:   address: '::',
+2026-06-30 20:05 +01:00:   port: 3000
+2026-06-30 20:05 +01:00: }
+2026-07-01 00:32 +01:00: /home/apps/actions-runner/_work/eib-stratoc-q2-2026-performance/eib-stratoc-q2-2026-performance/node_modules/.bin/next:2
+2026-07-01 00:32 +01:00: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2026-07-01 00:32 +01:00:           ^^^^^^^
+2026-07-01 00:32 +01:00: 
+2026-07-01 00:32 +01:00: SyntaxError: missing ) after argument list
+2026-07-01 00:32 +01:00:     at wrapSafe (node:internal/modules/cjs/loader:1464:18)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1495:20)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00:     at Object.<anonymous> (/usr/lib/node_modules/pm2/lib/ProcessContainerFork.js:32:23)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00: /home/apps/actions-runner/_work/eib-stratoc-q2-2026-performance/eib-stratoc-q2-2026-performance/node_modules/.bin/next:2
+2026-07-01 00:32 +01:00: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2026-07-01 00:32 +01:00:           ^^^^^^^
+2026-07-01 00:32 +01:00: 
+2026-07-01 00:32 +01:00: SyntaxError: missing ) after argument list
+2026-07-01 00:32 +01:00:     at wrapSafe (node:internal/modules/cjs/loader:1464:18)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1495:20)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00:     at Object.<anonymous> (/usr/lib/node_modules/pm2/lib/ProcessContainerFork.js:32:23)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00: /home/apps/actions-runner/_work/eib-stratoc-q2-2026-performance/eib-stratoc-q2-2026-performance/node_modules/.bin/next:2
+2026-07-01 00:32 +01:00: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2026-07-01 00:32 +01:00:           ^^^^^^^
+2026-07-01 00:32 +01:00: 
+2026-07-01 00:32 +01:00: SyntaxError: missing ) after argument list
+2026-07-01 00:32 +01:00:     at wrapSafe (node:internal/modules/cjs/loader:1464:18)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1495:20)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00:     at Object.<anonymous> (/usr/lib/node_modules/pm2/lib/ProcessContainerFork.js:32:23)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00: /home/apps/actions-runner/_work/eib-stratoc-q2-2026-performance/eib-stratoc-q2-2026-performance/node_modules/.bin/next:2
+2026-07-01 00:32 +01:00: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2026-07-01 00:32 +01:00:           ^^^^^^^
+2026-07-01 00:32 +01:00: 
+2026-07-01 00:32 +01:00: SyntaxError: missing ) after argument list
+2026-07-01 00:32 +01:00:     at wrapSafe (node:internal/modules/cjs/loader:1464:18)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1495:20)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00:     at Object.<anonymous> (/usr/lib/node_modules/pm2/lib/ProcessContainerFork.js:32:23)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00: /home/apps/actions-runner/_work/eib-stratoc-q2-2026-performance/eib-stratoc-q2-2026-performance/node_modules/.bin/next:2
+2026-07-01 00:32 +01:00: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2026-07-01 00:32 +01:00:           ^^^^^^^
+2026-07-01 00:32 +01:00: 
+2026-07-01 00:32 +01:00: SyntaxError: missing ) after argument list
+2026-07-01 00:32 +01:00:     at wrapSafe (node:internal/modules/cjs/loader:1464:18)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1495:20)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00:     at Object.<anonymous> (/usr/lib/node_modules/pm2/lib/ProcessContainerFork.js:32:23)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00: /home/apps/actions-runner/_work/eib-stratoc-q2-2026-performance/eib-stratoc-q2-2026-performance/node_modules/.bin/next:2
+2026-07-01 00:32 +01:00: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2026-07-01 00:32 +01:00:           ^^^^^^^
+2026-07-01 00:32 +01:00: 
+2026-07-01 00:32 +01:00: SyntaxError: missing ) after argument list
+2026-07-01 00:32 +01:00:     at wrapSafe (node:internal/modules/cjs/loader:1464:18)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1495:20)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00:     at Object.<anonymous> (/usr/lib/node_modules/pm2/lib/ProcessContainerFork.js:32:23)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00: /home/apps/actions-runner/_work/eib-stratoc-q2-2026-performance/eib-stratoc-q2-2026-performance/node_modules/.bin/next:2
+2026-07-01 00:32 +01:00: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2026-07-01 00:32 +01:00:           ^^^^^^^
+2026-07-01 00:32 +01:00: 
+2026-07-01 00:32 +01:00: SyntaxError: missing ) after argument list
+2026-07-01 00:32 +01:00:     at wrapSafe (node:internal/modules/cjs/loader:1464:18)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1495:20)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00:     at Object.<anonymous> (/usr/lib/node_modules/pm2/lib/ProcessContainerFork.js:32:23)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00: /home/apps/actions-runner/_work/eib-stratoc-q2-2026-performance/eib-stratoc-q2-2026-performance/node_modules/.bin/next:2
+2026-07-01 00:32 +01:00: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2026-07-01 00:32 +01:00:           ^^^^^^^
+2026-07-01 00:32 +01:00: 
+2026-07-01 00:32 +01:00: SyntaxError: missing ) after argument list
+2026-07-01 00:32 +01:00:     at wrapSafe (node:internal/modules/cjs/loader:1464:18)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1495:20)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00:     at Object.<anonymous> (/usr/lib/node_modules/pm2/lib/ProcessContainerFork.js:32:23)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00: /home/apps/actions-runner/_work/eib-stratoc-q2-2026-performance/eib-stratoc-q2-2026-performance/node_modules/.bin/next:2
+2026-07-01 00:32 +01:00: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2026-07-01 00:32 +01:00:           ^^^^^^^
+2026-07-01 00:32 +01:00: 
+2026-07-01 00:32 +01:00: SyntaxError: missing ) after argument list
+2026-07-01 00:32 +01:00:     at wrapSafe (node:internal/modules/cjs/loader:1464:18)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1495:20)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00:     at Object.<anonymous> (/usr/lib/node_modules/pm2/lib/ProcessContainerFork.js:32:23)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00: /home/apps/actions-runner/_work/eib-stratoc-q2-2026-performance/eib-stratoc-q2-2026-performance/node_modules/.bin/next:2
+2026-07-01 00:32 +01:00: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2026-07-01 00:32 +01:00:           ^^^^^^^
+2026-07-01 00:32 +01:00: 
+2026-07-01 00:32 +01:00: SyntaxError: missing ) after argument list
+2026-07-01 00:32 +01:00:     at wrapSafe (node:internal/modules/cjs/loader:1464:18)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1495:20)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00:     at Object.<anonymous> (/usr/lib/node_modules/pm2/lib/ProcessContainerFork.js:32:23)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00: /home/apps/actions-runner/_work/eib-stratoc-q2-2026-performance/eib-stratoc-q2-2026-performance/node_modules/.bin/next:2
+2026-07-01 00:32 +01:00: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2026-07-01 00:32 +01:00:           ^^^^^^^
+2026-07-01 00:32 +01:00: 
+2026-07-01 00:32 +01:00: SyntaxError: missing ) after argument list
+2026-07-01 00:32 +01:00:     at wrapSafe (node:internal/modules/cjs/loader:1464:18)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1495:20)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00:     at Object.<anonymous> (/usr/lib/node_modules/pm2/lib/ProcessContainerFork.js:32:23)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00: /home/apps/actions-runner/_work/eib-stratoc-q2-2026-performance/eib-stratoc-q2-2026-performance/node_modules/.bin/next:2
+2026-07-01 00:32 +01:00: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2026-07-01 00:32 +01:00:           ^^^^^^^
+2026-07-01 00:32 +01:00: 
+2026-07-01 00:32 +01:00: SyntaxError: missing ) after argument list
+2026-07-01 00:32 +01:00:     at wrapSafe (node:internal/modules/cjs/loader:1464:18)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1495:20)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00:     at Object.<anonymous> (/usr/lib/node_modules/pm2/lib/ProcessContainerFork.js:32:23)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00: /home/apps/actions-runner/_work/eib-stratoc-q2-2026-performance/eib-stratoc-q2-2026-performance/node_modules/.bin/next:2
+2026-07-01 00:32 +01:00: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2026-07-01 00:32 +01:00:           ^^^^^^^
+2026-07-01 00:32 +01:00: 
+2026-07-01 00:32 +01:00: SyntaxError: missing ) after argument list
+2026-07-01 00:32 +01:00:     at wrapSafe (node:internal/modules/cjs/loader:1464:18)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1495:20)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00:     at Object.<anonymous> (/usr/lib/node_modules/pm2/lib/ProcessContainerFork.js:32:23)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00: /home/apps/actions-runner/_work/eib-stratoc-q2-2026-performance/eib-stratoc-q2-2026-performance/node_modules/.bin/next:2
+2026-07-01 00:32 +01:00: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2026-07-01 00:32 +01:00:           ^^^^^^^
+2026-07-01 00:32 +01:00: 
+2026-07-01 00:32 +01:00: SyntaxError: missing ) after argument list
+2026-07-01 00:32 +01:00:     at wrapSafe (node:internal/modules/cjs/loader:1464:18)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1495:20)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00:     at Object.<anonymous> (/usr/lib/node_modules/pm2/lib/ProcessContainerFork.js:32:23)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00: /home/apps/actions-runner/_work/eib-stratoc-q2-2026-performance/eib-stratoc-q2-2026-performance/node_modules/.bin/next:2
+2026-07-01 00:32 +01:00: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2026-07-01 00:32 +01:00:           ^^^^^^^
+2026-07-01 00:32 +01:00: 
+2026-07-01 00:32 +01:00: SyntaxError: missing ) after argument list
+2026-07-01 00:32 +01:00:     at wrapSafe (node:internal/modules/cjs/loader:1464:18)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1495:20)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00:     at Object.<anonymous> (/usr/lib/node_modules/pm2/lib/ProcessContainerFork.js:32:23)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00: /home/apps/actions-runner/_work/eib-stratoc-q2-2026-performance/eib-stratoc-q2-2026-performance/node_modules/.bin/next:2
+2026-07-01 00:32 +01:00: basedir=$(dirname "$(echo "$0" | sed -e 's,\\,/,g')")
+2026-07-01 00:32 +01:00:           ^^^^^^^
+2026-07-01 00:32 +01:00: 
+2026-07-01 00:32 +01:00: SyntaxError: missing ) after argument list
+2026-07-01 00:32 +01:00:     at wrapSafe (node:internal/modules/cjs/loader:1464:18)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1495:20)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)
+2026-07-01 00:32 +01:00:     at Object.<anonymous> (/usr/lib/node_modules/pm2/lib/ProcessContainerFork.js:32:23)
+2026-07-01 00:32 +01:00:     at Module._compile (node:internal/modules/cjs/loader:1521:14)
+2026-07-01 00:32 +01:00:     at Module._extensions..js (node:internal/modules/cjs/loader:1623:10)
+2026-07-01 00:32 +01:00:     at Module.load (node:internal/modules/cjs/loader:1266:32)
+2026-07-01 00:32 +01:00:     at Module._load (node:internal/modules/cjs/loader:1091:12)

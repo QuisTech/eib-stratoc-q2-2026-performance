@@ -18,12 +18,20 @@ export const auth = betterAuth({
     allowedHosts: [
       "eib-stratoc-q2-2026-performance.vercel.app",
       "eib-stratoc-q2-2026-performance-theta.vercel.app",
+      "lms.eibstratoc.com",
+      "41.242.54.72",
     ],
-    protocol: process.env.NODE_ENV === "development" ? "http" : "https",
-    fallback: "https://eib-stratoc-q2-2026-performance.vercel.app"
+    protocol: "http",
+    fallback: "http://lms.eibstratoc.com"
   },
   advanced: {
     trustedProxyHeaders: true,
+    defaultCookieAttributes: {
+      sameSite: "lax" as const,
+      secure: false,
+      httpOnly: true,
+      path: "/",
+    },
   },
   plugins: [admin()],
   emailAndPassword: {
@@ -36,8 +44,6 @@ export const auth = betterAuth({
         type: "string",
         required: false,
         defaultValue: "learner",
-        // Accepted from sign-up; the form only offers "learner" or "lead".
-        // Full cross-subsidiary "admin" is granted in the database, never self-served.
         input: true,
       },
       subsidiary: {
@@ -50,29 +56,24 @@ export const auth = betterAuth({
   trustedOrigins: [
     "https://eib-stratoc-q2-2026-performance.vercel.app",
     "https://eib-stratoc-q2-2026-performance-theta.vercel.app",
-    ...(process.env.V0_RUNTIME_URL ? [process.env.V0_RUNTIME_URL] : []),
-    ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
-    ...(process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? [`https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`]
-      : []),
-    ...(process.env.NODE_ENV === "development"
-      ? ["http://localhost:3000", "http://127.0.0.1:3000"]
-      : []),
+    "http://lms.eibstratoc.com",
+    "https://lms.eibstratoc.com",
+    "http://41.242.54.72",
+    "https://41.242.54.72",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
   ],
   session: {
-    expiresIn: 60 * 60 * 24 * 7, // 7 days
-    updateAge: 60 * 60 * 24, // 1 day
+    expiresIn: 60 * 60 * 24 * 7,
+    updateAge: 60 * 60 * 24,
   },
-  ...(process.env.NODE_ENV === "development"
-    ? {
-        advanced: {
-          // In dev (v0 preview iframe), force cross-site cookies so the
-          // session cookie is stored by the browser.
-          defaultCookieAttributes: {
-            sameSite: "none" as const,
-            secure: true,
-          },
-        },
-      }
-    : {}),
+  cookies: {
+    session: {
+      name: "better-auth.session",
+      sameSite: "lax",
+      secure: false,
+      path: "/",
+      httpOnly: true,
+    },
+  },
 })
