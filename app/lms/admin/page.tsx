@@ -201,7 +201,7 @@ export default async function AdminPage() {
                         {role === "admin" && (
                           <td className="px-3 py-3 text-right">
                             <ResetPasswordButton userId={l.id} userName={l.name} />
-                            {viewer.id !== l.id && <DeleteUserButton userId={l.id} userName={l.name} />}
+                            {session.user.id !== l.id && <DeleteUserButton userId={l.id} userName={l.name} />}
                           </td>
                         )}
                       </tr>
