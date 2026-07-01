@@ -1,0 +1,1 @@
+import { betterAuth } from 'better-auth'; import { admin } from 'better-auth/plugins'; const auth = betterAuth({ plugins: [admin()] }); console.log(Object.keys(auth.api).filter(k => k.toLowerCase().includes('password')));

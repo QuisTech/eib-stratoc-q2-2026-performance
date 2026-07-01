@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth"
 import { drizzleAdapter } from "better-auth/adapters/drizzle"
 import { db } from "@/lib/db"
 import * as schema from "@/lib/db/schema"
+import { admin } from "better-auth/plugins"
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
@@ -32,18 +33,17 @@ export const auth = betterAuth({
       path: "/",
     },
   },
+  plugins: [
+    admin({
+      defaultRole: "learner",
+    }),
+  ],
   emailAndPassword: {
     enabled: true,
     autoSignIn: true,
   },
   user: {
     additionalFields: {
-      role: {
-        type: "string",
-        required: false,
-        defaultValue: "learner",
-        input: false,
-      },
       subsidiary: {
         type: "string",
         required: false,
