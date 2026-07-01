@@ -25,27 +25,28 @@ function initials(name: string) {
 }
 
 export default async function AdminPage() {
-  const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) redirect("/sign-in")
+  try {
+    const session = await auth.api.getSession({ headers: await headers() })
+    if (!session?.user) redirect("/sign-in")
 
-  const role = (session.user as { role?: string }).role ?? "learner"
-  const orgWide = role === "admin" || role === "group_head"
-  if (!orgWide && role !== "lead") {
-    // Learners don't have a team view — send them to their own portal.
-    redirect("/lms")
-  }
+    const role = (session.user as { role?: string }).role ?? "learner"
+    const orgWide = role === "admin" || role === "group_head"
+    if (!orgWide && role !== "lead") {
+      // Learners don't have a team view — send them to their own portal.
+      redirect("/lms")
+    }
 
-  const report = await getAdminReport()
-  const { totals } = report
-  const completionRate =
-    totals.enrollments > 0 ? Math.round((totals.completions / totals.enrollments) * 100) : 0
+    const report = await getAdminReport()
+    const { totals } = report
+    const completionRate =
+      totals.enrollments > 0 ? Math.round((totals.completions / totals.enrollments) * 100) : 0
 
-  const stats = [
-    { label: orgWide ? "Learners (all)" : "Team members", value: totals.learners, icon: Users },
-    { label: "Total enrollments", value: totals.enrollments, icon: BookOpen },
-    { label: "Courses completed", value: totals.completions, icon: GraduationCap },
-    { label: "Certificates issued", value: totals.certificates, icon: Award },
-  ]
+    const stats = [
+      { label: orgWide ? "Learners (all)" : "Team members", value: totals.learners, icon: Users },
+      { label: "Total enrollments", value: totals.enrollments, icon: BookOpen },
+      { label: "Courses completed", value: totals.completions, icon: GraduationCap },
+      { label: "Certificates issued", value: totals.certificates, icon: Award },
+    ]
 
   return (
     <main className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-10">
@@ -300,4 +301,13 @@ export default async function AdminPage() {
       )}
     </main>
   )
+  } catch (err: any) {
+    return (
+      <div className="p-8 font-mono text-red-500 whitespace-pre-wrap">
+        <h1 className="text-xl font-bold">Server Error in Admin Dashboard:</h1>
+        <p className="mt-4">{err.message}</p>
+        <p className="mt-4 text-xs">{err.stack}</p>
+      </div>
+    )
+  }
 }
