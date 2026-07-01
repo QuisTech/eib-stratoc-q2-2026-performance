@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress"
 import { formatNaira } from "@/lib/utils"
 import { ArrowLeft, Users, BookOpen, GraduationCap, Award, Edit, Server } from "lucide-react"
 import { ResetPasswordButton } from "./reset-password-button"
+import { DeleteUserButton } from "./delete-user-button"
 import { ExportCsvButton } from "./export-csv-button"
 
 export const dynamic = "force-dynamic"
@@ -200,6 +201,7 @@ export default async function AdminPage() {
                         {role === "admin" && (
                           <td className="px-3 py-3 text-right">
                             <ResetPasswordButton userId={l.id} userName={l.name} />
+                            {viewer.id !== l.id && <DeleteUserButton userId={l.id} userName={l.name} />}
                           </td>
                         )}
                       </tr>

@@ -588,6 +588,30 @@ export async function adminResetUserPassword(userId: string) {
   revalidatePath("/lms/admin")
 }
 
+export async function adminDeleteUser(userId: string) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session?.user) throw new Error("Unauthorized")
+
+  if (session.user.role !== "admin") {
+    throw new Error("Forbidden: Only Super Admins can delete users")
+  }
+  
+  if (session.user.id === userId) {
+    throw new Error("Cannot delete yourself")
+  }
+
+  // Delete all related LMS records first to avoid dangling references
+  await db.delete(enrollments).where(eq(enrollments.userId, userId))
+  await db.delete(lessonProgress).where(eq(lessonProgress.userId, userId))
+  await db.delete(quizAttempts).where(eq(quizAttempts.userId, userId))
+  await db.delete(certificates).where(eq(certificates.userId, userId))
+  
+  // Then delete the user (which cascades to session, account, etc. via FK)
+  await db.delete(user).where(eq(user.id, userId))
+
+  revalidatePath("/lms/admin")
+}
+
 export async function exportAdminCSV(): Promise<string> {
   const viewer = await getSessionUser()
   const role = viewer.role ?? "learner"
