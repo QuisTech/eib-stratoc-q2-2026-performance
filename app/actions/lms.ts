@@ -303,48 +303,51 @@ export async function getViewerContext() {
 export async function getAdminReport(): Promise<AdminReport> {
   const viewer = await getSessionUser()
   const role = viewer.role ?? "learner"
-  const orgWide = role === "admin" || role === "group_head"
-  if (!orgWide && role !== "lead") throw new Error("Forbidden")
+  const orgWide = role === "admin"
+  if (!orgWide && role !== "lead" && role !== "group_head_standard" && role !== "group_head") throw new Error("Forbidden")
 
-  const isDCIHead = role === "lead" && viewer.subsidiary === "Directorate of Clandestine & Intelligence"
+  let learnerRows: typeof user.$inferSelect[] = []
 
-  let learnerRows;
   if (orgWide) {
-    learnerRows = await db.select().from(user).orderBy(asc(user.subsidiary), asc(user.name))
-  } else if (isDCIHead) {
-    learnerRows = await db
-      .select()
-      .from(user)
-      .where(like(user.subsidiary, "DCI - %"))
-      .orderBy(asc(user.subsidiary), asc(user.name))
+    learnerRows = await db.select().from(user).orderBy(asc(user.name))
   } else {
-    learnerRows = await db
-        .select()
-        .from(user)
-        .where(eq(user.subsidiary, viewer.subsidiary ?? "__none__"))
-        .orderBy(asc(user.name))
+    // 1. Find all courses authored by the viewer
+    const myCourses = await db.select({ id: courses.id }).from(courses).where(eq(courses.authorId, viewer.id))
+    const myCourseIds = myCourses.map((c) => c.id)
+
+    // 2. Find all users enrolled in those courses
+    let enrolledUserIds: string[] = []
+    if (myCourseIds.length > 0) {
+      const enrs = await db.select({ userId: enrollments.userId }).from(enrollments).where(inArray(enrollments.courseId, myCourseIds))
+      enrolledUserIds = enrs.map((e) => e.userId)
+    }
+
+    // 3. Find base users the viewer is allowed to see by default
+    let baseUsers: typeof user.$inferSelect[] = []
+    if (role === "lead") {
+      baseUsers = await db.select().from(user).where(eq(user.subsidiary, viewer.subsidiary ?? "__none__"))
+    } else if (role === "group_head_standard") {
+      baseUsers = await db.select().from(user).where(like(user.subsidiary, "DCI - %"))
+    }
+    // group_head has no base subsidiary users; they only see enrolled users.
+
+    // 4. Combine and fetch
+    const visibleUserIds = new Set(baseUsers.map((u) => u.id))
+    enrolledUserIds.forEach((id) => visibleUserIds.add(id))
+
+    if (visibleUserIds.size > 0) {
+      learnerRows = await db.select().from(user).where(inArray(user.id, Array.from(visibleUserIds))).orderBy(asc(user.name))
+    }
   }
 
   const allDbCourses = await db.select().from(courses)
   const courseTitle = new Map(allDbCourses.map((c) => [c.id, c.title]))
   const coursePrice = new Map(allDbCourses.map((c) => [c.id, c.priceNaira]))
-  let allCourses = allDbCourses
+  
+  const allCourses = allDbCourses
   const ids = learnerRows.map((u) => u.id)
-  let allEnrollments = ids.length ? await db.select().from(enrollments).where(inArray(enrollments.userId, ids)) : []
-  let allCerts = ids.length ? await db.select().from(certificates).where(inArray(certificates.userId, ids)) : []
-
-  if (role !== "admin") {
-    allCourses = allCourses.filter(c => c.authorId === viewer.id)
-    const myCourseIds = new Set(allCourses.map(c => c.id))
-    
-    // Only include enrollments and certs for courses authored by the viewer
-    allEnrollments = allEnrollments.filter(e => myCourseIds.has(e.courseId))
-    allCerts = allCerts.filter(c => myCourseIds.has(c.courseId))
-
-    // Only show learners who have at least one enrollment in the viewer's courses
-    const myLearnerIds = new Set(allEnrollments.map(e => e.userId))
-    learnerRows = learnerRows.filter(u => myLearnerIds.has(u.id))
-  }
+  const allEnrollments = ids.length ? await db.select().from(enrollments).where(inArray(enrollments.userId, ids)) : []
+  const allCerts = ids.length ? await db.select().from(certificates).where(inArray(certificates.userId, ids)) : []
 
   const enrByUser = new Map<string, Enrollment[]>()
   for (const e of allEnrollments) {
