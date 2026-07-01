@@ -15,8 +15,9 @@ import {
   type Certificate,
 } from "@/lib/db/schema"
 import { getLessons, gradeQuiz } from "@/lib/lms-content"
-import { and, asc, desc, eq, inArray, like } from "drizzle-orm"
+import { and, eq, inArray, sql, asc, desc, like } from "drizzle-orm"
 import { headers } from "next/headers"
+import { hashPassword } from "better-auth/crypto"
 import { revalidatePath } from "next/cache"
 
 async function getUserId() {
@@ -580,13 +581,8 @@ export async function adminResetUserPassword(userId: string) {
 
   // Force reset to a default password (from env, to avoid GitGuardian alerts)
   const defaultPass = process.env.DEFAULT_RESET_PASSWORD || "ChangeMeImmediately123!"
-  await auth.api.setUserPassword({
-    headers: await headers(),
-    body: {
-      userId,
-      newPassword: defaultPass
-    }
-  })
+  const hashedPassword = await hashPassword(defaultPass)
+  await db.update(account).set({ password: hashedPassword }).where(eq(account.userId, userId))
 
   revalidatePath("/lms/admin")
 }
