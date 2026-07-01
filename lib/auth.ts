@@ -16,8 +16,6 @@ export const auth = betterAuth({
   }),
   baseURL: {
     allowedHosts: [
-      "eib-stratoc-q2-2026-performance.vercel.app",
-      "eib-stratoc-q2-2026-performance-theta.vercel.app",
       "lms-eibgroup.vercel.app",
       "lms.eibgroup.vercel.app",
       "lms.eibstratoc.com",
@@ -56,8 +54,6 @@ export const auth = betterAuth({
     },
   },
   trustedOrigins: [
-    "https://eib-stratoc-q2-2026-performance.vercel.app",
-    "https://eib-stratoc-q2-2026-performance-theta.vercel.app",
     "https://lms-eibgroup.vercel.app",
     "https://lms.eibgroup.vercel.app",
     "http://lms.eibstratoc.com",
