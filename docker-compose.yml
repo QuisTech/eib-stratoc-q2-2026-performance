@@ -22,7 +22,7 @@ services:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
       - DATABASE_URL=postgresql://lms_admin:SecurePassword123!@db:5432/eib_lms
       - POSTGRES_URL=postgresql://lms_admin:SecurePassword123!@db:5432/eib_lms
