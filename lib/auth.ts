@@ -19,6 +19,9 @@ export const auth = betterAuth({
     "https://lms.eibstratoc.com",
     "http://lms.eibstratoc.com",
     "http://41.242.54.72",
+    "https://41.242.54.72",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
   ],
   advanced: {
     trustedProxyHeaders: true,
@@ -48,16 +51,7 @@ export const auth = betterAuth({
       },
     },
   },
-  trustedOrigins: [
-    "https://lms-eibgroup.vercel.app",
-    "https://lms.eibgroup.vercel.app",
-    "http://lms.eibstratoc.com",
-    "https://lms.eibstratoc.com",
-    "http://41.242.54.72",
-    "https://41.242.54.72",
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-  ],
+
   session: {
     expiresIn: 60 * 60 * 24 * 7,
     updateAge: 60 * 60 * 24,
