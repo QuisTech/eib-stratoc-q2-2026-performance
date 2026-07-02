@@ -78,3 +78,27 @@ The LMS uses a "Generative Learning Engine" to drastically reduce administrative
 The platform intercepts user registration to automate mandatory training:
 *   **Global Standard**: Every new hire is automatically enrolled in the *EIB Group Global Orientation* course the moment they sign up.
 *   **Subsidiary-Specific Tracks**: The system reads the user's selected subsidiary and automatically enrolls them in specialized tracks. For example, DCI recruits are instantly enrolled in *Special Operations Brief* (SAC), *Information Security & Clearance Protocols* (RAW), or *Public Safety Comms* (PSAP) without requiring manual intervention.
+
+## 8. Operations & Troubleshooting Log (July 2026)
+
+During initial staging and production deployment, several operational challenges were documented to aid future administration:
+
+### A. Better Auth `admin()` Plugin Failures (422 Errors)
+*   **Symptom**: `422 - Failed to create user` appearing sporadically during registration or password resets.
+*   **Root Cause**: The official plugin enforced strict internal validation and relied heavily on SMTP verification links, conflicting with the required offline-first / internal network deployment model.
+*   **Fix**: The plugin was completely uninstalled. Admin utilities (like forced password resets and cascading user deletion) were rebuilt natively using `better-auth/crypto` to interact directly with the Drizzle ORM models, completely sidestepping the plugin's network requirements.
+
+### B. Multi-Domain CSRF Protection (500 APIErrors)
+*   **Symptom**: `Failed to get session` (500 APIError) when accessing the LMS via the on-premise IP or `https://lms.eibstratoc.com`.
+*   **Root Cause**: Better Auth's strict CORS/CSRF protection rejected incoming requests because the `BETTER_AUTH_URL` was explicitly defined as the Vercel cloud domain.
+*   **Fix**: Replaced the rigid `baseURL` in `lib/auth.ts` with a `trustedOrigins` array, explicitly whitelisting the on-premise IPs and all valid domains. Additionally, Server Components were wrapped in `try/catch` blocks to gracefully log users out if network validation fails, rather than crashing the Next.js renderer.
+
+### C. On-Premise Schema Desync & PM2 Environment Caching
+*   **Symptom**: Database queries throwing `Failed query: column X does not exist` immediately after a `git pull` on the Linux VM.
+*   **Root Cause**: 
+    1. The newly added columns (like `videoUrl` and `customContent` in the Course Builder) were pushed via Drizzle, but `.env.production` was ignored by `.gitignore`. The VM did not receive the new credentials/database pointers.
+    2. PM2 (the process manager) permanently caches environment variables upon first launch (`pm2 start`). A simple `pm2 restart` does **not** read `.env.production` if it contradicts PM2's cache.
+    3. Neon Postgres introduced `channel_binding=require`, which conflicted with the Linux VM's older Node/pg driver, causing connection timeouts.
+*   **Fix**: 
+    1. Overwrote `.env.production` on the VM manually and removed the `channel_binding=require` flag.
+    2. Flushed PM2's memory completely by running `pm2 delete eib-lms-production` followed by `pm2 start ecosystem.config.js --env production`. This forced PM2 to natively read the fresh connection strings from `.env.production`.

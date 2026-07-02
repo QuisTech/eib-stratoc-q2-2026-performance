@@ -73,3 +73,19 @@ DEFAULT_RESET_PASSWORD="ChangeMeImmediately123!"
 
 ## 5. Next Steps / Ongoing Work
 - **CI/CD Automation**: Configuring a GitHub Action or Webhook on the on-premise VM for auto-deploy on `main` push.
+
+## 6. Recent Challenges and Resolutions (July 2026)
+
+During the finalization of the on-premise deployment, several edge-case challenges were resolved:
+
+1. **422 - Failed to Create User (Better Auth Admin Plugin)**
+   - *Issue*: The official `better-auth` `admin()` plugin caused silent 422 errors during user registration and password resets due to strict internal schemas and SMTP dependencies.
+   - *Resolution*: Stripped out the `admin()` plugin entirely. Replaced it with a native, robust Admin Dashboard UI using manual `better-auth/crypto` for password hashing, enabling offline, internal-only password resets without an SMTP server.
+
+2. **Multi-Domain CSRF Blocks (Failed to get session)**
+   - *Issue*: Better Auth rejected session requests (returning 500 APIErrors) when the app was accessed via the on-premise domain (`https://lms.eibstratoc.com`) because `BETTER_AUTH_URL` was strictly set to the Vercel cloud domain.
+   - *Resolution*: Replaced the rigid `baseURL` configuration in `lib/auth.ts` with a `trustedOrigins` array, explicitly whitelisting all internal IPs, Vercel domains, and on-premise domains to bypass CSRF blocks gracefully. Added `try/catch` boundaries to gracefully log out users instead of crashing the server if network fetches fail.
+
+3. **On-Premise Schema Mismatches & PM2 Caching**
+   - *Issue*: The on-premise server crashed with `column "videoUrl" does not exist` after a `git pull`, despite the cloud database working perfectly. This occurred because `.env.production` is `.gitignore`'d (preventing connection string updates) and PM2 permanently cached an old offline database URL.
+   - *Resolution*: Overwrote the local `.env.production` file on the VM to perfectly match the Neon cloud database, removed `channel_binding=require` to ensure compatibility with the VM's older Node/pg driver, and executed a hard process reset (`pm2 delete eib-lms-production && pm2 start ecosystem.config.js --env production`) to flush PM2's memory.
