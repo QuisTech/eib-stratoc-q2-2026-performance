@@ -36,7 +36,12 @@ const statusMeta: Record<LmsPhaseStatus, { cls: string; dot: string; Icon: typeo
 
 export default async function LmsPage() {
   try {
-  const session = await auth.api.getSession({ headers: await headers() })
+  let session = null;
+  try {
+    session = await auth.api.getSession({ headers: await headers() })
+  } catch (e) {
+    console.error("LmsPage getSession error:", e)
+  }
 
   const courses = await getCourses()
 

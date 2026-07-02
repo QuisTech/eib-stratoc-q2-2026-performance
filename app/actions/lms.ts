@@ -35,7 +35,12 @@ export async function promoteMeToAdmin() {
 }
 
 async function getSessionUser() {
-  const session = await auth.api.getSession({ headers: await headers() })
+  let session = null
+  try {
+    session = await auth.api.getSession({ headers: await headers() })
+  } catch (e) {
+    console.error("getSessionUser error:", e)
+  }
   if (!session?.user) throw new Error("Unauthorized")
   return session.user as { id: string; name: string; email: string; role?: string; subsidiary?: string }
 }

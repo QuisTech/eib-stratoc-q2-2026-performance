@@ -13,16 +13,13 @@ export const auth = betterAuth({
       verification: schema.verification
     }
   }),
-  baseURL: {
-    allowedHosts: [
-      "lms-eibgroup.vercel.app",
-      "lms.eibgroup.vercel.app",
-      "lms.eibstratoc.com",
-      "41.242.54.72",
-    ],
-    protocol: "http",
-    fallback: "http://lms.eibstratoc.com"
-  },
+  trustedOrigins: [
+    "https://lms-eibgroup.vercel.app",
+    "https://lms.eibgroup.vercel.app",
+    "https://lms.eibstratoc.com",
+    "http://lms.eibstratoc.com",
+    "http://41.242.54.72",
+  ],
   advanced: {
     trustedProxyHeaders: true,
     defaultCookieAttributes: {
