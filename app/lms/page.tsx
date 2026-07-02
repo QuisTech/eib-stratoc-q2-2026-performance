@@ -2,7 +2,7 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
-import { getCourses, getMyEnrollments, promoteMeToAdmin } from "@/app/actions/lms"
+import { getCourses, getMyEnrollments } from "@/app/actions/lms"
 import { CourseCard } from "@/components/lms/course-card"
 import { formatNaira } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
@@ -35,11 +35,8 @@ const statusMeta: Record<LmsPhaseStatus, { cls: string; dot: string; Icon: typeo
 }
 
 export default async function LmsPage() {
+  try {
   const session = await auth.api.getSession({ headers: await headers() })
-  
-  if (session?.user) {
-    await promoteMeToAdmin()
-  }
 
   const courses = await getCourses()
 
@@ -172,6 +169,15 @@ export default async function LmsPage() {
       </section>
     </main>
   )
+  } catch (err: any) {
+    return (
+      <div className="p-8 font-mono text-red-500 whitespace-pre-wrap">
+        <h1 className="text-xl font-bold">Server Error in LMS Dashboard:</h1>
+        <p className="mt-4">{err.message}</p>
+        <p className="mt-4 text-xs">{err.stack}</p>
+      </div>
+    )
+  }
 }
 
 function StatCard({
