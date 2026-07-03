@@ -48,7 +48,10 @@ export function getQuizPolicy(course: Course): QuizPolicy {
     "corp-communications-90-day-strategy",
     "briech-uas-q2-operations",
     "black-intelligence-clandestine-ops",
-    "clandestine-training-gap-analysis"
+    "psap-emergency-response-osint",
+    "sac-intelligence-systems-osint",
+    "raw-cyber-intelligence",
+    "intel-information-analysis"
   ]
   const isCritical =
     criticalSlugs.includes(course.slug) || course.category === "Safety & Compliance"
