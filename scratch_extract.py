@@ -3,6 +3,7 @@ import sys
 from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE_TYPE
 import docx2txt
+import fitz  # PyMuPDF
 
 def extract_pptx(filepath):
     prs = Presentation(filepath)
@@ -34,16 +35,30 @@ def extract_pptx(filepath):
 def extract_docx(filepath):
     print(f"\n--- Extracting DOCX: {filepath} ---")
     text = docx2txt.process(filepath)
-    print(text[:2000] + "\n... (truncated)" if len(text) > 2000 else text)
+    print(text)
+
+def extract_pdf(filepath):
+    print(f"\n--- Extracting PDF: {filepath} ---")
+    doc = fitz.open(filepath)
+    for i, page in enumerate(doc):
+        print(f"\nPage {i + 1}:")
+        print(page.get_text())
 
 if __name__ == "__main__":
-    giga_path = r"C:\Users\Administrator\Downloads\Presentations\Iheanyi - Giga Forensics\GIGA FORENSICS HALF YEAR PLAN.pptx"
-    extract_pptx(giga_path)
-    
-    gcoo_docx = r"C:\Users\Administrator\Downloads\Presentations\Tes - GCOO\GROUP CHIEF OPERATIONS OFFICER'S COMPREHENSIVE MANAGEMENT REPORT.docx"
-    gcoo_pptx = r"C:\Users\Administrator\Downloads\Presentations\Tes - GCOO\GROUP GCOO WORK PLAN 2026.pptx"
-    
-    if os.path.exists(gcoo_docx):
-        extract_docx(gcoo_docx)
-    if os.path.exists(gcoo_pptx):
-        extract_pptx(gcoo_pptx)
+    for arg in sys.argv[1:]:
+        if os.path.isdir(arg):
+            for file in os.listdir(arg):
+                path = os.path.join(arg, file)
+                if file.endswith(".pptx") and not file.startswith("~"):
+                    extract_pptx(path)
+                elif file.endswith(".docx") and not file.startswith("~"):
+                    extract_docx(path)
+                elif file.endswith(".pdf") and not file.startswith("~"):
+                    extract_pdf(path)
+        else:
+            if arg.endswith(".pptx") and not arg.startswith("~"):
+                extract_pptx(arg)
+            elif arg.endswith(".docx") and not arg.startswith("~"):
+                extract_docx(arg)
+            elif arg.endswith(".pdf") and not arg.startswith("~"):
+                extract_pdf(arg)
