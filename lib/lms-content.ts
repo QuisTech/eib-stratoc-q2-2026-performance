@@ -44,7 +44,10 @@ export function getQuizPolicy(course: Course): QuizPolicy {
     "psap-90-day-transformation",
     "procurement-centralization-vendor-management",
     "group-admin-facility-power-management",
-    "document-control-task-track-compliance"
+    "document-control-task-track-compliance",
+    "corp-communications-90-day-strategy",
+    "briech-uas-q2-operations",
+    "black-intelligence-clandestine-ops"
   ]
   const isCritical =
     criticalSlugs.includes(course.slug) || course.category === "Safety & Compliance"
