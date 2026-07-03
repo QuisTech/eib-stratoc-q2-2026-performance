@@ -35,7 +35,10 @@ export function getQuizPolicy(course: Course): QuizPolicy {
     "group-workflow-optimization-strategy",
     "camps-security-strategic-plan",
     "executive-access-communication-framework",
-    "luftreiber-h2-growth-structure"
+    "luftreiber-h2-growth-structure",
+    "evp-group-hr-sops",
+    "monitoring-evaluation-q3-action-plan",
+    "poctova-workflow-strategic-plan"
   ]
   const isCritical =
     criticalSlugs.includes(course.slug) || course.category === "Safety & Compliance"
