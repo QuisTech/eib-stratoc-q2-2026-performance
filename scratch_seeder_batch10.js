@@ -12,7 +12,7 @@ const clandestineLessons = [
     minutes: 30,
     summary: "Operational challenges, skill gaps, and competency assessment for the Public Safety Answering Point.",
     attachments: [
-      { title: "Raw DCI Training Gap Analysis Plan", url: "/docs/batch-9-raw-input.txt" }
+      { title: "Black Mid-Year Presentation (PDF)", url: "/docs/black-mid-year-presentation.pdf" }
     ],
     sections: [
       {

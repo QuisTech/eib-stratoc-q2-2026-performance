@@ -12,7 +12,9 @@ const briechAtlanticLessons = [
     minutes: 45,
     summary: "Expanding into Interior & Exterior Finishing and aggressive marketing.",
     attachments: [
-      { title: "Raw Briech Atlantic Expansion Plan", url: "/docs/batch-7-raw-input.txt" }
+      { title: "Briech Atlantic 90-Day Projection Plan (PDF)", url: "/docs/briech-atlantic-90-day-projection-plan.pdf" },
+      { title: "Briech Atlantic Project Plan (PDF)", url: "/docs/briech-atlantic-project-plan.pdf" },
+      { title: "Six-Month Strategic Projection Plan (PDF)", url: "/docs/briech-atlantic-six-month-strategic-plan.pdf" }
     ],
     sections: [
       {
@@ -87,7 +89,7 @@ const trainingLessons = [
     minutes: 45,
     summary: "Analyzing cross-subsidiary challenges and targeted training interventions.",
     attachments: [
-      { title: "Raw Q3 Task Force Intelligence Report", url: "/docs/batch-7-raw-input.txt" }
+      { title: "EIB Task Force Q3 Intelligence Report (PDF)", url: "/docs/eib-task-force-q3-intelligence-report.pdf" }
     ],
     sections: [
       {
@@ -162,7 +164,7 @@ const psapLessons = [
     minutes: 45,
     summary: "Transforming the existing PSAP into a 24/7 fully operational center.",
     attachments: [
-      { title: "Raw PSAP 90-Day Transformation Plan", url: "/docs/batch-7-raw-input.txt" }
+      { title: "PSAP 90-Day Strategy Plan (PDF)", url: "/docs/psap-90-day-strategy-plan.pdf" }
     ],
     sections: [
       {

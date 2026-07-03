@@ -12,7 +12,8 @@ const gcooLessons = [
     minutes: 45,
     summary: "Aligning operations across all 8 subsidiaries for a unified group vision.",
     attachments: [
-      { title: "Raw GCOO 2026 Work Plan Report", url: "/docs/batch-2-raw-input.txt" }
+      { title: "GCOO Comprehensive Management Report (PDF)", url: "/docs/gcoo-management-report.pdf" },
+      { title: "GCOO Work Plan 2026 (PDF)", url: "/docs/gcoo-work-plan-2026.pdf" }
     ],
     sections: [
       {
@@ -181,7 +182,7 @@ const gigaLessons = [
     minutes: 30,
     summary: "An overview of Giga Forensics' H2 2026 strategic direction.",
     attachments: [
-      { title: "Raw Giga Forensics H2 2026 Strategy", url: "/docs/batch-2-raw-input.txt" }
+      { title: "Giga Forensics Half-Year Plan (PDF)", url: "/docs/giga-forensics-half-year-plan.pdf" }
     ],
     sections: [
       {

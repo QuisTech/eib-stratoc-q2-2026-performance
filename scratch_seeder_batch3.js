@@ -12,7 +12,7 @@ const ctoLessons = [
     minutes: 45,
     summary: "Improving network reliability and strengthening cybersecurity defenses.",
     attachments: [
-      { title: "Raw IT Strategic Plan H2 2026", url: "/docs/batch-3-raw-input.txt" }
+      { title: "CTO Strategic Plans (PDF)", url: "/docs/cto-strategic-plans.pdf" }
     ],
     sections: [
       {
@@ -102,7 +102,10 @@ const archLessons = [
     minutes: 45,
     summary: "Design considerations and purpose of highly controlled sterile environments.",
     attachments: [
-      { title: "Raw Hospital Architectural Design Guidelines", url: "/docs/batch-3-raw-input.txt" }
+      { title: "Briech Hospital Wards 2026 (PDF)", url: "/docs/briech-hospital-wards-2026.pdf" },
+      { title: "Hospital Project Appraisal (PDF)", url: "/docs/briech-hospital-project-appraisal.pdf" },
+      { title: "Construction Operation Sequence (PDF)", url: "/docs/construction-operation-sequence.pdf" },
+      { title: "Group Chief Architect Desk (PDF)", url: "/docs/group-chief-architect-desk.pdf" }
     ],
     sections: [
       {
@@ -173,7 +176,8 @@ const bdLessons = [
     minutes: 45,
     summary: "Evaluating business performance and executive engagement.",
     attachments: [
-      { title: "Raw 90-Day Business Development Plan", url: "/docs/batch-3-raw-input.txt" }
+      { title: "Business Development Strategic Plan (PDF)", url: "/docs/business-development-strategic-plan.pdf" },
+      { title: "EIB 90-Day Business Development Plan (PDF)", url: "/docs/eib-90-day-business-development-plan.pdf" }
     ],
     sections: [
       {

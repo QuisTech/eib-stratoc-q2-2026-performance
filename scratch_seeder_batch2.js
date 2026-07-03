@@ -12,7 +12,7 @@ const stratocLessons = [
     minutes: 45,
     summary: "Operational Assessment, Reporting Consolidation and Performance Alignment.",
     attachments: [
-      { title: "Raw EIB Stratoc Q2 Report", url: "/docs/stratoc-raw-input.txt" }
+      { title: "EIB Stratoc 90-Day Plan (PDF)", url: "/docs/eib-stratoc-90-day-plan.pdf" }
     ],
     sections: [
       {
@@ -112,7 +112,7 @@ const hospitalLessons = [
     minutes: 45,
     summary: "Establishing the administrative foundation and preparing the physical facility.",
     attachments: [
-      { title: "Raw Briech Hospital Q2 Report", url: "/docs/batch-2-raw-input.txt" }
+      { title: "Briech Hospital Six-Months Plan (PDF)", url: "/docs/briech-hospital-six-months-plan.pdf" }
     ],
     sections: [
       {
@@ -224,7 +224,8 @@ const ghrLessons = [
     minutes: 45,
     summary: "An overview of staff strength and disciplinary actions across the group.",
     attachments: [
-      { title: "Raw GHRM Q2 Report", url: "/docs/batch-2-raw-input.txt" }
+      { title: "GHRM Presentation 2026 (PDF)", url: "/docs/ghrm-presentation-2026.pdf" },
+      { title: "GHR Manager Appraisal (PDF)", url: "/docs/ghrm-appraisal.pdf" }
     ],
     sections: [
       {

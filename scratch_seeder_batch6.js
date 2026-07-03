@@ -12,7 +12,10 @@ const evpLessons = [
     minutes: 45,
     summary: "Standardizing reporting timelines and approval hierarchies.",
     attachments: [
-      { title: "Raw Management Reporting SOPs", url: "/docs/batch-6-raw-input.txt" }
+      { title: "Senior Management Reporting SOPs (PDF)", url: "/docs/evp-senior-management-reporting.pdf" },
+      { title: "HR Standard Operating Procedures (PDF)", url: "/docs/evp-hr-sop.pdf" },
+      { title: "Onboarding & Offboarding Document (PDF)", url: "/docs/evp-onboarding-offboarding.pdf" },
+      { title: "Simple SOPs (PDF)", url: "/docs/evp-simple-sop.pdf" }
     ],
     sections: [
       {
@@ -88,7 +91,7 @@ const meLessons = [
     minutes: 45,
     summary: "Improving visibility and collaboration across subsidiaries.",
     attachments: [
-      { title: "Raw M&E Strategic Action Plan", url: "/docs/batch-6-raw-input.txt" }
+      { title: "M&E Q3 Action Report (PDF)", url: "/docs/me-q3-action-report.pdf" }
     ],
     sections: [
       {
@@ -162,7 +165,9 @@ const poctovaLessons = [
     minutes: 45,
     summary: "The 17-department sequence from design to delivery.",
     attachments: [
-      { title: "Raw POCTOVA Production Workflow Report", url: "/docs/batch-6-raw-input.txt" }
+      { title: "POCTOVA Departmental Workflow (PDF)", url: "/docs/poctova-departmental-workflow.pdf" },
+      { title: "POCTOVA Strategic Projection Plan (PDF)", url: "/docs/poctova-strategic-projection-plan.pdf" },
+      { title: "POCTOVA Presentation July-December (PDF)", url: "/docs/poctova-presentation-july-december.pdf" }
     ],
     sections: [
       {

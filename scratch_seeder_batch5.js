@@ -12,7 +12,7 @@ const securityLessons = [
     minutes: 45,
     summary: "Strengthening physical defenses and threat detection across 17 camps.",
     attachments: [
-      { title: "Raw Camps Security & Military Welfare Plan", url: "/docs/batch-5-raw-input.txt" }
+      { title: "Camps Security Strategic Plan 2026 (PDF)", url: "/docs/camps-security-strategic-plan-2026.pdf" }
     ],
     sections: [
       {
@@ -84,7 +84,7 @@ const eaLessons = [
     minutes: 45,
     summary: "Managing protocol, logistics, and executive commitments.",
     attachments: [
-      { title: "Raw Executive Access & Communication Plan", url: "/docs/batch-5-raw-input.txt" }
+      { title: "Executive Assistants Presentation (PDF)", url: "/docs/eas-presentation.pdf" }
     ],
     sections: [
       {
@@ -151,7 +151,7 @@ const luftLessons = [
     minutes: 45,
     summary: "Addressing operational friction amidst a 32% increase in vehicle demand.",
     attachments: [
-      { title: "Raw Luftreiber H2 Growth Strategy", url: "/docs/batch-5-raw-input.txt" }
+      { title: "Luftreiber H2 2026 Strategic Plan (PDF)", url: "/docs/luftreiber-h2-2026-strategic-plan.pdf" }
     ],
     sections: [
       {

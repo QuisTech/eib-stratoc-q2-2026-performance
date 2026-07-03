@@ -12,7 +12,7 @@ const befLessons = [
     minutes: 45,
     summary: "Executing health outreach and back-to-school programs.",
     attachments: [
-      { title: "Raw BEF Q3 2026 Workplan", url: "/docs/batch-4-raw-input.txt" }
+      { title: "BEF Q3 2026 Workplan (PDF)", url: "/docs/bef-q3-2026-workplan.pdf" }
     ],
     sections: [
       {
@@ -90,7 +90,8 @@ const brightfmLessons = [
     minutes: 45,
     summary: "Strengthening program identity and audience engagement.",
     attachments: [
-      { title: "Raw Bright FM 90-Day Growth Plan", url: "/docs/batch-4-raw-input.txt" }
+      { title: "Bright FM 90-Day Action Plan (PDF)", url: "/docs/bright-fm-90-day-action-plan.pdf" },
+      { title: "Bright FM Lean Growth Budget (PDF)", url: "/docs/bright-fm-lean-growth-budget.pdf" }
     ],
     sections: [
       {
@@ -167,7 +168,7 @@ const workflowLessons = [
     minutes: 45,
     summary: "Transitioning subsidiaries from manual processes to technology-driven operations.",
     attachments: [
-      { title: "Raw EIB Group Workflow Optimization Plan", url: "/docs/batch-4-raw-input.txt" }
+      { title: "EIB Organizational Structure & Process Optimization (PDF)", url: "/docs/eib-organizational-structure-optimization.pdf" }
     ],
     sections: [
       {

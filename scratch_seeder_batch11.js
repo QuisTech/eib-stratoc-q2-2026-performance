@@ -13,7 +13,7 @@ const psapLessons = [
     minutes: 45,
     summary: "Techniques for data collection and building identification using Open-Source Intelligence and Geographic Information Systems.",
     attachments: [
-      { title: "Raw DCI Training Plans", url: "/docs/batch-9-raw-input.txt" }
+      { title: "Black Mid-Year Presentation (PDF)", url: "/docs/black-mid-year-presentation.pdf" }
     ],
     sections: [
       {
@@ -75,7 +75,7 @@ const sacLessons = [
     minutes: 45,
     summary: "Utilizing centralized systems for storing and retrieving operational records.",
     attachments: [
-      { title: "Raw DCI Training Plans", url: "/docs/batch-9-raw-input.txt" }
+      { title: "Black Mid-Year Presentation (PDF)", url: "/docs/black-mid-year-presentation.pdf" }
     ],
     sections: [
       {
@@ -123,7 +123,7 @@ const rawLessons = [
     minutes: 45,
     summary: "Advanced cyber practices for intelligence missions.",
     attachments: [
-      { title: "Raw DCI Training Plans", url: "/docs/batch-9-raw-input.txt" }
+      { title: "Black Mid-Year Presentation (PDF)", url: "/docs/black-mid-year-presentation.pdf" }
     ],
     sections: [
       {
@@ -176,7 +176,7 @@ const intelLessons = [
     minutes: 45,
     summary: "Techniques for gathering, verifying, and reporting intelligence accurately.",
     attachments: [
-      { title: "Raw DCI Training Plans", url: "/docs/batch-9-raw-input.txt" }
+      { title: "Black Mid-Year Presentation (PDF)", url: "/docs/black-mid-year-presentation.pdf" }
     ],
     sections: [
       {

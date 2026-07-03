@@ -12,7 +12,7 @@ const procurementLessons = [
     minutes: 45,
     summary: "The 90-day plan to centralize procurement and deploy management software.",
     attachments: [
-      { title: "Raw Procurement Centralization Plan", url: "/docs/batch-8-raw-input.txt" }
+      { title: "Procurement 90-Day Plan (PDF)", url: "/docs/procurement-90-day-plan.pdf" }
     ],
     sections: [
       {
@@ -51,7 +51,8 @@ const facilitiesLessons = [
     minutes: 45,
     summary: "Managing the group's generators, inverters, and solar infrastructure.",
     attachments: [
-      { title: "Raw Facility & Power Operations Review", url: "/docs/batch-8-raw-input.txt" }
+      { title: "Power Generator Report (PDF)", url: "/docs/general-power-generator-report.pdf" },
+      { title: "Janitors Budget Proposal (PDF)", url: "/docs/janitors-budget-proposal.pdf" }
     ],
     sections: [
       {
@@ -106,7 +107,8 @@ const docControlLessons = [
     minutes: 45,
     summary: "Enforcing the use of Task Track for all official document workflows.",
     attachments: [
-      { title: "Raw Task Track Document Compliance Guidelines", url: "/docs/batch-8-raw-input.txt" }
+      { title: "Document Control 90-Days Report (PDF)", url: "/docs/document-control-90-days-report.pdf" },
+      { title: "Document Control Department Report (PDF)", url: "/docs/document-control-department-report.pdf" }
     ],
     sections: [
       {

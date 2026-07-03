@@ -12,7 +12,7 @@ const corpCorpLessons = [
     minutes: 45,
     summary: "The 90-day strategic plan for the Corporate Communications & Media Department.",
     attachments: [
-      { title: "Raw Corporate Communications Strategy Plan", url: "/docs/batch-9-raw-input.txt" }
+      { title: "Corporate Communications 90-Day Strategic Plan (PDF)", url: "/docs/eib-90-day-strategic-plan-corp-comms.pdf" }
     ],
     sections: [
       {
@@ -50,7 +50,9 @@ const briechUasLessons = [
     minutes: 45,
     summary: "Significant operational deployments, military training, and drone production.",
     attachments: [
-      { title: "Raw Briech UAS Operations Review", url: "/docs/batch-9-raw-input.txt" }
+      { title: "Briech UAS Q1 Progress Report (PDF)", url: "/docs/briech-uas-q1-progress-report.pdf" },
+      { title: "Briech UAS Q3 Plan (PDF)", url: "/docs/briech-uas-q3-plan.pdf" },
+      { title: "GM Briech UAS Report Mar-Jun 2026 (PDF)", url: "/docs/briech-uas-gm-report-march-june.pdf" }
     ],
     sections: [
       {
@@ -116,7 +118,7 @@ const blackLessons = [
     minutes: 45,
     summary: "H1 performance and H2 strategic roadmap for corporate intelligence.",
     attachments: [
-      { title: "Raw Black Clandestine Operations Plan", url: "/docs/batch-9-raw-input.txt" }
+      { title: "Black Mid-Year Presentation (PDF)", url: "/docs/black-mid-year-presentation.pdf" }
     ],
     sections: [
       {
