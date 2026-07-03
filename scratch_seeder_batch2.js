@@ -346,7 +346,7 @@ async function run() {
       'Online',
       2,
       0,
-      'Global',
+      'EIB Group',
       ghrContent,
       'michael.marquis@eibgroup.com'
     ]);
