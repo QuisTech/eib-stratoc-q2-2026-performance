@@ -37,9 +37,14 @@ export function isCourseVisibleToUser(
 
   const courseSubsList = courseSubsidiaries.split(",").map((s) => s.trim().toLowerCase())
 
-  // If the course is tagged as "EIB Group" or "Global", it is global and visible to everyone
-  if (courseSubsList.includes("eib group") || courseSubsList.includes("global")) {
+  // If the course is tagged as "Global", it is visible to everyone across the group regardless of role
+  if (courseSubsList.includes("global")) {
     return true
+  }
+
+  // If the course is tagged as "EIB Group", it is a group-level strategic course visible ONLY to leaders/managers
+  if (courseSubsList.includes("eib group")) {
+    return role === "lead" || role === "admin" || role === "group_head"
   }
 
   // If the user has no subsidiary, they can only see global courses
