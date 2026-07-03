@@ -11,7 +11,7 @@ import {
   getMyCertificateForCourse,
 } from "@/app/actions/lms"
 import { getLessons } from "@/lib/lms-content"
-import { formatNaira } from "@/lib/utils"
+import { formatNaira, isCourseVisibleToUser } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -54,6 +54,18 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
 
   const session = await auth.api.getSession({ headers: await headers() })
   const signedIn = Boolean(session?.user)
+
+  // Enforce subsidiary visibility check if the user is signed in
+  if (session?.user) {
+    const isVisible = isCourseVisibleToUser(
+      course.subsidiaries,
+      session.user.subsidiary || null,
+      session.user.role || "learner"
+    )
+    if (!isVisible) {
+      notFound()
+    }
+  }
 
   const enrollment = signedIn ? await getMyEnrollmentForCourse(course.id) : null
   const enrolled = Boolean(enrollment)

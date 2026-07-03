@@ -13,3 +13,53 @@ export function formatNaira(amount: number): string {
     maximumFractionDigits: 0,
   }).format(amount)
 }
+
+/**
+ * Determines whether a course is visible to a user based on its subsidiaries list,
+ * the user's registered subsidiary, and the user's role.
+ */
+export function isCourseVisibleToUser(
+  courseSubsidiaries: string | null,
+  userSubsidiary: string | null,
+  userRole: string | null
+): boolean {
+  const role = userRole || "learner"
+
+  // Super Admins and Group Head of Training & OD see all courses
+  if (role === "admin" || role === "group_head") {
+    return true
+  }
+
+  // If no course subsidiaries list is specified, it is considered global/general
+  if (!courseSubsidiaries || courseSubsidiaries.trim() === "") {
+    return true
+  }
+
+  const courseSubsList = courseSubsidiaries.split(",").map((s) => s.trim().toLowerCase())
+
+  // If the course is tagged as "EIB Group" or "Global", it is global and visible to everyone
+  if (courseSubsList.includes("eib group") || courseSubsList.includes("global")) {
+    return true
+  }
+
+  // If the user has no subsidiary, they can only see global courses
+  if (!userSubsidiary) {
+    return false
+  }
+
+  const userSubLower = userSubsidiary.trim().toLowerCase()
+
+  // Direct match
+  if (courseSubsList.includes(userSubLower)) {
+    return true
+  }
+
+  // Special Directorate wildcard logic:
+  // Directorate of Clandestine & Intelligence lead/learners can see all "DCI - *" courses
+  if (userSubLower === "directorate of clandestine & intelligence") {
+    return courseSubsList.some((s) => s.startsWith("dci -"))
+  }
+
+  return false
+}
+

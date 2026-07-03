@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { buttonVariants } from "@/components/ui/button"
 import { QuizForm } from "@/components/lms/quiz-form"
 import { ArrowLeft, ClipboardCheck, AlertTriangle, Award, Clock, Ban } from "lucide-react"
+import { isCourseVisibleToUser } from "@/lib/utils"
 
 type Params = { slug: string }
 
@@ -34,6 +35,16 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
 
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) redirect("/sign-in")
+
+  // Enforce subsidiary visibility check
+  const isVisible = isCourseVisibleToUser(
+    course.subsidiaries,
+    session.user.subsidiary || null,
+    session.user.role || "learner"
+  )
+  if (!isVisible) {
+    notFound()
+  }
 
   const enrollment = await getMyEnrollmentForCourse(course.id)
   if (!enrollment) redirect(`/lms/${slug}`)

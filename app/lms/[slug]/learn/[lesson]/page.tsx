@@ -12,6 +12,7 @@ import { getLessons } from "@/lib/lms-content"
 import { Card, CardContent } from "@/components/ui/card"
 import { LessonCompleteButton } from "@/components/lms/lesson-complete-button"
 import { ArrowLeft, CheckCircle2, Circle, Clock, Lightbulb, Lock, Paperclip } from "lucide-react"
+import { isCourseVisibleToUser } from "@/lib/utils"
 
 function parseMarkdown(text: string) {
   let html = text
@@ -42,6 +43,16 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
 
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) redirect(`/sign-in`)
+
+  // Enforce subsidiary visibility check
+  const isVisible = isCourseVisibleToUser(
+    course.subsidiaries,
+    session.user.subsidiary || null,
+    session.user.role || "learner"
+  )
+  if (!isVisible) {
+    notFound()
+  }
 
   const enrollment = await getMyEnrollmentForCourse(course.id)
   if (!enrollment) redirect(`/lms/${slug}`)

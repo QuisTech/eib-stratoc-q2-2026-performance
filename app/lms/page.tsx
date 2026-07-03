@@ -5,7 +5,7 @@ import { auth } from "@/lib/auth"
 import { getCourses, getMyEnrollments } from "@/app/actions/lms"
 import { CourseCard } from "@/components/lms/course-card"
 import { CourseCatalog } from "@/components/lms/course-catalog"
-import { formatNaira } from "@/lib/utils"
+import { formatNaira, isCourseVisibleToUser } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
 import { PrintActions } from "@/components/print-actions"
@@ -52,12 +52,19 @@ export default async function LmsPage() {
     return <SignedOutView courseCount={courses.length} catalogValue={catalogValue} />
   }
 
+  const userRole = session.user.role || "learner"
+  const userSubsidiary = session.user.subsidiary || null
+
+  const visibleCourses = courses.filter((c) =>
+    isCourseVisibleToUser(c.subsidiaries, userSubsidiary, userRole)
+  )
+
   const enrollments = await getMyEnrollments()
   const enrollMap = new Map(enrollments.map((e) => [e.courseId, e]))
   const myCourses = courses.filter((c) => enrollMap.has(c.id))
 
   const myValue = myCourses.reduce((s, c) => s + c.priceNaira, 0)
-  const catalogValue = courses.reduce((s, c) => s + c.priceNaira, 0)
+  const catalogValue = visibleCourses.reduce((s, c) => s + c.priceNaira, 0)
 
   const completed = enrollments.filter((e) => e.status === "completed").length
   const inProgress = enrollments.filter((e) => e.status === "in_progress").length
@@ -66,9 +73,9 @@ export default async function LmsPage() {
       ? Math.round(enrollments.reduce((s, e) => s + e.progress, 0) / enrollments.length)
       : 0
 
-  // Group full catalog by category.
+  // Group visible catalog by category.
   const byCategory = new Map<string, typeof courses>()
-  for (const c of courses) {
+  for (const c of visibleCourses) {
     const list = byCategory.get(c.category) ?? []
     list.push(c)
     byCategory.set(c.category, list)
@@ -144,7 +151,12 @@ export default async function LmsPage() {
         )}
       </section>
 
-      <CourseCatalog courses={courses} enrollments={enrollments} />
+      <CourseCatalog
+        courses={visibleCourses}
+        enrollments={enrollments}
+        userRole={userRole}
+        userSubsidiary={userSubsidiary}
+      />
     </main>
   )
   } catch (err: any) {

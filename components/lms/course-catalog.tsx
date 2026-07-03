@@ -8,9 +8,16 @@ import { formatNaira } from "@/lib/utils"
 type CourseCatalogProps = {
   courses: Course[]
   enrollments: Enrollment[]
+  userRole?: string
+  userSubsidiary?: string | null
 }
 
-export function CourseCatalog({ courses, enrollments }: CourseCatalogProps) {
+export function CourseCatalog({
+  courses,
+  enrollments,
+  userRole = "learner",
+  userSubsidiary = null,
+}: CourseCatalogProps) {
   const [filterSubsidiary, setFilterSubsidiary] = useState<string>("All")
   const [filterCategory, setFilterCategory] = useState<string>("All")
   const [groupingMode, setGroupingMode] = useState<"subsidiary" | "category">("subsidiary")
@@ -119,20 +126,24 @@ export function CourseCatalog({ courses, enrollments }: CourseCatalogProps) {
             </button>
           </div>
           
-          <div className="h-6 w-px bg-border hidden sm:block"></div>
+          {(userRole === "admin" || userRole === "group_head") && (
+            <>
+              <div className="h-6 w-px bg-border hidden sm:block"></div>
 
-          {/* Subsidiary Filter */}
-          <select 
-            className="text-sm bg-background border border-border rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50"
-            value={filterSubsidiary}
-            onChange={(e) => setFilterSubsidiary(e.target.value)}
-          >
-            <option value="All">All Subsidiaries</option>
-            {allSubsidiaries.filter(s => s !== "EIB Group").map(s => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-            <option value="EIB Group">EIB Group (Global)</option>
-          </select>
+              {/* Subsidiary Filter */}
+              <select 
+                className="text-sm bg-background border border-border rounded-md px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary/50"
+                value={filterSubsidiary}
+                onChange={(e) => setFilterSubsidiary(e.target.value)}
+              >
+                <option value="All">All Subsidiaries</option>
+                {allSubsidiaries.filter(s => s !== "EIB Group").map(s => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+                <option value="EIB Group">EIB Group (Global)</option>
+              </select>
+            </>
+          )}
 
           {/* Category Filter */}
           <select 

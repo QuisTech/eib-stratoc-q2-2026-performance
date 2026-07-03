@@ -20,6 +20,7 @@ import { and, eq, inArray, sql, asc, desc, like } from "drizzle-orm"
 import { headers } from "next/headers"
 import { hashPassword } from "better-auth/crypto"
 import { revalidatePath } from "next/cache"
+import { isCourseVisibleToUser } from "@/lib/utils"
 
 async function getUserId() {
   const session = await auth.api.getSession({ headers: await headers() })
@@ -83,6 +84,22 @@ export async function getMyEnrollmentForCourse(courseId: number): Promise<Enroll
 
 export async function enrollInCourse(courseId: number) {
   const userId = await getUserId()
+
+  // Get course to check visibility
+  const course = await getCourseById(courseId)
+  if (!course) throw new Error("Course not found")
+
+  // Get user context to verify subsidiary visibility
+  const viewer = await getSessionUser()
+  const isVisible = isCourseVisibleToUser(
+    course.subsidiaries,
+    viewer.subsidiary || null,
+    viewer.role || "learner"
+  )
+  if (!isVisible) {
+    throw new Error("Forbidden: You are not authorized to enroll in this course")
+  }
+
   const existing = await db
     .select()
     .from(enrollments)
