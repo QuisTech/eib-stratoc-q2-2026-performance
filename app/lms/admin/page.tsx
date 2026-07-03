@@ -11,6 +11,7 @@ import { ArrowLeft, Users, BookOpen, GraduationCap, Award, Edit, Server } from "
 import { ResetPasswordButton } from "./reset-password-button"
 import { DeleteUserButton } from "./delete-user-button"
 import { ExportCsvButton } from "./export-csv-button"
+import { ResetQuizAttemptsButton } from "./reset-quiz-attempts-button"
 
 export const dynamic = "force-dynamic"
 
@@ -201,8 +202,11 @@ export default async function AdminPage() {
                         </td>
                         {role === "admin" && (
                           <td className="px-3 py-3 text-right">
-                            <ResetPasswordButton userId={l.id} userName={l.name} />
-                            {session.user.id !== l.id && <DeleteUserButton userId={l.id} userName={l.name} />}
+                            <div className="flex items-center justify-end">
+                              <ResetQuizAttemptsButton userId={l.id} userName={l.name} enrolledCourses={l.enrolledCourses} />
+                              <ResetPasswordButton userId={l.id} userName={l.name} />
+                              {session.user.id !== l.id && <DeleteUserButton userId={l.id} userName={l.name} />}
+                            </div>
                           </td>
                         )}
                       </tr>

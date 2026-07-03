@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useState, useTransition, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -10,6 +10,12 @@ import { Loader2, CheckCircle2, XCircle, Award, RotateCcw } from "lucide-react"
 
 type ClientQuestion = { id: string; prompt: string; options: string[] }
 type Result = { score: number; total: number; percent: number; passed: boolean }
+
+type ShuffledQuestion = {
+  q: ClientQuestion
+  originalIndex: number
+  shuffledOptions: { opt: string; originalOptionIndex: number }[]
+}
 
 export function QuizForm({
   courseId,
@@ -27,6 +33,30 @@ export function QuizForm({
   const [result, setResult] = useState<Result | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
+  
+  const [isMounted, setIsMounted] = useState(false)
+  const [shuffled, setShuffled] = useState<ShuffledQuestion[]>([])
+
+  useEffect(() => {
+    const randomized = questions.map((q, qi) => {
+      const options = q.options.map((opt, oi) => ({ opt, originalOptionIndex: oi }))
+      // Shuffle options
+      for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[options[i], options[j]] = [options[j], options[i]]
+      }
+      return { q, originalIndex: qi, shuffledOptions: options }
+    })
+    
+    // Shuffle questions
+    for (let i = randomized.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[randomized[i], randomized[j]] = [randomized[j], randomized[i]]
+    }
+    
+    setShuffled(randomized)
+    setIsMounted(true)
+  }, [questions])
 
   const allAnswered = questions.every((_, i) => answers[i] !== undefined)
 
@@ -36,6 +66,7 @@ export function QuizForm({
       setError("Please answer every question before submitting.")
       return
     }
+    // Map answers back to original question order
     const ordered = questions.map((_, i) => answers[i])
     startTransition(async () => {
       try {
@@ -52,6 +83,22 @@ export function QuizForm({
     setAnswers({})
     setResult(null)
     setError(null)
+    
+    // Reshuffle on retake
+    const randomized = questions.map((q, qi) => {
+      const options = q.options.map((opt, oi) => ({ opt, originalOptionIndex: oi }))
+      for (let i = options.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[options[i], options[j]] = [options[j], options[i]]
+      }
+      return { q, originalIndex: qi, shuffledOptions: options }
+    })
+    
+    for (let i = randomized.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[randomized[i], randomized[j]] = [randomized[j], randomized[i]]
+    }
+    setShuffled(randomized)
   }
 
   if (result) {
@@ -90,8 +137,8 @@ export function QuizForm({
             </div>
           ) : (
             <div className="flex flex-wrap items-center justify-center gap-3">
-              <Button onClick={retake} size="lg">
-                <RotateCcw className="mr-2 h-4 w-4" /> Retake assessment
+              <Button onClick={() => window.location.reload()} size="lg">
+                <RotateCcw className="mr-2 h-4 w-4" /> Go back
               </Button>
               <Link
                 href={`/lms/${slug}/learn/${"orientation"}`}
@@ -106,19 +153,27 @@ export function QuizForm({
     )
   }
 
+  if (!isMounted) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-5">
-      {questions.map((q, qi) => (
-        <Card key={q.id}>
+      {shuffled.map((sq, qi) => (
+        <Card key={sq.q.id}>
           <CardContent className="p-5">
             <p className="font-medium">
               <span className="text-muted-foreground">Question {qi + 1}. </span>
-              {q.prompt}
+              {sq.q.prompt}
             </p>
             <fieldset className="mt-3 flex flex-col gap-2">
-              <legend className="sr-only">{q.prompt}</legend>
-              {q.options.map((opt, oi) => {
-                const selected = answers[qi] === oi
+              <legend className="sr-only">{sq.q.prompt}</legend>
+              {sq.shuffledOptions.map((optObj, oi) => {
+                const selected = answers[sq.originalIndex] === optObj.originalOptionIndex
                 return (
                   <label
                     key={oi}
@@ -130,12 +185,12 @@ export function QuizForm({
                   >
                     <input
                       type="radio"
-                      name={`q-${qi}`}
+                      name={`q-${sq.originalIndex}`}
                       checked={selected}
-                      onChange={() => setAnswers((a) => ({ ...a, [qi]: oi }))}
+                      onChange={() => setAnswers((a) => ({ ...a, [sq.originalIndex]: optObj.originalOptionIndex }))}
                       className="h-4 w-4 accent-[var(--primary)]"
                     />
-                    <span>{opt}</span>
+                    <span>{optObj.opt}</span>
                   </label>
                 )
               })}

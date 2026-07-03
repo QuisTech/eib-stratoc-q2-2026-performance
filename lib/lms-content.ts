@@ -8,7 +8,37 @@ import type { Course } from "@/lib/db/schema"
 // readable material and a subject-relevant assessment.
 // ---------------------------------------------------------------------------
 
-export const QUIZ_PASS_THRESHOLD = 100 // percent required to pass
+export type QuizPolicy = {
+  passThreshold: number
+  maxAttempts: number
+  waitPeriodHours: number
+}
+
+export function getQuizPolicy(course: Course): QuizPolicy {
+  // Critical SOPs and Safety courses require strict compliance.
+  const criticalSlugs = [
+    "eib-executive-reporting-accountability",
+    "eib-core-business-sops",
+    "strategic-hr-operations-workflow"
+  ]
+  const isCritical =
+    criticalSlugs.includes(course.slug) || course.category === "Safety & Compliance"
+
+  if (isCritical) {
+    return {
+      passThreshold: 100,
+      maxAttempts: Infinity,
+      waitPeriodHours: 24,
+    }
+  }
+
+  // Standard policy for all other courses
+  return {
+    passThreshold: 80,
+    maxAttempts: 5,
+    waitPeriodHours: 1,
+  }
+}
 
 export type LessonSection = { heading: string; body: string[] }
 export type Lesson = {
@@ -196,14 +226,14 @@ export function getLessons(course: Course): Lesson[] {
         {
           heading: "What the assessment checks",
           body: [
-            `The assessment is a short quiz covering the core concepts of this course and how it fits the EIB Group plan. You need ${QUIZ_PASS_THRESHOLD}% to pass and earn your certificate.`,
+            `The assessment is a short quiz covering the core concepts of this course and how it fits the EIB Group plan. You must meet the required pass score to earn your certificate.`,
             "Re-read any takeaways you are unsure about, then start the quiz when you are ready.",
           ],
         },
       ],
       takeaways: [
         "Revisit the takeaways from each lesson before the quiz.",
-        `A score of ${QUIZ_PASS_THRESHOLD}% or higher earns your certificate.`,
+        `A passing score earns your certificate.`,
         "Completing all lessons plus passing the quiz marks the course complete.",
       ],
     },
@@ -789,6 +819,7 @@ export function gradeQuiz(
   quiz.forEach((q, i) => {
     if (answers[i] === q.correctIndex) score++
   })
+  const policy = getQuizPolicy(course)
   const percent = total > 0 ? Math.round((score / total) * 100) : 0
-  return { score, total, percent, passed: percent >= QUIZ_PASS_THRESHOLD }
+  return { score, total, percent, passed: percent >= policy.passThreshold }
 }

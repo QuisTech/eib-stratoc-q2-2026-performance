@@ -9,11 +9,11 @@ import {
   getMyLessonProgress,
   getMyQuizAttempts,
 } from "@/app/actions/lms"
-import { getLessons, getQuiz, QUIZ_PASS_THRESHOLD } from "@/lib/lms-content"
-import { Card, CardContent } from "@/components/ui/card"
+import { getLessons, getQuiz, getQuizPolicy } from "@/lib/lms-content"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
 import { QuizForm } from "@/components/lms/quiz-form"
-import { ArrowLeft, ClipboardCheck, AlertTriangle, Award } from "lucide-react"
+import { ArrowLeft, ClipboardCheck, AlertTriangle, Award, Clock, Ban } from "lucide-react"
 
 type Params = { slug: string }
 
@@ -43,6 +43,28 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
   const remaining = lessons.filter((l) => !completed.has(l.key))
   const attempts = await getMyQuizAttempts(course.id)
   const alreadyPassed = attempts.some((a) => a.passed)
+  
+  const policy = getQuizPolicy(course)
+
+  // Check wait period lockout
+  let isLockedOutByTime = false
+  let lockoutUntil: Date | null = null
+  let waitHoursLeft = 0
+  
+  if (!alreadyPassed && attempts.length > 0) {
+    const lastAttempt = attempts.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0]
+    const timeSinceMs = Date.now() - lastAttempt.createdAt.getTime()
+    const hoursSince = timeSinceMs / (1000 * 60 * 60)
+    
+    if (hoursSince < policy.waitPeriodHours) {
+      isLockedOutByTime = true
+      waitHoursLeft = Math.ceil(policy.waitPeriodHours - hoursSince)
+      lockoutUntil = new Date(lastAttempt.createdAt.getTime() + policy.waitPeriodHours * 60 * 60 * 1000)
+    }
+  }
+
+  // Check max attempts lockout
+  const isLockedOutByAttempts = !alreadyPassed && attempts.length >= policy.maxAttempts
 
   // Sanitize: never send correct answers to the client.
   const clientQuestions = getQuiz(course).map((q) => ({
@@ -66,8 +88,11 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
         </p>
         <h1 className="mt-2 text-balance font-heading text-3xl font-bold">{course.title}</h1>
         <p className="mt-2 text-pretty leading-relaxed text-muted-foreground">
-          Answer all {clientQuestions.length} questions. You need {QUIZ_PASS_THRESHOLD}% to pass and
-          earn your certificate. You can retake the assessment as many times as you need.
+          Answer all {clientQuestions.length} questions. You need {policy.passThreshold}% to pass and
+          earn your certificate. 
+          {policy.maxAttempts === Infinity 
+            ? " You can retake the assessment as many times as you need." 
+            : ` You have ${policy.maxAttempts - attempts.length} attempt(s) remaining out of ${policy.maxAttempts}.`}
         </p>
       </div>
 
@@ -85,7 +110,7 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
         </Card>
       )}
 
-      {remaining.length > 0 && (
+      {remaining.length > 0 && !alreadyPassed && (
         <Card className="mt-6 border-l-4" style={{ borderLeftColor: "var(--chart-3)" }}>
           <CardContent className="flex items-start gap-3 p-4">
             <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-[var(--chart-3)]" />
@@ -108,14 +133,46 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
         </Card>
       )}
 
-      <div className="mt-7">
-        <QuizForm
-          courseId={course.id}
-          slug={slug}
-          questions={clientQuestions}
-          passThreshold={QUIZ_PASS_THRESHOLD}
-        />
-      </div>
+      {!alreadyPassed && isLockedOutByAttempts ? (
+        <Card className="mt-7 border-destructive">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-destructive">
+              <Ban className="h-5 w-5" /> Maximum Attempts Reached
+            </CardTitle>
+            <CardDescription>
+              You have reached the maximum of {policy.maxAttempts} attempts for this course assessment.
+              Please contact your administrator or supervisor to review the material and request a reset.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      ) : !alreadyPassed && isLockedOutByTime ? (
+        <Card className="mt-7 border-muted bg-muted/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-muted-foreground" /> Waiting Period
+            </CardTitle>
+            <CardDescription>
+              This course requires a {policy.waitPeriodHours}-hour waiting period between failed attempts
+              to encourage reviewing the material before trying again.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm font-medium">
+              You can try again in approximately {waitHoursLeft} hour(s) 
+              ({lockoutUntil?.toLocaleString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit' })}).
+            </p>
+          </CardContent>
+        </Card>
+      ) : !alreadyPassed ? (
+        <div className="mt-7">
+          <QuizForm
+            courseId={course.id}
+            slug={slug}
+            questions={clientQuestions}
+            passThreshold={policy.passThreshold}
+          />
+        </div>
+      ) : null}
     </main>
   )
 }

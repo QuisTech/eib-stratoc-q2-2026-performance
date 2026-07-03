@@ -278,6 +278,7 @@ export type LearnerReportRow = {
   completed: number
   certificates: number
   avgProgress: number
+  enrolledCourses: { courseId: number; title: string }[]
 }
 
 export type AdminReport = {
@@ -373,6 +374,12 @@ export async function getAdminReport(): Promise<AdminReport> {
     const inProgress = list.filter((e) => e.status === "in_progress").length
     const avgProgress =
       list.length > 0 ? Math.round(list.reduce((s, e) => s + e.progress, 0) / list.length) : 0
+    
+    const enrolledCourses = list.map((e) => ({
+      courseId: e.courseId,
+      title: courseTitle.get(e.courseId) ?? `Course #${e.courseId}`
+    }))
+
     return {
       id: u.id,
       name: u.name,
@@ -384,6 +391,7 @@ export async function getAdminReport(): Promise<AdminReport> {
       completed,
       certificates: certCountByUser.get(u.id) ?? 0,
       avgProgress,
+      enrolledCourses,
     }
   })
 
@@ -611,10 +619,24 @@ export async function adminDeleteUser(userId: string) {
   await db.delete(quizAttempts).where(eq(quizAttempts.userId, userId))
   await db.delete(certificates).where(eq(certificates.userId, userId))
   
-  // Then delete the user (which cascades to session, account, etc. via FK)
   await db.delete(user).where(eq(user.id, userId))
 
   revalidatePath("/lms/admin")
+}
+
+export async function adminResetQuizAttempts(userId: string, courseId: number) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session?.user) throw new Error("Unauthorized")
+
+  const role = session.user.role as string
+  if (role !== "admin" && role !== "group_head" && role !== "lead") {
+    throw new Error("Forbidden: Only administrators can reset quiz attempts")
+  }
+
+  await db.delete(quizAttempts).where(and(eq(quizAttempts.userId, userId), eq(quizAttempts.courseId, courseId)))
+
+  revalidatePath("/lms/admin")
+  revalidatePath(`/lms`)
 }
 
 export async function exportAdminCSV(): Promise<string> {
