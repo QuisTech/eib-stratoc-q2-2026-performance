@@ -47,7 +47,8 @@ export function getQuizPolicy(course: Course): QuizPolicy {
     "document-control-task-track-compliance",
     "corp-communications-90-day-strategy",
     "briech-uas-q2-operations",
-    "black-intelligence-clandestine-ops"
+    "black-intelligence-clandestine-ops",
+    "clandestine-training-gap-analysis"
   ]
   const isCritical =
     criticalSlugs.includes(course.slug) || course.category === "Safety & Compliance"
