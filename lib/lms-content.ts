@@ -41,7 +41,10 @@ export function getQuizPolicy(course: Course): QuizPolicy {
     "poctova-workflow-strategic-plan",
     "briech-atlantic-q3-expansion",
     "training-q3-intelligence-report",
-    "psap-90-day-transformation"
+    "psap-90-day-transformation",
+    "procurement-centralization-vendor-management",
+    "group-admin-facility-power-management",
+    "document-control-task-track-compliance"
   ]
   const isCritical =
     criticalSlugs.includes(course.slug) || course.category === "Safety & Compliance"
