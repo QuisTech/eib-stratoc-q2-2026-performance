@@ -11,6 +11,9 @@ const gcooLessons = [
     title: "Strategic Objectives & Foundation",
     minutes: 45,
     summary: "Aligning operations across all 8 subsidiaries for a unified group vision.",
+    attachments: [
+      { title: "Raw GCOO 2026 Work Plan Report", url: "/docs/batch-2-raw-input.txt" }
+    ],
     sections: [
       {
         heading: "Core Objectives",
@@ -177,6 +180,9 @@ const gigaLessons = [
     title: "Mission & Strategic Priorities",
     minutes: 30,
     summary: "An overview of Giga Forensics' H2 2026 strategic direction.",
+    attachments: [
+      { title: "Raw Giga Forensics H2 2026 Strategy", url: "/docs/batch-2-raw-input.txt" }
+    ],
     sections: [
       {
         heading: "Mission for H2 2026",

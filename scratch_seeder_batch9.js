@@ -11,6 +11,9 @@ const corpCorpLessons = [
     title: "Corporate Comms 90-Day Strategy",
     minutes: 45,
     summary: "The 90-day strategic plan for the Corporate Communications & Media Department.",
+    attachments: [
+      { title: "Raw Corporate Communications Strategy Plan", url: "/docs/batch-9-raw-input.txt" }
+    ],
     sections: [
       {
         heading: "Three-Phase Roadmap",
@@ -46,13 +49,18 @@ const briechUasLessons = [
     title: "Briech UAS Q1/Q2 Operational Milestones",
     minutes: 45,
     summary: "Significant operational deployments, military training, and drone production.",
+    attachments: [
+      { title: "Raw Briech UAS Operations Review", url: "/docs/batch-9-raw-input.txt" }
+    ],
     sections: [
       {
         heading: "Military Support & Production",
         body: [
           "- **Training:** Trained 16 Nigerian Army personnel on FPV Kamikaze drone operations.",
           "- **Production:** Produced and deployed 60 FPV drone systems for the Ministry of Defense and Zamfara State.",
-          "- **MoU Signed:** Successfully signed a Memorandum of Understanding with DICON (Defence Industries Corporation of Nigeria)."
+          "- **MoU Signed:** Successfully signed a Memorandum of Understanding with DICON (Defence Industries Corporation of Nigeria).",
+          "- **Tactical Design:** Specifically designed the Argini Bomb Carrier for tactical payload deployment.",
+          "- **Funding:** Received a critical imprest allocation of ₦8,000,000 to support operational and deployment activities."
         ]
       },
       {
@@ -107,6 +115,9 @@ const blackLessons = [
     title: "Black: Intelligence & Clandestine Ops",
     minutes: 45,
     summary: "H1 performance and H2 strategic roadmap for corporate intelligence.",
+    attachments: [
+      { title: "Raw Black Clandestine Operations Plan", url: "/docs/batch-9-raw-input.txt" }
+    ],
     sections: [
       {
         heading: "H1 Strategic Achievements",
