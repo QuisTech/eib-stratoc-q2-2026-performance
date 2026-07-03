@@ -27,7 +27,9 @@ const SUBSIDIARY_GROUPS = {
     "Briech Atlantic",
     "Briech UAS",
     "Bright FM",
-    "BEF"
+    "BEF",
+    "Luft Pay TV",
+    "Giga Forensics"
   ]
 }
 
