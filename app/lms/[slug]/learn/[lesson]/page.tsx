@@ -15,9 +15,6 @@ import { ArrowLeft, CheckCircle2, Circle, Clock, Lightbulb, Lock, Paperclip } fr
 
 function parseMarkdown(text: string) {
   let html = text
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
   html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
   html = html.replace(/\*(.*?)\*/g, "<em>$1</em>")
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-primary underline underline-offset-4 hover:text-primary/80">$1</a>')
