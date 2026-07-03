@@ -84,6 +84,14 @@ export function CourseCatalog({
         // If the user is filtering by a specific subsidiary, we only want to show that group and the Global group
         if (filterSubsidiary !== "All") {
           keys = keys.filter(k => k === filterSubsidiary || k === "EIB Group")
+        } else if (userRole !== "admin" && userRole !== "group_head") {
+          // If not a global admin/group_head, restrict keys to their own subsidiary and global/general
+          keys = keys.filter(
+            (k) =>
+              k.toLowerCase() === userSubsidiary?.toLowerCase() ||
+              k === "EIB Group" ||
+              k === "Global"
+          )
         }
       }
 
