@@ -21,7 +21,12 @@ export function getQuizPolicy(course: Course): QuizPolicy {
     "eib-core-business-sops",
     "strategic-hr-operations-workflow",
     "gcoo-operations-workplan-2026",
-    "giga-forensics-h2-2026-strategy"
+    "giga-forensics-h2-2026-strategy",
+    "gcoo-work-plan-2026",
+    "giga-forensics-half-year-plan",
+    "eib-stratoc-90-day-ops-plan",
+    "briech-hospital-six-month-readiness",
+    "ghrm-q3-q4-strategic-plan"
   ]
   const isCritical =
     criticalSlugs.includes(course.slug) || course.category === "Safety & Compliance"
