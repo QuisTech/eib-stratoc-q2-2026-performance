@@ -4,6 +4,7 @@ import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
 import { getCourses, getMyEnrollments } from "@/app/actions/lms"
 import { CourseCard } from "@/components/lms/course-card"
+import { CourseCatalog } from "@/components/lms/course-catalog"
 import { formatNaira } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
@@ -143,35 +144,7 @@ export default async function LmsPage() {
         )}
       </section>
 
-      {/* Catalog */}
-      <section className="mt-12">
-        <h2 className="font-heading text-xl font-bold">Course Catalog</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {courses.length} courses across {byCategory.size} skill-gap categories ·{" "}
-          {formatNaira(catalogValue)} in total training value.
-        </p>
-
-        <div className="mt-5 space-y-10">
-          {[...byCategory.entries()].map(([category, list]) => (
-            <div key={category}>
-              <div className="mb-3 flex items-center gap-2">
-                <h3 className="font-heading text-base font-semibold">{category}</h3>
-                <span className="text-xs text-muted-foreground">({list.length})</span>
-              </div>
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {list.map((c) => (
-                  <CourseCard
-                    key={c.id}
-                    course={c}
-                    enrolled={enrollMap.has(c.id)}
-                    progress={enrollMap.get(c.id)?.progress}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      <CourseCatalog courses={courses} enrollments={enrollments} />
     </main>
   )
   } catch (err: any) {
