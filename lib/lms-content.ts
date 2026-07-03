@@ -19,7 +19,9 @@ export function getQuizPolicy(course: Course): QuizPolicy {
   const criticalSlugs = [
     "eib-executive-reporting-accountability",
     "eib-core-business-sops",
-    "strategic-hr-operations-workflow"
+    "strategic-hr-operations-workflow",
+    "gcoo-operations-workplan-2026",
+    "giga-forensics-h2-2026-strategy"
   ]
   const isCritical =
     criticalSlugs.includes(course.slug) || course.category === "Safety & Compliance"
