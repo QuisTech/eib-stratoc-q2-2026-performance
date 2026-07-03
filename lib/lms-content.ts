@@ -32,7 +32,10 @@ export function getQuizPolicy(course: Course): QuizPolicy {
     "business-development-strategic-plan",
     "bef-q3-2026-workplan",
     "brightfm-90-day-growth-plan",
-    "group-workflow-optimization-strategy"
+    "group-workflow-optimization-strategy",
+    "camps-security-strategic-plan",
+    "executive-access-communication-framework",
+    "luftreiber-h2-growth-structure"
   ]
   const isCritical =
     criticalSlugs.includes(course.slug) || course.category === "Safety & Compliance"
