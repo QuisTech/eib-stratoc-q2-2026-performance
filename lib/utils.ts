@@ -49,6 +49,16 @@ export function isCourseVisibleToUser(
 
   const userSubLower = userSubsidiary.trim().toLowerCase()
 
+  // If the course is tagged as "black", it belongs to the clandestine division
+  // and is visible to DCI clandestine units and parent directorate
+  if (courseSubsList.includes("black")) {
+    return (
+      userSubLower.startsWith("dci -") ||
+      userSubLower === "directorate of clandestine & intelligence" ||
+      userSubLower === "black"
+    )
+  }
+
   // Direct match
   if (courseSubsList.includes(userSubLower)) {
     return true
