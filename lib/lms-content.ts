@@ -8,7 +8,7 @@ import type { Course } from "@/lib/db/schema"
 // readable material and a subject-relevant assessment.
 // ---------------------------------------------------------------------------
 
-export const QUIZ_PASS_THRESHOLD = 80 // percent required to pass
+export const QUIZ_PASS_THRESHOLD = 100 // percent required to pass
 
 export type LessonSection = { heading: string; body: string[] }
 export type Lesson = {
