@@ -61,7 +61,9 @@ export default async function LmsPage() {
 
   const enrollments = await getMyEnrollments()
   const enrollMap = new Map(enrollments.map((e) => [e.courseId, e]))
-  const myCourses = courses.filter((c) => enrollMap.has(c.id))
+  const myCourses = courses.filter(
+    (c) => enrollMap.has(c.id) && isCourseVisibleToUser(c.subsidiaries, userSubsidiary, userRole)
+  )
 
   const myValue = myCourses.reduce((s, c) => s + c.priceNaira, 0)
   const catalogValue = visibleCourses.reduce((s, c) => s + c.priceNaira, 0)
