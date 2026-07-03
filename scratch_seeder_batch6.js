@@ -260,8 +260,8 @@ async function run() {
     await pool.query(q, [
       // EVP
       'evp-group-hr-sops',
-      'EVP: Group HR, Reporting & Procurement SOPs',
-      'Standard operating procedures for management reporting, human resources lifecycle, and corporate procurement.',
+      'EVP: Standard Operating Procedures & Reporting',
+      'Standard operating procedures covering management reporting workflows, personnel onboarding, and corporate procurement directives.',
       'Operational',
       'Advanced',
       'Online',
