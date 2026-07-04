@@ -25,8 +25,10 @@ export function isCourseVisibleToUser(
 ): boolean {
   const role = userRole || "learner"
 
-  // Super Admins and Group Head of Training & OD see all courses
-  if (role === "admin" || role === "group_head") {
+  const userSubLower = userSubsidiary ? userSubsidiary.trim().toLowerCase() : ""
+
+  // Super Admins, Group Heads, and Leaders at the holding company (EIB Group) see all courses
+  if (role === "admin" || role === "group_head" || (role === "lead" && userSubLower === "eib group")) {
     return true
   }
 
@@ -51,8 +53,6 @@ export function isCourseVisibleToUser(
   if (!userSubsidiary) {
     return false
   }
-
-  const userSubLower = userSubsidiary.trim().toLowerCase()
 
   // If the course is tagged as "black", it belongs to the clandestine division
   // and is visible to DCI clandestine units and parent directorate
