@@ -27,7 +27,19 @@ export function isCourseVisibleToUser(
 
   const userSubLower = userSubsidiary ? userSubsidiary.trim().toLowerCase() : ""
 
-  // Super Admins, Group Heads, and Leaders at the holding company (EIB Group) see all courses
+  const courseSubsList = courseSubsidiaries ? courseSubsidiaries.split(",").map((s) => s.trim().toLowerCase()) : []
+
+  // TOP SECRET CLEARANCE: BLACK courses are highly classified
+  // Even Top Management (Admins, Group Heads) cannot bypass this unless they are explicitly in the DCI/BLACK directorate.
+  if (courseSubsList.includes("black")) {
+    return (
+      userSubLower.startsWith("dci -") ||
+      userSubLower === "directorate of clandestine & intelligence" ||
+      userSubLower === "black"
+    )
+  }
+
+  // Super Admins, Group Heads, and Leaders at the holding company (EIB Group) see all other courses
   if (role === "admin" || role === "group_head" || (role === "lead" && userSubLower === "eib group")) {
     return true
   }
@@ -36,8 +48,6 @@ export function isCourseVisibleToUser(
   if (!courseSubsidiaries || courseSubsidiaries.trim() === "") {
     return true
   }
-
-  const courseSubsList = courseSubsidiaries.split(",").map((s) => s.trim().toLowerCase())
 
   // If the course is tagged as "Global", it is visible to everyone across the group regardless of role
   if (courseSubsList.includes("global")) {
@@ -52,16 +62,6 @@ export function isCourseVisibleToUser(
   // If the user has no subsidiary, they can only see global courses
   if (!userSubsidiary) {
     return false
-  }
-
-  // If the course is tagged as "black", it belongs to the clandestine division
-  // and is visible to DCI clandestine units and parent directorate
-  if (courseSubsList.includes("black")) {
-    return (
-      userSubLower.startsWith("dci -") ||
-      userSubLower === "directorate of clandestine & intelligence" ||
-      userSubLower === "black"
-    )
   }
 
   // Direct match
