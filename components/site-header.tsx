@@ -13,7 +13,6 @@ const nav = [
   { href: "/roadmap", label: "Roadmap", icon: CalendarRange },
   { href: "/dashboard", label: "ROI Dashboard", icon: BarChart3 },
   { href: "/input", label: "Subsidiary Input", icon: Users },
-  { href: "/briefings", label: "Briefings", icon: ClipboardList },
   { href: "/lms", label: "LMS", icon: GraduationCap },
 ]
 
@@ -62,18 +61,32 @@ export function SiteHeader() {
           })}
 
           {!isPending && session?.user && isManager && (
-            <Link
-              href="/lms/admin"
-              className={cn(
-                "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                pathname.startsWith("/lms/admin")
-                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                  : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-              )}
-            >
-              <ClipboardList className="h-4 w-4" />
-              Team Admin
-            </Link>
+            <>
+              <Link
+                href="/briefings"
+                className={cn(
+                  "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  pathname.startsWith("/briefings")
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                )}
+              >
+                <ClipboardList className="h-4 w-4" />
+                Briefings
+              </Link>
+              <Link
+                href="/lms/admin"
+                className={cn(
+                  "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                  pathname.startsWith("/lms/admin")
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                    : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                )}
+              >
+                <ShieldCheck className="h-4 w-4" />
+                Admin
+              </Link>
+            </>
           )}
 
           <span className="mx-1 hidden h-5 w-px bg-sidebar-border md:block" aria-hidden />

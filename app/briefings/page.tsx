@@ -14,6 +14,11 @@ export default async function BriefingsPage() {
 
   const userRole = session.user.role || "learner"
   const userSubsidiary = session.user.subsidiary || null
+  const isManager = userRole === "lead" || userRole === "admin" || userRole === "group_head"
+
+  if (!isManager) {
+    redirect("/")
+  }
 
   const courses = await getCourses()
 
