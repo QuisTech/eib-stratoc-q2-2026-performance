@@ -724,3 +724,191 @@ export async function exportAdminCSV(): Promise<string> {
 
   return csv
 }
+
+// --- Admin user detail drilldown -------------------------------------------
+
+export type UserDetailEnrollment = {
+  courseId: number
+  courseSlug: string
+  courseTitle: string
+  courseCategory: string
+  status: string
+  progress: number
+  enrolledAt: Date
+  completedAt: Date | null
+  lessonsCompleted: number
+  lessonsTotal: number
+  completedLessonKeys: string[]
+  bestQuizScore: number | null
+  bestQuizTotal: number | null
+  quizPassed: boolean
+  hasCertificate: boolean
+  certificateSerial: string | null
+}
+
+export type UserActivityEvent = {
+  type: "enrollment" | "lesson" | "quiz" | "certificate"
+  label: string
+  detail: string
+  timestamp: Date
+}
+
+export type AdminUserDetail = {
+  id: string
+  name: string
+  email: string
+  role: string
+  subsidiary: string | null
+  createdAt: Date
+  enrollments: UserDetailEnrollment[]
+  activity: UserActivityEvent[]
+  totals: {
+    enrolled: number
+    inProgress: number
+    completed: number
+    certificates: number
+    avgProgress: number
+    trainingValue: number
+  }
+}
+
+/**
+ * Detailed activity breakdown for a single user.
+ * Only admin / group_head / lead (scoped) can access.
+ */
+export async function getAdminUserDetail(targetUserId: string): Promise<AdminUserDetail> {
+  const viewer = await getSessionUser()
+  const role = viewer.role ?? "learner"
+  if (role !== "admin" && role !== "group_head" && role !== "lead") {
+    throw new Error("Forbidden")
+  }
+
+  // Fetch the target user
+  const targetRows = await db.select().from(user).where(eq(user.id, targetUserId)).limit(1)
+  if (targetRows.length === 0) throw new Error("User not found")
+  const target = targetRows[0]
+
+  // Leads can only view users in their own subsidiary
+  if (role === "lead" && target.subsidiary !== viewer.subsidiary) {
+    throw new Error("Forbidden: user is not in your subsidiary")
+  }
+
+  // Fetch all related data
+  const [userEnrollments, userLessons, userQuizzes, userCerts, allCourses] = await Promise.all([
+    db.select().from(enrollments).where(eq(enrollments.userId, targetUserId)).orderBy(desc(enrollments.enrolledAt)),
+    db.select().from(lessonProgress).where(eq(lessonProgress.userId, targetUserId)),
+    db.select().from(quizAttempts).where(eq(quizAttempts.userId, targetUserId)).orderBy(desc(quizAttempts.createdAt)),
+    db.select().from(certificates).where(eq(certificates.userId, targetUserId)),
+    db.select().from(courses),
+  ])
+
+  const courseMap = new Map(allCourses.map((c) => [c.id, c]))
+
+  // Build enrollment details
+  const detailEnrollments: UserDetailEnrollment[] = userEnrollments.map((e) => {
+    const course = courseMap.get(e.courseId)
+    const courseLessons = course ? getLessons(course) : []
+    const completedKeys = userLessons.filter((l) => l.courseId === e.courseId).map((l) => l.lessonKey)
+    const courseQuizzes = userQuizzes.filter((q) => q.courseId === e.courseId)
+    const bestQuiz = courseQuizzes.length > 0
+      ? courseQuizzes.reduce((best, q) => (q.score > (best?.score ?? -1) ? q : best), courseQuizzes[0])
+      : null
+    const cert = userCerts.find((c) => c.courseId === e.courseId)
+
+    return {
+      courseId: e.courseId,
+      courseSlug: course?.slug ?? "",
+      courseTitle: course?.title ?? `Course #${e.courseId}`,
+      courseCategory: course?.category ?? "",
+      status: e.status,
+      progress: e.progress,
+      enrolledAt: e.enrolledAt,
+      completedAt: e.completedAt,
+      lessonsCompleted: completedKeys.length,
+      lessonsTotal: courseLessons.length,
+      completedLessonKeys: completedKeys,
+      bestQuizScore: bestQuiz?.score ?? null,
+      bestQuizTotal: bestQuiz?.total ?? null,
+      quizPassed: courseQuizzes.some((q) => q.passed),
+      hasCertificate: Boolean(cert),
+      certificateSerial: cert?.serial ?? null,
+    }
+  })
+
+  // Build activity timeline
+  const activity: UserActivityEvent[] = []
+
+  for (const e of userEnrollments) {
+    const title = courseMap.get(e.courseId)?.title ?? `Course #${e.courseId}`
+    activity.push({
+      type: "enrollment",
+      label: `Enrolled in ${title}`,
+      detail: "Started a new course",
+      timestamp: e.enrolledAt,
+    })
+  }
+
+  for (const l of userLessons) {
+    const title = courseMap.get(l.courseId)?.title ?? `Course #${l.courseId}`
+    activity.push({
+      type: "lesson",
+      label: `Completed a lesson`,
+      detail: `${l.lessonKey} in ${title}`,
+      timestamp: l.completedAt,
+    })
+  }
+
+  for (const q of userQuizzes) {
+    const title = courseMap.get(q.courseId)?.title ?? `Course #${q.courseId}`
+    const pct = q.total > 0 ? Math.round((q.score / q.total) * 100) : 0
+    activity.push({
+      type: "quiz",
+      label: `Quiz attempt: ${pct}% ${q.passed ? "✓ Passed" : "✗ Failed"}`,
+      detail: `${q.score}/${q.total} in ${title}`,
+      timestamp: q.createdAt,
+    })
+  }
+
+  for (const c of userCerts) {
+    const title = courseMap.get(c.courseId)?.title ?? `Course #${c.courseId}`
+    activity.push({
+      type: "certificate",
+      label: `Certificate earned`,
+      detail: `${title} — Serial: ${c.serial}`,
+      timestamp: c.issuedAt,
+    })
+  }
+
+  // Sort activity newest first
+  activity.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
+
+  // Totals
+  const completedCount = userEnrollments.filter((e) => e.status === "completed").length
+  const inProgressCount = userEnrollments.filter((e) => e.status === "in_progress").length
+  const avgProgress = userEnrollments.length > 0
+    ? Math.round(userEnrollments.reduce((s, e) => s + e.progress, 0) / userEnrollments.length)
+    : 0
+  const trainingValue = userEnrollments.reduce((s, e) => {
+    const c = courseMap.get(e.courseId)
+    return s + (c?.priceNaira ?? 0)
+  }, 0)
+
+  return {
+    id: target.id,
+    name: target.name,
+    email: target.email,
+    role: target.role,
+    subsidiary: target.subsidiary,
+    createdAt: target.createdAt,
+    enrollments: detailEnrollments,
+    activity,
+    totals: {
+      enrolled: userEnrollments.length,
+      inProgress: inProgressCount,
+      completed: completedCount,
+      certificates: userCerts.length,
+      avgProgress,
+      trainingValue,
+    },
+  }
+}

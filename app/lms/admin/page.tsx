@@ -171,13 +171,13 @@ export default async function AdminPage() {
                       <tr key={l.id} className="border-b last:border-0">
                         <td className="px-3 py-3">
                           <div className="flex items-center gap-2.5">
-                            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-semibold text-secondary-foreground">
+                            <Link href={`/lms/admin/users/${l.id}`} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-semibold text-secondary-foreground hover:bg-primary/10 hover:text-primary transition-colors">
                               {initials(l.name)}
-                            </span>
-                            <span className="leading-tight">
-                              <span className="block font-medium">{l.name}</span>
+                            </Link>
+                            <Link href={`/lms/admin/users/${l.id}`} className="leading-tight group">
+                              <span className="block font-medium group-hover:text-primary group-hover:underline transition-colors">{l.name}</span>
                               <span className="block text-xs text-muted-foreground">{l.email}</span>
-                            </span>
+                            </Link>
                             {l.role !== "learner" && (
                               <Badge variant="outline" className="ml-1 text-[10px] capitalize">
                                 {l.role}
