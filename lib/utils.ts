@@ -30,9 +30,11 @@ export function isCourseVisibleToUser(
   const courseSubsList = courseSubsidiaries ? courseSubsidiaries.split(",").map((s) => s.trim().toLowerCase()) : []
 
   // TOP SECRET CLEARANCE: BLACK courses are highly classified
-  // Even Top Management (Admins, Group Heads) cannot bypass this unless they are explicitly in the DCI/BLACK directorate.
+  // Even Top Management (Group Heads) cannot bypass this unless they are in DCI.
+  // Exception: The system Super Admin (role === "admin") can see everything.
   if (courseSubsList.includes("black")) {
     return (
+      role === "admin" ||
       userSubLower.startsWith("dci -") ||
       userSubLower === "directorate of clandestine & intelligence" ||
       userSubLower === "black"
