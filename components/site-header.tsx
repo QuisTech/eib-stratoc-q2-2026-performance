@@ -13,6 +13,7 @@ const nav = [
   { href: "/roadmap", label: "Roadmap", icon: CalendarRange },
   { href: "/dashboard", label: "ROI Dashboard", icon: BarChart3 },
   { href: "/input", label: "Subsidiary Input", icon: Users },
+  { href: "/briefings", label: "Briefings", icon: ClipboardList },
   { href: "/lms", label: "LMS", icon: GraduationCap },
 ]
 
