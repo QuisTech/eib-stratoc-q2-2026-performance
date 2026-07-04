@@ -1,0 +1,3272 @@
+﻿
+--- Extracting PPTX: C:\Users\Administrator\Downloads\Presentations\Saadat - Corp Corps\EIB 90Day Strategic Plan copy.pptx ---
+
+Slide 1:
+EIB GROUP
+Corporate Communications
+& Media Department
+90-DAY STRATEGIC PLAN & BUDGET PROPOSAL
+Prepared for Executive Management
+Duration: 90 Days
+
+Slide 2:
+EXECUTIVE SUMMARY
+This 90-day plan repositions Corporate Communications and Media as a strategic business function — driving visibility, reputation management, stakeholder engagement, digital growth, and organizational objectives across EIB Group and its subsidiaries.
+01
+STRUCTURE
+Build a coordinated communication system with clear ownership across all subsidiaries.
+02
+VISIBILITY
+Strengthen digital presence, media relations, and brand storytelling at Group level.
+03
+PERFORMANCE
+Introduce reporting systems and KPIs to track impact and guide future investment.
+
+Slide 3:
+STRATEGIC OBJECTIVES
+1
+Establish a coordinated communication structure across all subsidiaries
+2
+Improve digital presence and audience engagement
+3
+Develop a proactive media relations framework
+4
+Strengthen internal and external corporate communication
+5
+Create structured reporting and performance measurement systems
+6
+Improve communication speed through dedicated operational resources
+
+Slide 4:
+THE THREE-PHASE ROADMAP
+PHASE 1  ·  Days 1 – 30
+FOUNDATION
+& STRUCTURE
+→  Communication audit
+→  Subsidiary structure
+→  Content management system
+→  Media asset management
+PHASE 2  ·  Days 31 – 60
+VISIBILITY
+& ENGAGEMENT
+→  Structured content campaigns
+→  Video storytelling
+→  Analytics monitoring
+→  Media relationship building
+PHASE 3  ·  Days 61 – 90
+OPTIMIZATION
+& GROWTH
+→  Performance review
+→  Strategy refinement
+→  90-day impact report
+→  Next-phase roadmap
+
+Slide 5:
+SUBSIDIARY DIGITAL OPERATIONS
+PURPOSE OF DEDICATED DEVICES
+Manage official social media accounts
+Capture real-time content in the field
+Run weekly digital media adverts
+Improve response time and accountability
+Ensure seamless coordination with HQ
+Equipment per subsidiary: Smartphone · SIM · Data plan · Content apps · Accessories
+RECOMMENDED SUBSIDIARIES
+Briech UAS
+Briech Atlantic
+EIB Stratoc
+Luftreiber Automobile
+Luft Pay TV
+Bright FM
+Bright Echefu Foundation
+Poctova
+
+Slide 6:
+PUBLICATIONS & MEDIA RELATIONS
+PERIODIC PUBLICATIONS
+MONTHLY
+›  EIB Group Activity Digest
+›  Subsidiary Performance Highlights
+›  Digital Communication Report
+QUARTERLY
+›  EIB Group Magazine
+›  Corporate Impact Report
+›  Leadership Message Publication
+QUARTERLY MEDIA PARLEY
+OBJECTIVE
+Build relationships with journalists, showcase achievements, improve public perception
+ACTIVITIES
+Media invitations · Press briefings · Facility tours · Executive interviews · Press releases
+OUTCOME
+Increased media coverage, stronger corporate reputation and improved stakeholder trust
+
+Slide 7:
+CONTENT STRATEGY & TEAM DEVELOPMENT
+CONTENT PILLARS
+Corporate Achievements
+Innovation & Technology
+Employee & Workplace Culture
+CSR & Community Impact
+Product / Service Awareness
+Industry Leadership
+Stakeholder Engagement
+TEAM DEVELOPMENT AREAS
+1
+AI-Assisted Content Creation
+2
+Crisis Communication
+3
+Digital Analytics
+4
+Video Production
+5
+Media Relations
+6
+Brand Management
+
+Slide 8:
+ESTIMATED 90-DAY BUDGET
+Communication Devices & Equipment
+₦3,500,000
+Data & Communication Support
+₦900,000
+Publications & Corporate Materials
+₦6,500,000
+Media Parley & Engagement
+₦8,000,000
+TOTAL ESTIMATED BUDGET
+₦18,900,000
+
+Slide 9:
+KPIs & EXPECTED BUSINESS IMPACT
+SUCCESS METRICS
+Communication structure across all subsidiaries
+Consistent monthly reporting and documentation
+Increased digital activity and audience growth
+Improved audience engagement metrics
+Successful media engagement events
+Full publication rollout across all formats
+Enhanced stakeholder communication
+BUSINESS IMPACT
+REPUTATION
+Stronger corporate reputation and brand consistency
+VISIBILITY
+Greater media and public visibility across the Group
+STAKEHOLDERS
+Improved relationships with external and internal stakeholders
+CRISIS
+Enhanced crisis preparedness and rapid response capability
+STORYTELLING
+More effective narrative of organizational achievements
+
+Slide 10:
+EIB GROUP
+Corporate Communications as
+a Strategic Growth Partner
+Protecting reputation · Increasing visibility · Strengthening relationships
+Supporting business objectives through structured communication
+READY TO DELIVER
+
+--- Extracting DOCX: C:\Users\Administrator\Downloads\Presentations\Sani -Briech UAS\BRIECH UAS FIRST QUARTERLY 2026 PROGRESS REPORT.docx ---
+RESTRICTED
+
+
+
+
+
+21ST MAY 2026
+
+
+
+
+
+
+
+DETAILED PROGRESS REPORT ON THE ACTIVITIES OF BRIECH UAS
+
+
+
+Reporting Period: January – May 2026
+
+
+
+1. INTRODUCTION
+
+This report presents a comprehensive overview of the activities, achievements, operational support engagements, technical developments, training exercises, financial utilization, and challenges encountered by Briech Unmanned Aerial Systems (Briech UAS) during the reporting period.
+
+Briech UAS has continued to make significant progress in strengthening indigenous unmanned aerial capabilities through strategic drone design and development, direct operational support to security agencies, specialized technical training, research and innovation, and internal capacity expansion. During the period under review, the department successfully executed several critical projects and operational tasks aimed at enhancing national security support and advancing local UAV technology.
+
+The achievements recorded demonstrate Briech UAS’s commitment to becoming a leading indigenous provider of advanced unmanned aerial solutions for surveillance, tactical operations, and defense applications.
+
+
+
+2. PROJECT ACHIEVEMENTS, OPERATIONAL ACTIVITIES, AND TECHNICAL MILESTONES
+
+2.1 Completion of the Design of Multiple Briech UAS Drone Variants
+
+One of the key achievements during the reporting period was the successful completion of the conceptual, engineering, and technical designs of multiple drone variants under the Briech UAS development program.
+
+These drone variants were designed to support a range of mission requirements, including:
+
+Intelligence, Surveillance, and Reconnaissance (ISR) 
+
+Tactical battlefield support 
+
+Long-endurance aerial monitoring 
+
+Payload delivery operations 
+
+Specialized combat support missions 
+
+Significant design improvements focused on:
+
+Airframe Optimization
+
+Enhanced aerodynamic efficiency, structural durability, and weight management to improve overall flight performance.
+
+Mission Flexibility
+
+Development of modular systems allowing quick adaptation of drones to different operational roles and payload configurations.
+
+Indigenous Capability Development
+
+Reduction in dependence on imported drone solutions through local design and engineering innovation.
+
+The completion of these designs represents a critical milestone toward self-sufficiency in indigenous UAV production.
+
+
+
+
+
+2.2 Operational Support to the Nigerian Army in Shiroro LGA, Niger State
+
+Operational Period: 17 February – 3 March 2026
+
+Briech UAS successfully deployed personnel and drone assets in support of the Nigerian Army during military operations in Shiroro Local Government Area, Niger State.
+
+The mission focused on providing aerial intelligence and surveillance support to improve operational effectiveness.
+
+Key Contributions
+
+Intelligence, Surveillance, and Reconnaissance (ISR)
+
+Drone systems were deployed to conduct:
+
+Wide-area aerial surveillance 
+
+Monitoring of suspected hostile activities 
+
+Terrain reconnaissance in inaccessible locations 
+
+Detection and tracking of suspicious movements 
+
+Real-Time Operational Awareness
+
+Live drone feeds provided operational commanders with:
+
+Immediate situational updates 
+
+Enhanced decision-making capability 
+
+Improved coordination of troop movement 
+
+Reduced exposure of personnel to ambush risks 
+
+Tactical Planning Support
+
+Aerial imagery and mapping data were used to support route planning and operational targeting.
+
+The deployment significantly enhanced the effectiveness of military operations and demonstrated the operational value of UAV integration in modern security operations.
+
+
+
+2.3 Conduct of Kamikaze Drone Training for Nigerian Army Personnel
+
+Briech UAS successfully conducted specialized technical training for selected Nigerian Army personnel on the deployment and operational handling of FPV Kamikaze Drone Systems.
+
+The training program was designed to transfer critical operational knowledge and build indigenous tactical drone deployment capability within the armed forces.
+
+Training Areas Covered
+
+Introduction to FPV kamikaze drone systems 
+
+System assembly and configuration 
+
+Flight control and maneuvering techniques 
+
+Target acquisition and precision engagement 
+
+Mission planning and operational safety 
+
+Tactical deployment strategies 
+
+Maintenance and troubleshooting procedures 
+
+Post-mission assessment and reporting 
+
+Training Impact
+
+The training improved:
+
+Personnel operational competence 
+
+Tactical readiness 
+
+Independent handling capability 
+
+Institutional UAV knowledge within the Nigerian Army 
+
+This activity marks an important contribution by Briech UAS to national defense capability development.
+
+
+
+2.4 Operational Support to Zamfara State Government
+
+Briech UAS also provided aerial operational support to the Zamfara State Government in addressing ongoing security challenges within the state.
+
+Activities included:
+
+Drone-based surveillance missions 
+
+Monitoring of vulnerable locations 
+
+Forest corridor reconnaissance 
+
+Security mapping and intelligence gathering 
+
+The support strengthened situational awareness and improved early threat detection capabilities.
+
+
+
+2.5 Signing of Memorandum of Understanding (MoU) with DICON
+
+A major strategic milestone achieved during the reporting period was the successful signing of a Memorandum of Understanding (MoU) between Briech UAS and Defence Industries Corporation of Nigeria (DICON).
+
+The partnership is intended to promote collaboration in:
+
+Indigenous drone technology development 
+
+Defense systems innovation 
+
+Technical knowledge sharing 
+
+Local manufacturing and production capacity expansion 
+
+Joint research and development initiatives 
+
+The MoU establishes an important framework for strengthening Nigeria’s local defense technology ecosystem and advancing strategic self-reliance.
+
+
+
+2.6 Design and Development of Briech UAS Ground Control Station (GCS)
+
+Substantial progress was recorded in the design and development of the Briech UAS Ground Control Station (GCS).
+
+The indigenous control system is being developed to provide centralized command and control for UAV operations, including:
+
+Mission planning 
+
+Flight monitoring 
+
+Telemetry tracking 
+
+Payload management 
+
+Real-time video integration 
+
+Data logging and post-mission analysis 
+
+This development is expected to reduce dependence on foreign software and improve operational autonomy.
+
+
+
+2.7  Design and Development of Quality Management System (QMS) Software
+
+During the reporting period, Briech UAS initiated and made significant progress in the design and development of an indigenous Quality Management System (QMS) Software aimed at strengthening internal quality processes, improving product reliability, and enhancing operational accountability across all technical and production activities.
+
+The software is being developed as an integrated digital platform to support quality control, quality assurance, documentation management, and data trend analysis across drone design, manufacturing, assembly, testing, and maintenance operations.
+
+Key Functional Areas of the QMS Software
+
+Quality Control Management
+
+The system is designed to improve inspection and validation processes by enabling:
+
+Recording and tracking of component inspections 
+
+Monitoring of product conformity against technical specifications 
+
+Identification and reporting of defects and non-conformities 
+
+Inspection checklist automation 
+
+Corrective action tracking and resolution management 
+
+This will help ensure that all drone systems and related components meet established technical and operational standards before deployment.
+
+
+
+Quality Assurance Processes
+
+The software will support structured quality assurance activities through:
+
+Standard Operating Procedure (SOP) compliance monitoring 
+
+Process validation and workflow approvals 
+
+Audit planning and internal audit record management 
+
+Continuous improvement tracking 
+
+Preventive action documentation 
+
+This functionality is intended to strengthen consistency, accountability, and compliance across all Briech UAS operational units.
+
+
+
+Documentation and Records Management
+
+A central feature of the QMS software is the establishment of a secure digital documentation system for managing critical technical records.
+
+This includes:
+
+Design documentation control 
+
+Version tracking for engineering drawings and technical manuals 
+
+Maintenance and servicing records 
+
+Test reports and certification records 
+
+Operational mission documentation 
+
+Training records and technical competency logs 
+
+The digital documentation platform will improve information accessibility, traceability, and record security.
+
+
+
+Data Trend Analysis and Performance Monitoring
+
+The software incorporates analytical capabilities for monitoring quality trends and operational performance over time.
+
+This includes:
+
+Failure trend analysis 
+
+Defect rate monitoring 
+
+Maintenance frequency analysis 
+
+Component reliability tracking 
+
+Production performance indicators 
+
+Automated dashboards and reporting tools 
+
+These analytical tools will support evidence-based decision-making and enable proactive identification of recurring technical issues.
+
+
+
+Strategic Importance of the QMS Software
+
+The development of this software represents a major step toward institutionalizing a culture of quality within Briech UAS and aligning operational practices with internationally recognized quality management principles.
+
+Expected benefits include:
+
+Improved product reliability and consistency 
+
+Faster identification and correction of defects 
+
+Enhanced traceability and accountability 
+
+Better decision-making through data-driven insights 
+
+Strengthened readiness for future certification and regulatory compliance 
+
+Increased operational efficiency across engineering and production teams 
+
+The successful implementation of this Quality Management System will significantly enhance Briech UAS’s internal control environment and support its long-term objective of becoming a world-class indigenous unmanned aerial systems organization.
+
+
+
+
+
+2.8 Design of Argini Bomb Carrier
+
+Briech UAS completed the design of the Argini Bomb Carrier, a specialized aerial payload deployment system engineered for tactical mission requirements.
+
+The system provides:
+
+Secure payload attachment 
+
+Controlled release mechanisms 
+
+Multi-platform compatibility 
+
+Improved flight stability during payload operations 
+
+
+
+2.9 Construction of Modular Drone Platforms
+
+The team successfully constructed multiple modular drone systems designed for flexible deployment and easier maintenance.
+
+Benefits include:
+
+Rapid replacement of damaged modules
+
+Faster maintenance turnaround 
+
+Lower operational downtime 
+
+Improved scalability for future upgrades 
+
+
+
+2.10 Construction of FPV Drones for Kamikaze Operations
+
+Briech UAS designed and assembled specialized First Person View (FPV) drones configured for precision tactical strike operations.
+
+These drones offer:
+
+High maneuverability 
+
+Accurate target engagement 
+
+Cost-effective tactical deployment 
+
+Real-time operator control 
+
+
+
+2.10 Production of 350 Units of 2.5kg Explosive Payloads
+
+The department successfully completed the construction of 350 units of 2.5kg explosive payload systems to support operational readiness.
+
+Activities included:
+
+Material preparation 
+
+Assembly and integration 
+
+Safety inspection 
+
+Packaging and storage preparation 
+
+
+
+2.11 Coordination of Camp Flight Operations
+
+Briech UAS maintained active coordination of all camp flight operations, ensuring safe, efficient, and organized UAV activities within the operational environment.
+
+Responsibilities included:
+
+Daily flight scheduling 
+
+Airspace coordination 
+
+Safety compliance checks 
+
+Mission authorization and tracking 
+
+Risk assessments 
+
+Weather evaluation and operational advisories 
+
+This coordination was essential in maintaining operational discipline and flight safety standards.
+
+
+
+2.12 Camp Drone Training Activities
+
+Continuous internal and external training activities were conducted to improve operational competency and technical capacity.
+
+Training covered:
+
+Drone piloting skills 
+
+Mission planning procedures 
+
+Emergency handling 
+
+Payload operations 
+
+Safety compliance 
+
+Technical troubleshooting 
+
+These sessions contributed to improving overall operational readiness.
+
+
+
+2.13 Servicing and Repairs of Camp Drone Fleet
+
+Briech UAS undertook regular servicing, maintenance, and repairs of operational drones deployed within the camp.
+
+Maintenance activities included:
+
+Replacement of faulty components 
+
+Battery diagnostics and servicing 
+
+Motor and propeller repairs 
+
+Software and firmware updates 
+
+Calibration and system testing 
+
+Structural repairs 
+
+These efforts helped sustain fleet availability and operational reliability.
+
+
+
+3. FINANCIAL UTILIZATION OF IMPREST
+
+Briech UAS received an imprest allocation of ₦8,000,000 (Eight Million Naira) to support operational and technical activities (₦5000,000 in January 2026 and ₦3,000,000).
+
+Major Expenditure Areas
+
+Procurement of drone-related technical components and electronic materials 
+
+Purchase of specialized engineering tools and accessories 
+
+Payment of allowances to expatriate technical personnel 
+
+Payment of allowances to visitors and consultants 
+
+Operational logistics and support expenses 
+
+
+
+Kindly note: Detailed expenditure breakdown and supporting documentation have been submitted to the Accounts Department for reconciliation and audit review.
+
+
+
+4. MAJOR CHALLENGES ENCOUNTERED
+
+4.1 Difficulty in Procuring Specialized Electronic Components
+
+Challenges include:
+
+Limited availability 
+
+Delayed deliveries 
+
+Inconsistent product quality 
+
+Importation constraints 
+
+
+
+4.2 Unserviceable Engine
+
+One major operational engine remains unserviceable, affecting testing and deployment schedules.
+
+Urgent repair or replacement is required.
+
+
+
+4.3 Dependence on Online Procurement Platforms
+
+Heavy reliance on online stores has resulted in:
+
+Delivery delays 
+
+Incorrect items 
+
+Quality assurance issues 
+
+Recommendation
+
+There is a need to engage reliable and verified technical vendors for direct procurement of specialized drone components and related equipment
+
+
+
+4.4 R&D Projects Under Review and Awaiting Funds
+
+
+
+Construction of polystyrene foam drones for training (copy of striver and apprentice models) (#1,595,300).
+
+Tracker antenna for FPV drones (#85,000)
+
+Construction of digital fuel refuelling and defueling pump (#350,000)
+
+Construction of Argini bomb carrier.
+
+Modification of FPV drones to suit the operational needs.
+
+
+
+Other challenges are
+
+Inadequate power supply (mostly works under standing fan)
+
+Over 15 unit of unserviceable air conditioners.
+
+ Inadequate availability of funds.
+
+Increasing rising number of competitors and business rivals.
+
+The need to conduct proper Strength, weakness, opportunity and threat (SWOT) analysis for the own facility and the drone industry atlarge.
+
+
+
+List of items required for the continuous effective and efficient operations in Briech UAS
+
+S/N
+
+ITEMS DESCRIPTION
+
+Remarks
+
+
+
+Cube Orange Flight Controller
+
+
+
+
+
+100Twisted 22AWG Servo wire (Red/Black/White)
+
+
+
+
+
+Hobbywing 25A 3-18S High Voltage UBEC
+
+
+
+
+
+XT-60 Male and Female Connector Sets
+
+
+
+
+
+JST-SYP2.5 Male and Female Pin Connectors
+
+
+
+
+
+LCC40 AMASS CONNECTOR SETS
+
+
+
+
+
+MR30 CONNECTOR SETS
+
+
+
+
+
+KST BLS825 V8.0 Brushless HV Metal Case Servo 35kg.cm
+
+
+
+
+
+DSSERVO 60KG Digital Servo 8.4V High Voltage Stainless Steel Gear Large Torque
+
+
+
+
+
+10 AWG
+
+
+
+
+
+12AWG
+
+
+
+
+
+14AWG
+
+
+
+
+
+16AWG
+
+
+
+
+
+B2G70 EFI engine (Argini)
+
+
+
+
+
+B2G170 EFI engine (Arsenio)
+
+
+
+
+
+air filter for maintenance (argini and arsenio engines)
+
+
+
+
+
+Spark plugs	
+
+
+
+
+
+shock absorption
+
+
+
+
+
+2mm 3mm 3.5mm 4mm Bullet Banana Plug (4.0mm/5Pair)
+
+
+
+
+
+Household DIY High Quality Flexible Silicone Wire (2/30 AWG/100m)
+
+
+
+
+
+Gemfan APC Nylon Propeller 5050 6040 (4pcs 1070 CCW)
+
+
+
+S/N
+
+ITEMS DESCRIPTION
+
+REMARK
+
+
+
+XXD A2217 2217 950KV 1250KV 1500KV 2300KV Motor (A2217 KV1100)
+
+
+
+
+
+100pcs/lot RC Airplane Pushrod Linkage Stop (40 Sets)
+
+
+
+
+
+RC Airplane Push Rods / Carbon Rods (10 pieces)
+
+
+
+
+
+MG90S Micro Servo Motor 180/270/360 Degree (1PCS 006)
+
+
+
+
+
+ELRS MINI 2.4GHz RX SX1280 ExpressLRS Nano Receiver
+
+
+
+
+
+HGLRC M100-5883 M10 GPS Module with Compass
+
+
+
+
+
+Matek Mateksys F405 WING V2 Flight Controller
+
+
+
+
+
+EMAX BLHeli 80A 60A 50A 40A 30A 20A ESC (60A)
+
+
+
+
+
+Polyesterine form 1.2m x 3m x 12m
+
+
+
+
+
+10” propellers
+
+
+
+
+
+
+
+Additionally, below are the list of DJI items needed in White to be purchased for camp operations as must of the items where either swapped or become unserviceable in the camp.
+
+
+
+1. 7 x DJI Remote controller plus
+
+2. 5 x DJI payload/camera bracket (M300/350)
+
+3. 3 x DJI TB65 charge station/dock.
+
+4. 4 x DJI ZEMUSE H20N/H30T camera payload.
+
+5. 10 x DJI WB30 rc external batteries 
+
+6. ⁠10 x mobile landing pads.
+
+7. 20 pairs of RC antenna
+
+8. 50 pairs of TB30 batteries for M30T ops
+
+
+
+
+
+Consequently, below are items currently available for immediate deployment 
+
+
+
+Serviceable DJI drones
+
+1. Four old M300 (one was deployed to delta camp and will be with drown once TB30 batteries are available)
+
+2. Two new M350 (one was predeployed to Gusau pending availability of Tb30 batteries)
+
+3. Four new M30T
+
+4. Three Old M30T 
+
+
+
+2 x Unserviceable DJI Drones6T
+
+
+
+1. One M30 with faulty camera board l.
+
+2. One M300 with faulty flight controller 
+
+
+
+Serviceable DJI charge station
+
+1. New = 4 
+
+2. Old = 2
+
+*3. Total = 7 for TB30 Batteries*
+
+   4. One TB 60/65 charge station
+
+
+
+DJI batteries
+
+1. Tb 30 = 1 piece (More are critically needed)
+
+2. Tb 65 = 13 pieces (Six New pairs)
+
+
+
+DJI Camera payload
+
+1. One Zenmuse H20N camera
+
+
+
+
+
+
+
+5. CONCLUSION
+
+Briech UAS has recorded substantial achievements across drone design, indigenous technology development, operational deployments, technical training, and maintenance support during the reporting period.
+
+Notable accomplishments include successful operational support to the Nigerian Army and Zamfara State Government, the conduct of specialized kamikaze drone training, the signing of the MoU with Defence Industries Corporation of Nigeria (DICON), and continued expansion of internal UAV production capability.
+
+Despite procurement and technical challenges, Briech UAS remains on a strong trajectory toward becoming a key national leader in indigenous unmanned aerial systems and tactical drone innovation.
+
+
+
+
+
+
+
+
+
+
+
+
+
+Sani Mubarak Samaila
+
+General Manager, Briech UAS
+
+
+
+CC:
+
+The Executive Chairman
+
+EVP Operation and Admin
+
+EVP Finance and Commercials
+
+GCOO
+
+Chairman's Secretary
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2
+
+--- Extracting DOCX: C:\Users\Administrator\Downloads\Presentations\Sani -Briech UAS\GM BRIECH UAS REPORT FOR MARCH TO 11 JUNE 2026.docx ---
+RESTRICTED
+
+
+
+
+
+
+
+BRIECH UAS SECOND QUARTER MANAGEMENT PERFORMANCE REPORT (10th June 2026)
+
+
+
+REPORTING PERIOD: MARCH – 11th JUNE 2026
+
+SUBMITTED TO: Executive Management
+
+SUBMITTED BY: General Manager Briech UAS
+
+
+
+
+
+EXECUTIVE SUMMARY
+
+The Second Quarter (Q2) of 2026 was characterized by significant operational, training, production, regulatory compliance, and business development activities undertaken by Briech UAS Limited in support of its strategic objectives and national security initiatives.
+
+During the reporting period, the company successfully conducted specialized First Person View (FPV) Drone Pilot Training for sixteen (16) personnel of the Nigerian Army, produced sixty (60) FPV drones for operational deployment, conducted recurrent and refresher quadcopter pilot training for newly recruited and existing operators, coordinated reconnaissance activities at the Ngaski Mining Site for potential commercial engagement, and developed key regulatory documentation required for compliance with Nigerian Civil Aviation Authority (NCAA) requirements.
+
+The company further strengthened its operational readiness through successful testing and deployment of FPV drone systems to designated operational areas while maintaining strict quality control, safety compliance, and stakeholder engagement throughout project execution.
+
+As General Manager, efforts during the quarter focused on project coordination, resource allocation, stakeholder management, quality assurance, regulatory compliance, operational support, and business development initiatives aimed at positioning Briech UAS as a leading indigenous unmanned aerial systems provider in Nigeria.
+
+
+
+
+
+
+
+
+
+
+
+
+
+1. MONTHLY BUSINESS PERFORMANCE REPORT
+
+
+
+Business Overview
+
+The reporting period witnessed a significant increase in operational activities driven by military training support, drone production projects, regulatory compliance initiatives, and strategic business development efforts.
+
+The company's activities during the quarter were primarily concentrated in the following areas:
+
+- Military drone training and capacity development.
+
+- FPV drone production and deployment.
+
+- Operational support services.
+
+- Regulatory compliance and certification preparation.
+
+- Technical documentation development.
+
+- Strategic business development and reconnaissance operations.
+
+
+
+March 2026 Activities
+
+
+
+FPV Drone Pilot Training Programme
+
+
+
+Period: 2 March – 21 March 2026
+
+Client: Ministry of defence, Nigerian Army
+
+Participants: 16 Personnel
+
+
+
+
+
+
+
+
+
+Objective:
+
+To develop indigenous FPV drone operational capabilities and improve tactical drone deployment competencies among Nigerian Army personnel.
+
+Training Modules Included:
+
+- Introduction to FPV Drone Systems
+
+- Drone Components and Architecture
+
+- Radio Communication Systems
+
+- Flight Safety Procedures
+
+- Mission Planning and Execution
+
+- Tactical Employment of FPV Systems
+
+- Flight Simulation
+
+- Practical Flight Operations
+
+- Emergency Procedures
+
+- Maintenance and Troubleshooting
+
+- Payload Integration
+
+- Operational Risk Assessment
+
+Management Coordination Activities:
+
+- Training schedule development
+
+- Resource allocation
+
+- Instructor coordination
+
+- Equipment availability management
+
+- Safety supervision
+
+- Stakeholder liaison with military representatives
+
+Outcome:
+
+- Successful completion of training by all 16 participants.
+
+- Enhanced operational capability of personnel.
+
+- Strengthened relationship between Briech UAS and the Nigerian Army.
+
+- Identification of future training opportunities.
+
+
+
+March – April 2026 Activities
+
+
+
+Production and testing of Sixty (60) FPV Drones
+
+Period: 25 March – 5 April 2026
+
+
+
+Project Objective:
+
+To manufacture and configure sixty operational FPV drone systems for field deployment for the ministry of defence and Zamfara state government.
+
+Activities Executed:
+
+- Procurement of components.
+
+- Inventory management.
+
+- Assembly operations.
+
+- Wiring and integration.
+
+- Flight controller programming.
+
+- Communication system installation.
+
+- Payload integration.
+
+- Quality assurance inspections.
+
+- Functional testing.
+
+Management Oversight:
+
+- Production scheduling.
+
+- Resource coordination.
+
+- Vendor management.
+
+- Quality control supervision.
+
+- Technical team coordination.
+
+- Risk management.
+
+
+
+Project Outcome:
+
+- 60 FPV drone systems successfully completed.
+
+- Production achieved within planned timeline.
+
+- All units passed internal quality assurance inspections.
+
+- Systems prepared for operational deployment.
+
+
+
+April – May 2026 Activities
+
+Testing and Operational Deployment
+
+Period: 9 April – 29 May 2026
+
+
+
+Activities Conducted:
+
+- Ground testing in Abuja for the representatives of the Nigerian Army and in Gusau Zamfara State also for the Nigerian army.
+
+- Communication verification.
+
+- Flight performance assessment.
+
+- Payload functionality testing.
+
+- Endurance testing.
+
+- Acceptance testing.
+
+
+
+Deployment Activities:
+
+- Packaging and transportation.
+
+- Documentation and handover.
+
+- Operational support.
+
+- End-user familiarization.
+
+
+
+Outcome:
+
+- Successful deployment of all completed systems (50 drones and 50 explosives to the Nigerian Army in Zamfara and Zamfara state Government).
+
+- Positive operational feedback received (all feedbacks and observations were taken into account and some solutions were provided while other are being processed).
+
+- Conduct of refresher training to the personnel of the Nigerian Army in Zamfara for the operation of the FPV drones.
+
+- No major technical failures recorded during acceptance phase, however, all observation from the clients where well noted.
+
+
+
+April – May 2026 Activities
+
+NCAA Compliance and Regulatory Certification Project
+
+
+
+Period: 18 April – 20 May 2026 (to date)
+
+
+
+Objective:
+
+To establish the regulatory framework and operational documentation required for NCAA registration and certification.
+
+
+
+Documents Developed and submitted in softcopy:
+
+- Operations Manual
+
+- Safety Management Manual
+
+- Maintenance Control Procedures
+
+- Training Procedures Manual
+
+- Emergency Response Procedures
+
+- Operational Risk Assessment Framework
+
+- Compliance Monitoring Procedures
+
+- Record Management Procedures
+
+
+
+Management Activities:
+
+- Regulatory research.
+
+- Documentation review.
+
+- Internal stakeholder consultations.
+
+- Compliance gap assessment.
+
+- Manual development and validation.
+
+
+
+Outcome:
+
+- Significant progress achieved toward NCAA certification readiness.
+
+- Improved organizational governance and documentation systems.
+
+- Enhanced regulatory compliance posture.
+
+
+
+5 – 30 May 2026 Activities
+
+Quadcopter Pilot Training Programme
+
+In collaboration with:
+
+- Group Human Resources Department
+
+- Group Training Manager
+
+
+
+Participants:
+
+- Newly recruited pilots
+
+- Existing operational pilots from various camps
+
+
+
+Training Focus Areas:
+
+- Flight proficiency enhancement.
+
+- Mission planning.
+
+- Airspace awareness.
+
+- Emergency procedures.
+
+- Operational safety.
+
+- Equipment maintenance.
+
+- Flight data management.
+
+
+
+Outcome:
+
+- Improved pilot proficiency.
+
+- Standardized operational practices.
+
+- Enhanced safety awareness.
+
+
+
+Kindly Note: A copy of training manual and material is attached.
+
+
+
+STAFF PERFORMANCE AND HUMAN RESOURCE REPORT
+
+Workforce Management Overview
+
+The reporting period required significant interdepartmental collaboration due to the simultaneous execution of training programmes, production activities, deployment operations, compliance projects, maintenance support, and research initiatives.
+
+Staff Productivity
+
+All departments contributed significantly toward achieving operational objectives.
+
+Employee Performance Highlights
+
+Successful execution of multiple projects within schedule.
+
+Effective collaboration between engineering, operations, training, logistics, and compliance teams. Increased innovation through departmental research projects.
+
+This report presents the outcome of the staff appraisal conducted by the Human Resources Department. The purpose of the appraisal was to evaluate employee performance, identify strengths and arears for improvement and support management in decision making regarding training, retrenchment, promotion and overall workforce development.
+
+
+
+
+
+
+
+STAFF PERFORMANCE APRAISALS FOR THE MONTH OF MATCH 2026 AND WITHIN THE PERIOD UNDER REVIEW
+
+Objectives of the Appraisal
+
+The appraisal covered staff from all departments in Briech UAS, it was conducted to achieve the following objectives:
+
+•	Assess staff performance against assigned duties and responsibilities.
+
+•	Identify high-performing employees.
+
+•	Identify staff who require training or improvement in certain arears
+
+•	Promote accountability and productivity within the organization.
+
+•	Identify staff who are performing below expectation.
+
+
+
+2.	Method of Appraisal
+
+The appraisal was conducted using the following methods:
+
+•	Evaluation of staff attendance, punctuality and work attitude.
+
+•	Assessment of completed projects and assigned tasks
+
+•	Assessment of Key performance indicators.
+
+•	Self-assessment appraisal.
+
+
+
+3.	Key Performance Arears Evaluated
+
+The following performance indicators were considered during the appraisal:
+
+•	Job knowledge and skill
+
+•	Work quality
+
+•	Productivity and efficiency
+
+•	Punctuality
+
+•	Team work and collaboration
+
+•	Initiative and problem solving 
+
+•	Communication skills
+
+
+
+5.	Summary of Findings
+
+The appraisal revealed the following:
+
+•	High performers: some employees demonstrated excellent performance, consistency and dedication to their duties. These staff consistently met or exceeded their KPI’s and contributed significantly to project delivery.
+
+•	Satisfactory performers: A number of employees met their expected responsibilities but showed arears requiring improvement such as task completion speed, documentation accuracy and collaborative communication.
+
+•	Below average performers: A few employees showed low productivity due to factors such as delay in completing assigned tasks and limited technical proficiency. These employees may require additional supervision, training or performance improvement plans.
+
+5.	Key Observations
+
+During the appraisal exercise, the following observations were made:
+
+•	Technical departments require continuous training due to the specialized nature of drone technology.
+
+•	Documentation and data management processes need improvement for better tracking
+
+•	Staff motivation and recognition may improve overall productivity
+
+•	The assessed employees met the minimum performance expectations for the review period. There were no major performance-related red flags recorded against the majority of the workforce
+
+A copy of the data shit is attached to show scores for individual staff
+
+
+
+INVENTORY AND ASSET MANAGEMENT REPORT
+
+The Briech UAS has an inventory management system software where all stock records are being monitored. However, a copy of available equipment is attached to this report.
+
+
+
+FINANCIAL ACCOUNTABILITY REPORT
+
+Financial Overview
+
+The company's financial activities during the reporting period were primarily driven by operational projects, production activities, training services, maintenance support, and research initiatives while all transaction are via the companies requisition portal and all record of expenses’ are deposited with the account officer in Briech UAS.
+
+Major Expenditure Areas
+
+Drone components procurement.
+
+Payload production materials.
+
+Training logistics.
+
+Operational testing.
+
+Deployment support.
+
+Maintenance and repair activities.
+
+Research and Development projects.
+
+Compliance documentation development.
+
+Revenue Sources
+
+Military training services.
+
+Drone production projects.
+
+Technical consultancy.
+
+Maintenance support services.
+
+Operational support activities.
+
+Financial Controls
+
+Procurement procedures adhered to.
+
+Expenditure approvals monitored as all financial transaction are via the company requisition portals.
+
+Resource utilization tracked as all records are with the briech UAS account office.
+
+Inventory reconciliation conducted.
+
+Financial Accountability
+
+No major financial irregularities were reported during the period.
+
+A summary of financial statement is attached to this report.
+
+
+
+
+
+
+
+BUSINESS DEVELOPMENT ACTIVITIES
+
+Stakeholder Engagement, Strategic Liaison and Corporate Representation
+
+During the reporting period, the General Manager maintained continuous coordination and communication with key operational stakeholders and clients to ensure effective project execution, customer satisfaction, and alignment with operational requirements.
+
+Strategic Client Engagement
+
+Regular engagements were conducted with key operational partners and clients including:
+
+
+
+- Theatre Command, Operation FUSHIN YAMMA Gusau Zamfara State.
+
+- Department of State Services (DSS) Headquarters, Gusau, Zamfara State.
+
+- Military operational commanders.
+
+- Security and intelligence stakeholders.
+
+- reception of visitors from Government agencies and strategic partners.
+
+
+
+
+
+These engagements focused on:
+
+- Operational updates.
+
+- Project coordination.
+
+- Customer feedback.
+
+- Technical support requirements.
+
+- Future operational needs assessment.
+
+- Strengthening institutional relationships.
+
+- Identification of new collaboration opportunities.
+
+The continuous engagement with clients significantly enhanced communication channels, improved customer confidence, and strengthened the company's reputation as a reliable operational partner as well as integration of feedbacks in R&D project and rectification/modification.
+
+
+
+Corporate Presentations and Technical Demonstrations
+
+As part of the company's stakeholder engagement and business development strategy, Briech UAS hosted several high-profile visits and technical presentations during the reporting period.
+
+
+
+Notable visitors included:
+
+- Senior officials of the Nigerian Police Force lead by the inspector general of police.
+
+- Students and officials of the Army War College Nigeria.
+
+- Personnel from the Nigerian Army School of Infantry.
+
+- Representatives from Army Research and Development establishments.
+
+- The Honourable Minister of Science and Technology and accompanying officials.
+
+- Other government agencies and strategic stakeholders.
+
+Activities Conducted During Visits
+
+- Corporate presentations.
+
+- Facility tours.
+
+- Technical demonstrations of drone systems.
+
+- Product capability showcases.
+
+- Research and Development presentations.
+
+- Operational briefings.
+
+- Interactive question-and-answer sessions.
+
+- Discussions on emerging technological opportunities.
+
+Outcomes Achieved
+
+- Increased awareness of Briech UAS capabilities.
+
+- Enhanced institutional visibility.
+
+- Strengthened relationships with strategic stakeholders.
+
+- Improved brand perception.
+
+- Increased interest in future collaborations.
+
+- Identification of potential business opportunities.
+
+- Reinforcement of the company's position as a leading indigenous drone technology company.
+
+
+
+Signing of Memorandum of Understanding (MoU) with DICON (2nd April 2026)
+
+A major strategic milestone achieved during the reporting period was the successful signing of a Memorandum of Understanding (MoU) between Briech UAS and Defence Industries Corporation of Nigeria (DICON).
+
+The partnership is intended to promote collaboration in:
+
+•	Indigenous drone technology development 
+
+•	Defence systems innovation 
+
+•	Technical knowledge sharing 
+
+•	Local manufacturing and production capacity expansion 
+
+•	Joint research and development initiatives 
+
+The MoU establishes an important framework for strengthening Nigeria’s local defence technology ecosystem and advancing strategic self-reliance
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Ngaski Mining Site Reconnaissance Operation
+
+Period: 4 – 6 June 2026
+
+Location: Libata Ngaski LGA, Kebbi State
+
+Objective: To conduct aerial reconnaissance and feasibility assessment for potential commercial engagement and service provision within the mining sector.
+
+Activities Conducted:
+
+- Preliminary stakeholder engagement.
+
+- Site survey and route planning.
+
+- Reconnaissance mission coordination.
+
+- Terrain assessment.
+
+- Access route analysis.
+
+- Aerial data collection.
+
+- Operational feasibility evaluation.
+
+
+
+Management Role:
+
+- Mission planning.
+
+- Stakeholder coordination.
+
+- Team deployment.
+
+- Risk assessment.
+
+- Operational supervision.
+
+- Reporting and recommendations.
+
+
+
+Key Findings:
+
+- Site presents significant opportunities for drone-based surveying and monitoring services.
+
+- Potential exists for long-term commercial engagement.
+
+- Opportunities identified for aerial mapping, stockpile monitoring, security surveillance, environmental monitoring, and progress tracking.
+
+
+
+Strategic Significance:
+
+The operation represents Briech UAS' continued expansion beyond defense applications into commercial sectors such as mining, infrastructure, environmental monitoring, and industrial inspection.
+
+A comprehensive report of the exercise is attached to this report.
+
+
+
+Recommendations:
+
+- Pursue formal engagement with mining stakeholders.
+
+- Develop a proposal for aerial survey services.
+
+- Explore long-term monitoring contracts.
+
+- Conduct detailed technical and commercial feasibility assessments.
+
+
+
+Business Development Summary
+
+The business development activities undertaken during the reporting period significantly contributed to strengthening Briech UAS' market presence, stakeholder confidence, and future growth prospects.
+
+Through continuous engagement with military formations, security agencies, government institutions, regulatory bodies, academic establishments, and prospective commercial clients, the company successfully expanded its professional network and enhanced awareness of its operational capabilities.
+
+The successful coordination of the Ngaski Mining Site reconnaissance mission opened new opportunities within the mining and industrial sectors, while ongoing engagements with military and security stakeholders further positioned the company for future operational support contracts, training programmes, drone supply projects, and technical consultancy services.
+
+Furthermore Technical partnership, facility visits, technical demonstrations, and presentations delivered to senior government officials, military institutions, research organizations, and security agencies provided valuable opportunities to showcase the company's indigenous technological capabilities, ongoing research and development initiatives, and operational achievements.
+
+Collectively, these activities strengthened the company's reputation, increased stakeholder confidence, enhanced market visibility, and created pathways for future strategic partnerships, commercial engagements, and long-term business growth.
+
+
+
+RESEARCH, DEVELOPMENT AND INNOVATION 
+
+In line with Briech UAS Limited's commitment to continuous improvement, operational excellence, and indigenous technology development, all technical departments were actively engaged in Research and Development (R&D) activities throughout the reporting period.
+
+The primary objective of these initiatives was to develop practical solutions to challenges encountered during field operations, improve product reliability, enhance operational effectiveness, reduce dependence on foreign technologies, and strengthen the company's competitive advantage within the unmanned aviation sector.
+
+Research efforts were largely driven by operational feedback received from deployed systems, pilot experiences, maintenance observations, customer requirements, and emerging technological trends within the global UAS industry.
+
+Moulding Unit Research and Development Activities
+
+Project Focus: Improvement of Airframe Finishing Processes
+
+The Moulding Unit conducted extensive research into improving the structural finishing and aesthetic quality of drone airframes produced by the company.
+
+Activities Conducted:
+
+- Evaluation of existing moulding and finishing procedures.
+
+- Assessment of surface treatment techniques.
+
+- Development of improved finishing standards.
+
+- Investigation of lightweight finishing materials.
+
+- Optimization of post-production processing methods.
+
+
+
+Expected Benefits:
+
+- Improved airframe appearance.
+
+- Enhanced structural durability.
+
+- Reduced production defects.
+
+- Increased product quality consistency.
+
+- Improved customer acceptance and operational reliability.
+
+
+
+3D Design and CNC Manufacturing Unit
+
+Project Focus: Design and Development of New Drone Variants
+
+The department continued to support product development initiatives through computer-aided design (CAD), rapid prototyping, and CNC manufacturing activities.
+
+
+
+Projects Undertaken:
+
+	Striker Drone Development
+
+Activities included:
+
+- Airframe design optimization.
+
+- Structural analysis.
+
+- Payload integration studies.
+
+- Prototype component development.
+
+
+
+Apprentice Drone Development
+
+Activities included:
+
+- Development of a low-cost training platform.
+
+- Flight stability optimization.
+
+- Ease-of-maintenance considerations.
+
+- Modular component design.
+
+
+
+Bomb Carrier for Argini Drone
+
+Activities included:
+
+- Payload attachment mechanisms.
+
+- Release system integration.
+
+- Structural reinforcement studies.
+
+- Flight performance impact assessment.
+
+
+
+Achievements:
+
+- Multiple design concepts developed.
+
+- Prototype components manufactured.
+
+- Improved indigenous design capability established.
+
+
+
+Explosive Systems Development Unit
+
+Project Focus: Improvement of Payload Deployment Systems
+
+The Explosive Systems Unit focused on enhancing the effectiveness, reliability, and safety of payload deployment mechanisms.
+
+Activities Conducted:
+
+- Modification of trigger systems.
+
+- Reliability testing of release mechanisms.
+
+- Improvement of deployment efficiency.
+
+- System integration studies.
+
+- Evaluation of upgraded payload configurations.
+
+Operational Benefits:
+
+- Improved deployment reliability.
+
+- Enhanced mission effectiveness.
+
+- Increased operational flexibility.
+
+- Reduced system failures.
+
+
+
+
+
+Electrical and Electronics Engineering Unit
+
+
+
+Project Focus:
+
+Automation and Ground Support Systems Development
+
+The Electrical and Electronics Unit conducted several innovative projects aimed at improving operational efficiency and communications performance.
+
+
+
+Key Projects:
+
+Automated Telemetry Antenna Elevation System
+
+Development activities included:
+
+
+
+- Design of automated antenna positioning systems.
+
+- Elevation control mechanisms.
+
+- Signal optimization studies.
+
+- Remote operation capabilities.
+
+Expected benefits:
+
+- Improved telemetry reception.
+
+- Increased operational range.
+
+- Enhanced communication stability.
+
+
+
+Automated Refuelling and Defueling Unit
+
+Development activities included:
+
+- System design and fabrication.
+
+- Fuel transfer automation.
+
+- Safety control integration.
+
+- Operational testing.
+
+Expected benefits:
+
+- Reduced fueling time.
+
+- Improved operational safety.
+
+- Reduced fuel handling risks.
+
+- Increased mission turnaround efficiency.
+
+
+
+Software Development and Programming Unit
+
+Project Focus: Development of Indigenous Software Solutions
+
+The Programming Unit continued development of locally engineered software systems to support operational independence, security, and process automation.
+
+Projects Undertaken
+
+Local Flight Interface Firmware Development
+
+Activities:
+
+- Development of proprietary flight control interfaces.
+
+- Flight management system enhancements.
+
+- Improved operational customization.
+
+
+
+Drone Security Enhancement Features
+
+Activities:
+
+- Anti-interference mechanisms.
+
+- Security architecture development.
+
+- Access control improvements.
+
+
+
+Artificial Intelligence Integration
+
+Research Areas:
+
+- Autonomous decision support.
+
+- Target recognition algorithms.
+
+- Intelligent mission assistance.
+
+
+
+Quality Management System (QMS) Software
+
+Purpose: To digitize and automate:
+
+- Quality assurance processes.
+
+- Quality control activities.
+
+- Audit management.
+
+- Documentation control.
+
+- Trend analysis and reporting.
+
+
+
+Store and Inventory Management System
+
+Purpose: To improve:
+
+- Inventory visibility.
+
+- Asset tracking.
+
+- Procurement planning.
+
+- Stock accountability.
+
+
+
+Automatic Target Tracking System for FPV, fixed wing and all other accessories for the Drones
+
+
+
+Activities:
+
+- Computer vision integration.
+
+- AI-assisted tracking algorithms.
+
+- Target identification studies.
+
+- Autonomous tracking capabilities.
+
+Expected Benefits:
+
+- Improved operational effectiveness.
+
+- Enhanced target acquisition.
+
+- Reduced operator workload.
+
+- Increased mission success rates.
+
+
+
+FPV Systems Development Unit
+
+
+
+Project Focus: Improvement of FPV Communication and Tracking Systems. The FPV Unit concentrated on enhancing video transmission quality, communication range, and tracking accuracy.
+
+
+
+Key Projects
+
+360-Degree Antenna Tracking System
+
+Activities:
+
+- Design and testing of automatic tracking mechanisms.
+
+- Signal tracking optimization.
+
+- Dynamic positioning capability development.
+
+
+
+Expected Benefits:
+
+- Continuous signal lock.
+
+- Improved operational range.
+
+- Enhanced communication reliability.
+
+
+
+High-Quality Video Transmission System
+
+Activities:
+
+- Evaluation of video transmission technologies.
+
+- Image quality optimization.
+
+- Signal enhancement studies.
+
+
+
+Expected Benefits:
+
+- Improved situational awareness.
+
+- Better target identification.
+
+- Enhanced mission effectiveness.
+
+
+
+High-Gain Antenna Integration
+
+Activities:
+
+- Selection and testing of high-gain antenna systems.
+
+- Range performance assessment.
+
+- System compatibility evaluation.
+
+Expected Benefits:
+
+- Extended communication range.
+
+- Improved signal quality.
+
+- Enhanced operational reliability.
+
+Management Assessment of R&D Activities
+
+The Research and Development initiatives undertaken during the reporting period demonstrate Briech UAS Limited's commitment to innovation, self-reliance, and continuous technological advancement and to ensure all customer feedbacks, expectation and observations were timely rectified and at the same time keeping the staff more engaged with activities.
+
+These projects are expected to:
+
+- Improve operational effectiveness.
+
+- Enhance product quality and reliability.
+
+- Strengthen indigenous drone manufacturing capability.
+
+- Reduce dependence on imported technologies.
+
+- Improve regulatory compliance readiness.
+
+- Support future commercial and defense contracts.
+
+- Position Briech UAS as a leading innovation-driven unmanned aviation company in Nigeria and across Africa.
+
+SAFETY MANAGEMENT, OPERATIONAL OVERSIGHT AND FLEET SUPPORT FOR THE GROUP CAMP OPERATIONS
+
+During the reporting period, Briech UAS maintained a strong commitment to operational safety, fleet serviceability, pilot competency, and mission effectiveness across all operational camps. Under the leadership and direct supervision of the General Manager, a comprehensive safety oversight framework was implemented to support drone operations, reduce operational risks, improve pilot decision-making, and ensure maximum availability of operational assets.
+
+The management team continued to provide technical guidance, operational support, safety supervision, and maintenance coordination for all deployed drone systems, resulting in a significant improvement in operational performance and safety outcomes.
+
+
+
+FLEET MAINTENANCE AND REPAIR SUPPORT
+
+Throughout the reporting period and operations, Briech UAS successfully coordinated and supervised the maintenance, servicing, troubleshooting, and repair of drone systems deployed across various operational camps and provides operational guidance to the field pilots.
+
+Activities Conducted
+
+- Scheduled preventive maintenance of operational drones.
+
+- Corrective maintenance and repair of damaged systems.
+
+- Replacement of defective components.
+
+- Flight control system inspections.
+
+- Power system checks and servicing.
+
+- Communication system maintenance.
+
+- Payload system inspections.
+
+- Airframe repairs and structural assessments.
+
+- Post-mission technical evaluations.
+
+- Technical and operational support to field Pilots.
+
+
+
+
+
+Outcomes
+
+- Improved operational availability of drone assets.
+
+- Increased mission readiness across operational locations.
+
+- Reduced downtime of deployed systems.
+
+- Extended service life of operational platforms.
+
+- Improved reliability of fielded equipment.
+
+
+
+OPERATIONAL GUIDANCE AND PILOT SUPPORT
+
+Briech UAS continued to provide operational guidance and technical support to drone pilots operating in various camps and operational locations.
+
+
+
+Areas of Guidance
+
+- Mission planning procedures.
+
+- Pre-flight inspection requirements.
+
+- Risk assessment procedures.
+
+- Airspace awareness
+
+- Weather updates and guidance
+
+- Emergency response procedures.
+
+- Operational decision-making.
+
+- Equipment handling and preservation.
+
+- Mission debriefing procedures.
+
+- Safety reporting requirements.
+
+Regular communication channels were maintained with pilots to ensure operational issues were promptly addressed and lessons learned were shared across all operating locations.
+
+Outcomes
+
+- Improved pilot proficiency.
+
+- Better mission planning and execution.
+
+- Increased compliance with operational procedures.
+
+- Enhanced safety awareness.
+
+- Improved standardization of flight operations.
+
+
+
+HUMAN FACTORS AND CREW RESOURCE MANAGEMENT (CRM) PROGRAMME
+
+Recognizing that human error remains one of the leading causes of aviation incidents worldwide, management placed significant emphasis on Human Factors awareness and Crew Resource Management (CRM) throughout the reporting period.
+
+Focus Areas
+
+- Situational awareness.
+
+- Decision-making under pressure.
+
+- Fatigue management.
+
+- Communication effectiveness.
+
+- Stress management.
+
+- Threat and error management.
+
+- Risk perception.
+
+- Leadership and teamwork.
+
+- Operational discipline.
+
+- Mission planning and preparation.
+
+Regular operational reminders, safety advisories, and professional guidance were disseminated to pilots and operational personnel to reinforce safe operating practices.
+
+Outcome
+
+The consistent emphasis on human factors and crew resource management significantly enhanced pilot awareness and operational discipline, thereby reducing exposure to operational risks. This reduced operational failure and drone mishap to the barest minimum. 
+
+
+
+SAFETY TIPS AND CONTINUOUS SAFETY EDUCATION PROGRAMME
+
+To further strengthen the company's safety culture, periodic safety awareness sessions and safety tip briefings were conducted throughout the reporting period.
+
+Topics Covered
+
+- Flight safety best practices.
+
+- Common causes of drone accidents.
+
+- Weather considerations.
+
+- Battery safety management.
+
+- Equipment inspection procedures.
+
+- Emergency response actions.
+
+- Operational risk management.
+
+- Lessons learned from previous operations.
+
+- Airspace management.
+
+- Maintenance awareness.
+
+
+
+Delivery Methods
+
+- Physical safety briefings.
+
+- Online operational advisories.
+
+- Safety circulars.
+
+- Camp-level engagement sessions.
+
+- One-on-one technical mentoring.
+
+Benefits Achieved
+
+- Increased safety awareness among pilots.
+
+- Improved compliance with operational procedures.
+
+- Enhanced reporting culture.
+
+- Better understanding of operational risks.
+
+- Strengthened organizational safety culture.
+
+OPERATIONAL SAFETY PERFORMANCE
+
+One of the most significant achievements during the reporting period was the exceptional safety performance recorded across all supported operations.
+
+
+
+SAFETY STATISTICS
+
+- Zero fatal incidents.
+
+- Zero major accidents.
+
+- Zero significant operational mishaps.
+
+- No reported loss of operational assets due to pilot negligence.
+
+- Significant reduction in operational risk exposure.
+
+
+
+Key Contributing Factors
+
+- Strong management oversight.
+
+- Effective maintenance programme.
+
+- Continuous pilot engagement.
+
+- Regular safety education.
+
+- Emphasis on human factors awareness.
+
+- Effective crew resource management practices.
+
+- Prompt technical support.
+
+- Improved operational procedures.
+
+
+
+MANAGEMENT ASSESSMENT
+
+The safety performance achieved during the reporting period demonstrates the effectiveness of Briech UAS' proactive safety management approach. Through continuous pilot engagement, regular maintenance support, safety awareness programmes, and operational oversight, the company successfully maintained a high level of operational reliability while minimizing risks associated with drone operations.
+
+The achievement of near-zero operational incidents during a period characterized by intensive training, production, testing, deployment, and field operations reflects the professionalism, discipline, and commitment of both management and operational personnel.
+
+MANAGEMENT PERFORMANCE SUMMARY
+
+During the reporting period, management successfully coordinated multiple high-priority projects simultaneously, including:
+
+- Training of 16 Nigerian Army FPV operators.
+
+- Production of 60 FPV drones.
+
+- Operational testing and deployment activities.
+
+- NCAA compliance documentation project.
+
+- Recurrent pilot training programmes.
+
+- Business development reconnaissance operations in Ngaski.
+
+
+
+Key management achievements include:
+
+- Successful project delivery within planned timelines.
+
+- Effective stakeholder management.
+
+- Improved regulatory readiness.
+
+- Enhanced workforce capability.
+
+- Expansion of business opportunities.
+
+- Strengthened operational capacity.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+CONCLUSION
+
+The Second Quarter (March–June 2026) represents one of the most productive and strategically significant periods in the growth and development of Briech UAS Limited. During the reporting period, the company successfully executed multiple high-impact projects across training, production, operations, research and development, regulatory compliance, maintenance support, and business development while maintaining a strong commitment to safety, quality, and operational excellence.
+
+
+
+Notable achievements during the quarter included the successful training of sixteen (16) Nigerian Army personnel on FPV drone operations, production and deployment of sixty (60) FPV drone systems for operational use, recurrent training and proficiency enhancement of newly recruited and existing pilots, development of NCAA-compliant operational manuals and certification documentation, and the successful coordination of reconnaissance activities at the Ngaski Mining Site to support potential commercial engagements.
+
+
+
+In addition to operational deliverables, all technical departments actively participated in research and development initiatives aimed at addressing emerging operational challenges and improving the company's technological capabilities. Significant progress was recorded in drone design and manufacturing, payload systems enhancement, communications technology, software development, automation systems, artificial intelligence applications, inventory management systems, and advanced FPV technologies. These initiatives continue to strengthen Briech UAS' position as an indigenous technology-driven unmanned aviation company capable of developing innovative solutions tailored to local operational requirements.
+
+The company also maintained a robust maintenance and technical support programme for drones deployed across operational camps, ensuring fleet serviceability and mission readiness. Through continuous engagement with pilots, regular safety awareness campaigns, recurrent Crew Resource Management (CRM) training, Human Factors education, and proactive operational oversight, Briech UAS successfully achieved an outstanding safety record during the reporting period. No major accidents, operational mishaps, or significant drone losses were recorded, reflecting the effectiveness of the company's safety culture and management systems.
+
+The achievements recorded during this quarter were made possible through effective collaboration among all departments, dedication of staff, strong stakeholder relationships, and management's commitment to operational excellence. As General Manager, strategic emphasis was placed on project coordination, personnel development, operational support, regulatory compliance, innovation, risk management, and business growth, resulting in measurable improvements across all key performance areas.
+
+Going forward, Briech UAS remains committed to expanding its operational capabilities, accelerating regulatory certification efforts, strengthening research and development programmes, increasing indigenous manufacturing capacity, enhancing safety management systems, and pursuing new opportunities within the defence, mining, infrastructure, surveillance, mapping, and commercial sectors.
+
+The successes achieved during this reporting period have positioned Briech UAS for sustained growth and have further reinforced the company's reputation as a leading provider of unmanned aerial systems, training, technical support, and innovative drone solutions in Nigeria and beyond.
+
+
+
+Respectfully Submitted,
+
+
+
+
+
+General Manager
+
+Briech UAS
+
+
+
+
+
+ATTEACHED DOCUMENTS
+
+Training manuals and materials
+
+Financial report
+
+Staff appraisals statistics
+
+Inventory sheet
+
+
+
+2
+
+RESTRICTED
+
+--- Extracting PPTX: C:\Users\Administrator\Downloads\Presentations\Yemi - Black\Mid Year Black Presentation N.pptx ---
+
+Slide 1:
+CONFIDENTIAL  •  EXECUTIVE BRIEFING
+Mid-Year Strategic
+Presentation
+Directorate of Intelligence and Clandestine Operations
+H1 Performance Review & H2 Strategic Roadmap — 2026
+Presented by  Yemi Adebowale
+Group Head, Intelligence & Clandestine Operations
+
+Slide 2:
+THEME
+Strengthening Corporate Intelligence and Protecting Strategic Assets.
+Intelligence
+Protection
+Resilience
+
+Slide 3:
+OVERVIEW
+Executive Summary
+Key Achievements in H1
+Milestones delivered across the intelligence function
+Major Intelligence Operations Executed
+Critical missions completed in support of the business
+Critical Risks Identified
+Emerging threats surfaced through proactive monitoring
+Challenges Encountered
+Constraints faced in resourcing and execution
+Strategic Priorities for H2
+Forward-looking focus areas for the second half
+DIRECTORATE OF INTELLIGENCE & CLANDESTINE OPERATIONS
+03
+
+Slide 4:
+H1 PERFORMANCE REPORT
+Performance KPIs
+Intelligence Reports Produced
+Investigations Concluded
+Background Verifications Completed
+Due Diligence Assignments
+Insider Threat Cases Detected
+Executive Protection Missions
+Corporate Surveillance Operations
+Crisis Response Activities
+DIRECTORATE OF INTELLIGENCE & CLANDESTINE OPERATIONS
+04
+
+Slide 5:
+H1 PERFORMANCE REPORT
+Strategic Achievements
+Established intelligence reporting framework
+Improved executive decision-making through actionable intelligence
+Enhanced protection of company assets
+Supported major business negotiations through due diligence
+Strengthened inter-agency relationships
+Reduced security exposure across operations
+DIRECTORATE OF INTELLIGENCE & CLANDESTINE OPERATIONS
+05
+
+Slide 6:
+INTELLIGENCE ASSESSMENT
+Current Threat Landscape
+Economic Sabotage
+Insider Threats
+Information Leakage
+Cyber-Enabled Intelligence Risks
+Competitor Intelligence Gathering
+Reputational Attacks
+Regulatory Risks
+Political Environment
+DIRECTORATE OF INTELLIGENCE & CLANDESTINE OPERATIONS
+06
+
+Slide 7:
+STRATEGIC POSITION
+SWOT Analysis
+Strengths
+Experienced personnel, management support, national security network
+Weaknesses
+Limited technology, budget constraints, manpower gaps
+Opportunities
+AI-driven intelligence, expanded investigations, security partnerships
+Threats
+Evolving adversary tradecraft and external risk exposure
+DIRECTORATE OF INTELLIGENCE & CLANDESTINE OPERATIONS
+07
+
+Slide 8:
+GOVERNANCE
+Compliance & Risk
+Compliance Audits
+Policy Implementation
+Security Compliance Level
+Risk Treatment Plans
+Incident Reporting
+Business Continuity Readiness
+DIRECTORATE OF INTELLIGENCE & CLANDESTINE OPERATIONS
+10
+
+Slide 9:
+H2 ROADMAP
+H2 Strategic Priorities
+1
+Corporate Intelligence Fusion Centre
+2
+Digital Intelligence Platform
+3
+Executive Threat Monitoring Dashboard
+4
+Insider Threat Programme
+5
+Corporate Counter-Intelligence Unit
+6
+OSINT Cell
+7
+AI-enabled Intelligence Analytics
+8
+Crisis Management Framework
+DIRECTORATE OF INTELLIGENCE & CLANDESTINE OPERATIONS
+11
+
+Slide 10:
+H2 ROADMAP
+H2 KPI Targets
+100
+Intelligence Briefs
+95%
+Investigation Completion Rate
+100%
+Executive Risk Assessments
+50
+Due Diligence Reports
+40%
+Reduction in Insider Threats
+Security awareness for all staff
+Executive dashboard implementation
+Quarterly risk reports
+DIRECTORATE OF INTELLIGENCE & CLANDESTINE OPERATIONS
+13
+
+Slide 11:
+H2 ROADMAP
+Resources Required
+Intelligence Software
+OSINT Tools
+Surveillance Equipment
+Investigation Kits
+Secure Communication Systems
+Additional Analysts
+Operational Vehicles
+Training Budget
+DIRECTORATE OF INTELLIGENCE & CLANDESTINE OPERATIONS
+14
+
+Slide 12:
+LOOKING AHEAD
+Recommendations
+Increase intelligence budget
+Expand manpower
+Invest in AI and data analytics
+Strengthen inter-agency collaboration
+Improve information security
+Adopt predictive intelligence
+DIRECTORATE OF INTELLIGENCE & CLANDESTINE OPERATIONS
+15
+
+Slide 13:
+Intelligence is no longer merely a security function; it is a strategic capability. Our focus for the remainder of 2026 is to anticipate threats, protect strategic interests, support informed decisions, and strengthen resilience across all EIB operations.
+Thank You
+Yemi Adebowale
+Group Head, Intelligence & Clandestine Operations

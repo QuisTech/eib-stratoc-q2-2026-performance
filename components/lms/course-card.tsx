@@ -24,7 +24,17 @@ export function CourseCard({
   progress?: number
 }) {
   return (
-    <Card className="avoid-break flex flex-col">
+    <Card className="avoid-break flex flex-col overflow-hidden">
+      {course.imageUrl && (
+        <div className="aspect-video w-full overflow-hidden border-b">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img 
+            src={course.imageUrl} 
+            alt={course.title} 
+            className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+          />
+        </div>
+      )}
       <CardHeader className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary">{course.category}</Badge>

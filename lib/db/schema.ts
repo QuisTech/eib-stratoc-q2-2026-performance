@@ -71,6 +71,7 @@ export const courses = pgTable("courses", {
   subsidiaries: text("subsidiaries"), // comma-separated subsidiary tags
   initiative: integer("initiative"), // links to one of the 9 strategic initiatives
   videoUrl: text("videoUrl"), // dynamic video embed link
+  imageUrl: text("imageUrl"), // thumbnail image for the course
   customContent: text("customContent"), // JSON string containing custom lessons and quiz
   authorId: text("authorId"), // tracks the manager/admin who created this course
   createdAt: timestamp("createdAt").notNull().defaultNow(),

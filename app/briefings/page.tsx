@@ -96,9 +96,20 @@ export default async function BriefingsPage() {
                   return (
                     <div key={course.id} className="group relative flex flex-col rounded-xl border bg-card text-card-foreground shadow-sm transition-all hover:shadow-md">
                       <div className="flex flex-1 flex-col p-6">
-                        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                          <FileText className="h-6 w-6" />
-                        </div>
+                        {course.imageUrl ? (
+                          <div className="mb-4 -mx-6 -mt-6 overflow-hidden rounded-t-xl border-b aspect-video">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img 
+                              src={course.imageUrl} 
+                              alt={course.title} 
+                              className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                            />
+                          </div>
+                        ) : (
+                          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                            <FileText className="h-6 w-6" />
+                          </div>
+                        )}
                         <h3 className="font-semibold leading-tight line-clamp-2">{course.title}</h3>
                         <p className="mt-2 text-sm text-muted-foreground line-clamp-3">
                           {course.description}

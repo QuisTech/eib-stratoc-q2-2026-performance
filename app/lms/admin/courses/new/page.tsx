@@ -29,6 +29,7 @@ export default function NewCoursePage() {
         priceNaira: parseInt(formData.get("priceNaira") as string) || 0,
         subsidiaries: formData.get("subsidiaries") as string,
         videoUrl: (formData.get("videoUrl") as string) || undefined,
+        imageUrl: (formData.get("imageUrl") as string) || undefined,
       })
       router.push("/lms/admin")
       router.refresh()
@@ -123,6 +124,11 @@ export default function NewCoursePage() {
             <div className="flex flex-col gap-1.5">
               <label htmlFor="videoUrl" className="text-sm font-medium">Video Embed URL (Optional)</label>
               <input id="videoUrl" name="videoUrl" className="h-10 rounded-md border border-input bg-background px-3 text-sm" placeholder="e.g. https://www.youtube.com/embed/..." />
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <label htmlFor="imageUrl" className="text-sm font-medium">Thumbnail Image URL (Optional)</label>
+              <input id="imageUrl" name="imageUrl" className="h-10 rounded-md border border-input bg-background px-3 text-sm" placeholder="e.g. https://images.unsplash.com/..." />
             </div>
 
             <button

@@ -456,6 +456,7 @@ export async function createCourse(data: {
   priceNaira: number
   subsidiaries: string
   videoUrl?: string
+  imageUrl?: string
 }) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) throw new Error("Unauthorized")
@@ -482,6 +483,7 @@ export async function createCourse(data: {
       priceNaira: data.priceNaira,
       subsidiaries: data.subsidiaries,
       videoUrl: data.videoUrl,
+      imageUrl: data.imageUrl,
       authorId: session.user.id,
     })
   } catch (err: any) {
@@ -502,6 +504,7 @@ export async function updateCourse(slug: string, data: {
   priceNaira: number
   subsidiaries: string
   videoUrl?: string
+  imageUrl?: string
 }) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) throw new Error("Unauthorized")
@@ -528,6 +531,7 @@ export async function updateCourse(slug: string, data: {
     priceNaira: data.priceNaira,
     subsidiaries: data.subsidiaries,
     videoUrl: data.videoUrl,
+    imageUrl: data.imageUrl,
   }).where(eq(courses.slug, slug))
 
   revalidatePath("/lms")
