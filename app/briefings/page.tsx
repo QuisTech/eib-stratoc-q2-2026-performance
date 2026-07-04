@@ -63,20 +63,23 @@ export default async function BriefingsPage() {
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {groupedBriefings[subsidiary].map(course => {
                   
-                  // Extract the PDF attachment from customContent if it exists
-                  let pdfUrl = ""
+                  // Extract all PDF attachments from customContent
+                  const attachments: { title: string, url: string }[] = []
                   if (course.customContent) {
                     try {
                       const content = typeof course.customContent === "string" 
                         ? JSON.parse(course.customContent) 
                         : course.customContent
                       
-                      // Find the first attachment or assume it's attached to the first lesson
                       if (content.lessons && content.lessons.length > 0) {
                         for (const lesson of content.lessons) {
                           if (lesson.attachments && lesson.attachments.length > 0) {
-                            pdfUrl = lesson.attachments[0].url
-                            break
+                            for (const att of lesson.attachments) {
+                              // Avoid duplicates
+                              if (!attachments.find(a => a.url === att.url)) {
+                                attachments.push({ title: att.title, url: att.url })
+                              }
+                            }
                           }
                         }
                       }
@@ -97,17 +100,20 @@ export default async function BriefingsPage() {
                         </p>
                       </div>
                       
-                      {pdfUrl ? (
-                        <div className="border-t bg-muted/30 px-6 py-4">
-                          <a 
-                            href={pdfUrl} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-                          >
-                            <Download className="h-4 w-4" />
-                            Download Presentation
-                          </a>
+                      {attachments.length > 0 ? (
+                        <div className="border-t bg-muted/30 px-6 py-4 flex flex-col gap-2">
+                          {attachments.map((att, idx) => (
+                            <a 
+                              key={idx}
+                              href={att.url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+                            >
+                              <Download className="h-3 w-3" />
+                              {att.title.replace(" (PDF)", "")}
+                            </a>
+                          ))}
                         </div>
                       ) : (
                         <div className="border-t bg-muted/30 px-6 py-4">
