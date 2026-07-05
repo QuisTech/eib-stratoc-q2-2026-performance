@@ -1,0 +1,338 @@
+[
+  {
+    "id": 1,
+    "title": "Customer Care & Service Advisor Excellence",
+    "category": "Customer-Facing",
+    "format": "Workshop"
+  },
+  {
+    "id": 2,
+    "title": "Digital Audience Engagement",
+    "category": "Digital Media",
+    "format": "Online"
+  },
+  {
+    "id": 3,
+    "title": "Drone Operations & Live-Feed Management",
+    "category": "Emerging Tech",
+    "format": "Workshop"
+  },
+  {
+    "id": 4,
+    "title": "Financial Management & Budgeting",
+    "category": "Financial",
+    "format": "Online"
+  },
+  {
+    "id": 5,
+    "title": "Leadership & Team Management",
+    "category": "Leadership",
+    "format": "Blended"
+  },
+  {
+    "id": 6,
+    "title": "Monitoring, Evaluation & Data Analysis",
+    "category": "M&E / Data",
+    "format": "Online"
+  },
+  {
+    "id": 7,
+    "title": "Radio Marketing, Sales & Sponsorship",
+    "category": "Marketing & Sales",
+    "format": "Blended"
+  },
+  {
+    "id": 8,
+    "title": "Radio Presentation & Storytelling",
+    "category": "Media & Content",
+    "format": "Workshop"
+  },
+  {
+    "id": 9,
+    "title": "QA Inspection Protocols",
+    "category": "Operational",
+    "format": "Workshop"
+  },
+  {
+    "id": 10,
+    "title": "Time Management & Workload Prioritization",
+    "category": "Operational",
+    "format": "Workshop"
+  },
+  {
+    "id": 11,
+    "title": "Project Planning & Risk Management",
+    "category": "Project Management",
+    "format": "Blended"
+  },
+  {
+    "id": 12,
+    "title": "Intelligence Report Writing & MS Word Essentials",
+    "category": "Reporting & Documentation",
+    "format": "Online"
+  },
+  {
+    "id": 13,
+    "title": "MRO Record-Keeping & Technical Documentation",
+    "category": "Reporting & Documentation",
+    "format": "Blended"
+  },
+  {
+    "id": 14,
+    "title": "HSE Awareness & Operational Risk Assessment",
+    "category": "Safety & Compliance",
+    "format": "Blended"
+  },
+  {
+    "id": 15,
+    "title": "AV & Transmission Equipment Operations",
+    "category": "Technical",
+    "format": "Blended"
+  },
+  {
+    "id": 16,
+    "title": "UAV Assembly, Calibration & Avionics",
+    "category": "Technical",
+    "format": "Workshop"
+  },
+  {
+    "id": 17,
+    "title": "Vehicle Diagnostics & EV (NEV) Fundamentals",
+    "category": "Technical",
+    "format": "Workshop"
+  },
+  {
+    "id": 19,
+    "title": "Special Operations Brief",
+    "category": "Intelligence & Security",
+    "format": "Workshop"
+  },
+  {
+    "id": 20,
+    "title": "Information Security & Clearance Protocols",
+    "category": "Intelligence & Security",
+    "format": "Online"
+  },
+  {
+    "id": 21,
+    "title": "Public Safety Comms",
+    "category": "Intelligence & Security",
+    "format": "Blended"
+  },
+  {
+    "id": 22,
+    "title": "Advancement",
+    "category": "Technical",
+    "format": "Online"
+  },
+  {
+    "id": 23,
+    "title": "EIB Executive Reporting & Accountability",
+    "category": "Leadership & Management",
+    "format": "Online"
+  },
+  {
+    "id": 24,
+    "title": "EIB Core Business SOPs",
+    "category": "Corporate Compliance",
+    "format": "Online"
+  },
+  {
+    "id": 25,
+    "title": "Strategic HR Operations & Workflow",
+    "category": "Human Resources",
+    "format": "Online"
+  },
+  {
+    "id": 26,
+    "title": "GCOO Comprehensive Operations & 2026 Work Plan",
+    "category": "Operational",
+    "format": "Online"
+  },
+  {
+    "id": 27,
+    "title": "Giga Forensics H2 2026 Operations & Strategy",
+    "category": "Technical",
+    "format": "Online"
+  },
+  {
+    "id": 30,
+    "title": "EIB Stratoc 90-Day Strategic Operational Excellence Plan",
+    "category": "Operational",
+    "format": "Online"
+  },
+  {
+    "id": 31,
+    "title": "Briech Hospital Six-Month Administrative & Operational Readiness",
+    "category": "Operational",
+    "format": "Online"
+  },
+  {
+    "id": 32,
+    "title": "GHRM Q3-Q4 Strategic Plan & Compliance Enforcement",
+    "category": "Safety & Compliance",
+    "format": "Online"
+  },
+  {
+    "id": 33,
+    "title": "Group CTO IT Strategic Plan (H2 2026)",
+    "category": "Technical",
+    "format": "Online"
+  },
+  {
+    "id": 34,
+    "title": "Research Unit: Hospital Architectural Design Guidelines",
+    "category": "Technical",
+    "format": "Online"
+  },
+  {
+    "id": 35,
+    "title": "90-Day Business Development Strategic Plan",
+    "category": "Operational",
+    "format": "Online"
+  },
+  {
+    "id": 36,
+    "title": "BEF Q3 2026 Foundation Workplan",
+    "category": "Operational",
+    "format": "Online"
+  },
+  {
+    "id": 37,
+    "title": "Bright FM 90-Day Lean Growth & Action Plan",
+    "category": "Media & Content",
+    "format": "Online"
+  },
+  {
+    "id": 38,
+    "title": "EIB Group Workflow & Process Optimization",
+    "category": "Operational",
+    "format": "Online"
+  },
+  {
+    "id": 39,
+    "title": "Camps Security & Military Welfare Plan",
+    "category": "Intelligence & Security",
+    "format": "Online"
+  },
+  {
+    "id": 40,
+    "title": "Executive Access & Communication Framework",
+    "category": "Operational",
+    "format": "Online"
+  },
+  {
+    "id": 41,
+    "title": "Luftreiber Automobile: Building Structure Behind Growth",
+    "category": "Operational",
+    "format": "Online"
+  },
+  {
+    "id": 42,
+    "title": "EVP: Standard Operating Procedures & Reporting",
+    "category": "Operational",
+    "format": "Online"
+  },
+  {
+    "id": 43,
+    "title": "Monitoring & Evaluation Q3 Action Plan",
+    "category": "Operational",
+    "format": "Online"
+  },
+  {
+    "id": 44,
+    "title": "POCTOVA: Departmental Workflow & Strategic Growth",
+    "category": "Operational",
+    "format": "Online"
+  },
+  {
+    "id": 45,
+    "title": "Briech Atlantic: Q3/Q4 Expansion & Project Protocols",
+    "category": "Operational",
+    "format": "Online"
+  },
+  {
+    "id": 46,
+    "title": "Task Force Q3 Intelligence & Skill Gap Report",
+    "category": "Operational",
+    "format": "Online"
+  },
+  {
+    "id": 47,
+    "title": "PSAP: 90-Day Operational Transformation",
+    "category": "Technical",
+    "format": "Online"
+  },
+  {
+    "id": 48,
+    "title": "Procurement: Centralization & Vendor Management",
+    "category": "Operational",
+    "format": "Online"
+  },
+  {
+    "id": 49,
+    "title": "Group Admin: Facility & Power Infrastructure Management",
+    "category": "Operational",
+    "format": "Online"
+  },
+  {
+    "id": 50,
+    "title": "Document Control: Task Track & Reporting Compliance",
+    "category": "Safety & Compliance",
+    "format": "Online"
+  },
+  {
+    "id": 51,
+    "title": "Corporate Comms: 90-Day Strategy",
+    "category": "Operational",
+    "format": "Online"
+  },
+  {
+    "id": 52,
+    "title": "Briech UAS: Operations & Tech Development",
+    "category": "Technical",
+    "format": "Online"
+  },
+  {
+    "id": 53,
+    "title": "Black: Intelligence & Clandestine Ops",
+    "category": "Safety & Compliance",
+    "format": "Online"
+  },
+  {
+    "id": 55,
+    "title": "PSAP: Emergency Response & OSINT Training",
+    "category": "Operational",
+    "format": "Online"
+  },
+  {
+    "id": 56,
+    "title": "SAC: Intelligence Systems & OSINT Techniques",
+    "category": "Technical",
+    "format": "Online"
+  },
+  {
+    "id": 57,
+    "title": "RAW: Cyber Intelligence & Product Documentation",
+    "category": "Technical",
+    "format": "Online"
+  },
+  {
+    "id": 58,
+    "title": "INTEL: Information Gathering & Analysis",
+    "category": "Operational",
+    "format": "Online"
+  },
+  {
+    "id": 85,
+    "title": "Directorate of Intelligence and Clandestine Operations: Training Gap Analysis",
+    "category": "Operational",
+    "format": "Online"
+  },
+  {
+    "id": 121,
+    "title": "EIB Group H2 2026 Strategic Directives",
+    "category": "Strategy",
+    "format": "Online"
+  }
+]
