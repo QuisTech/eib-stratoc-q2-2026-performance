@@ -34,8 +34,9 @@ def main():
             if email in admin_emails:
                 sub = "ADMINISTRATION (GROUP HEADS & SUBSIDIARY MANAGERS)"
             else:
-                sub = row.get('Subsidiary', 'Unassigned')
-                
+                sub = row.get('Subsidiary', '').strip()
+                if not sub:
+                    sub = "GLOBAL (UNASSIGNED)"
             if sub not in subsidiaries:
                 subsidiaries[sub] = []
             subsidiaries[sub].append({
