@@ -33,7 +33,9 @@ export default async function AdminPage() {
     if (!session?.user) redirect("/sign-in")
 
     const role = (session.user as { role?: string }).role ?? "learner"
-    const orgWide = role === "admin" || role === "group_head"
+    const orgWide = role === "admin" || role === "group_head" || role === "executive"
+    const canManageCourses = role === "admin" || role === "group_head" || role === "lead"
+
     if (!orgWide && role !== "lead") {
       // Learners don't have a team view — send them to their own portal.
       redirect("/lms")
@@ -68,7 +70,7 @@ export default async function AdminPage() {
           <Badge variant={orgWide ? "default" : "secondary"}>
             {orgWide ? "Group-wide" : report.scope}
           </Badge>
-          {(orgWide || role === "lead") && (
+          {canManageCourses && (
             <Link
               href="/lms/admin/courses/new"
               className="ml-auto inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
@@ -197,7 +199,7 @@ export default async function AdminPage() {
         </Card>
       </section>
 
-      {(orgWide || role === "lead") && (
+      {canManageCourses && (
         <section>
           <Card>
             <CardHeader>
