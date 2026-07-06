@@ -328,8 +328,8 @@ export async function getViewerContext() {
 export async function getAdminReport(): Promise<AdminReport> {
   const viewer = await getSessionUser()
   const role = viewer.role ?? "learner"
-  const orgWide = role === "admin"
-  if (!orgWide && role !== "lead" && role !== "group_head_standard" && role !== "group_head") throw new Error("Forbidden")
+  const orgWide = role === "admin" || role === "group_head" || role === "executive"
+  if (!orgWide && role !== "lead" && role !== "group_head_standard") throw new Error("Forbidden")
 
   let learnerRows: typeof user.$inferSelect[] = []
 
