@@ -34,10 +34,9 @@ export function LearnerManagement({
   const [search, setSearch] = useState("")
 
   // Extract unique subsidiaries
-  const subsidiariesSet = new Set<string>()
+  const subsidiariesSet = new Set<string>(["Global"])
   learners.forEach(l => {
     if (l.subsidiary) subsidiariesSet.add(l.subsidiary)
-    else subsidiariesSet.add("Global")
   })
   const filterOptions = ["All", ...Array.from(subsidiariesSet).sort()]
 
