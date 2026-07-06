@@ -22,7 +22,7 @@ def main():
         "deborah.eyefia@gigaforensics.com", "mubarak.sani@briechuas.com", "helen.chikwem@eibstratoc.com",
         "helen.chikwem@dico.eibstratoc.com", "benjamin.antah@eibstratoc.com", "kenneth.mbadugha@briechatlantic.com",
         "junaid.raza@luftreiber.com", "anita.erukunuakpor@brightfm.com", "daniel.ejike@brightfm.com",
-        "alinwaeze.jude@bef.com", "joy.abraham@briechhospital.com", "joyce.ibrahim@eibgroup.com"
+        "alinwaeze.jude@bef.com", "joy.abraham@briechhospital.com", "ishaku.tarfa@eibgroup.com"
     }
 
     subsidiaries = {}
