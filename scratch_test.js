@@ -1,1 +1,0 @@
-const https = require('https'); https.get('https://lms.eibstratoc.com/lms', (res) => { console.log(res.statusCode); let d=''; res.on('data', c=>d+=c); res.on('end', ()=>console.log(d.includes('Server Error') ? d : 'OK')); }).on('error', console.error);

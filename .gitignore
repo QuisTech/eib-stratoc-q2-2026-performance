@@ -16,3 +16,10 @@ node_modules
 .next/
 .DS_Store
 .vercel
+
+# Temporary data files and scripts
+*.csv
+generate_*.js
+merge_csvs*.js
+test_db.js
+courses_to_gen.json
