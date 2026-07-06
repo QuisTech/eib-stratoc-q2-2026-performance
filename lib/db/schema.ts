@@ -12,6 +12,7 @@ export const user = pgTable("user", {
   // LMS additional fields (configured in lib/auth.ts additionalFields).
   role: text("role").notNull().default("learner"), // learner | lead | admin
   subsidiary: text("subsidiary"),
+  mustChangePassword: boolean("mustChangePassword").notNull().default(true),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
   updatedAt: timestamp("updatedAt").notNull().defaultNow(),
 })

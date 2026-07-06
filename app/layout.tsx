@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next'
 import { Geist, Geist_Mono, Source_Serif_4 } from 'next/font/google'
 import './globals.css'
 import { SiteHeader } from '@/components/site-header'
+import { ForcePasswordChange } from '@/components/force-password-change'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({
@@ -57,6 +58,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} ${sourceSerif.variable} bg-background`}
     >
       <body className="font-sans antialiased">
+        <ForcePasswordChange />
         <SiteHeader />
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
