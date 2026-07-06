@@ -12,6 +12,7 @@ import { ResetPasswordButton } from "./reset-password-button"
 import { DeleteUserButton } from "./delete-user-button"
 import { ExportCsvButton } from "./export-csv-button"
 import { ResetQuizAttemptsButton } from "./reset-quiz-attempts-button"
+import { LearnerManagement } from "./learner-management"
 import { CourseManagement } from "./course-management"
 
 export const dynamic = "force-dynamic"
@@ -153,68 +154,12 @@ export default async function AdminPage() {
                 No learners in scope yet.
               </p>
             ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b text-left text-xs uppercase tracking-wide text-muted-foreground">
-                      <th className="px-3 py-2 font-medium">Learner</th>
-                      {orgWide && <th className="px-3 py-2 font-medium">Subsidiary</th>}
-                      <th className="px-3 py-2 text-center font-medium">Enrolled</th>
-                      <th className="px-3 py-2 text-center font-medium">In progress</th>
-                      <th className="px-3 py-2 text-center font-medium">Completed</th>
-                      <th className="px-3 py-2 text-center font-medium">Certs</th>
-                      <th className="px-3 py-2 font-medium">Avg progress</th>
-                      {role === "admin" && <th className="px-3 py-2 text-right font-medium">Actions</th>}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {report.learners.map((l) => (
-                      <tr key={l.id} className="border-b last:border-0">
-                        <td className="px-3 py-3">
-                          <div className="flex items-center gap-2.5">
-                            <Link href={`/lms/admin/users/${l.id}`} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-secondary text-xs font-semibold text-secondary-foreground hover:bg-primary/10 hover:text-primary transition-colors">
-                              {initials(l.name)}
-                            </Link>
-                            <Link href={`/lms/admin/users/${l.id}`} className="leading-tight group">
-                              <span className="block font-medium group-hover:text-primary group-hover:underline transition-colors">{l.name}</span>
-                              <span className="block text-xs text-muted-foreground">{l.email}</span>
-                            </Link>
-                            {l.role !== "learner" && (
-                              <Badge variant="outline" className="ml-1 text-[10px] capitalize">
-                                {l.role}
-                              </Badge>
-                            )}
-                          </div>
-                        </td>
-                        {orgWide && (
-                          <td className="px-3 py-3 text-muted-foreground">{l.subsidiary ?? "—"}</td>
-                        )}
-                        <td className="px-3 py-3 text-center tabular-nums">{l.enrolled}</td>
-                        <td className="px-3 py-3 text-center tabular-nums">{l.inProgress}</td>
-                        <td className="px-3 py-3 text-center tabular-nums">{l.completed}</td>
-                        <td className="px-3 py-3 text-center tabular-nums">{l.certificates}</td>
-                        <td className="px-3 py-3">
-                          <div className="flex items-center gap-2">
-                            <Progress value={l.avgProgress} className="h-1.5 w-24" />
-                            <span className="w-9 text-right text-xs tabular-nums text-muted-foreground">
-                              {l.avgProgress}%
-                            </span>
-                          </div>
-                        </td>
-                        {role === "admin" && (
-                          <td className="px-3 py-3 text-right">
-                            <div className="flex items-center justify-end">
-                              <ResetQuizAttemptsButton userId={l.id} userName={l.name} enrolledCourses={l.enrolledCourses} />
-                              <ResetPasswordButton userId={l.id} userName={l.name} />
-                              {session.user.id !== l.id && <DeleteUserButton userId={l.id} userName={l.name} />}
-                            </div>
-                          </td>
-                        )}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <LearnerManagement 
+                learners={report.learners} 
+                orgWide={orgWide} 
+                role={role} 
+                currentUserId={session.user.id} 
+              />
             )}
           </CardContent>
         </Card>
