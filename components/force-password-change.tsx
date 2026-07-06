@@ -17,8 +17,9 @@ export function ForcePasswordChange() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
-  const mustChange = (session?.user as any)?.mustChangePassword === true
-
+  const userAny = session?.user as any
+  const mustChange = userAny?.mustChangePassword === true || userAny?.mustChangePassword === "true"
+  
   if (!session || !mustChange) {
     return null
   }
