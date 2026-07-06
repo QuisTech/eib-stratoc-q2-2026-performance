@@ -41,8 +41,8 @@ export function isCourseVisibleToUser(
     )
   }
 
-  // Super Admins, Group Heads, and Leaders at the holding company (EIB Group) see all other courses
-  if (role === "admin" || role === "group_head" || (role === "lead" && userSubLower === "eib group")) {
+  // Super Admins, Group Heads, Executives, and Leaders at the holding company (EIB Group) see all other courses
+  if (role === "admin" || role === "group_head" || role === "executive" || (role === "lead" && userSubLower === "eib group")) {
     return true
   }
 
@@ -58,7 +58,7 @@ export function isCourseVisibleToUser(
 
   // If the course is tagged as "EIB Group", it is a group-level strategic course visible ONLY to leaders/managers
   if (courseSubsList.includes("eib group")) {
-    return role === "lead" || role === "admin" || role === "group_head"
+    return role === "lead" || role === "admin" || role === "group_head" || role === "executive"
   }
 
   // If the user has no subsidiary, they can only see global courses
