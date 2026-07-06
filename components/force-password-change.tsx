@@ -80,10 +80,15 @@ export function ForcePasswordChange() {
           <div className="mb-4 rounded-full bg-destructive/10 p-3 text-destructive">
             <ShieldAlert className="h-8 w-8" />
           </div>
-          <h2 className="text-xl font-bold tracking-tight">Security Action Required</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            For security reasons, you must change your default password before accessing the system.
-          </p>
+          <h2 className="text-xl font-bold tracking-tight">Update Your Password</h2>
+          <div className="mt-4 space-y-3 text-sm text-muted-foreground text-left leading-relaxed">
+            <p>
+              <strong>Welcome!</strong> Your account was generated using a temporary default password during our system rollout.
+            </p>
+            <p>
+              To ensure the complete privacy and security of your account, you are required to set a personal password before accessing the platform. This guarantees that only you have access to your account, and management cannot view your password.
+            </p>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
