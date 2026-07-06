@@ -86,7 +86,7 @@ export function ForcePasswordChange() {
               <strong>Welcome!</strong> Your account was generated using a temporary default password during our system rollout.
             </p>
             <p>
-              To ensure the complete privacy and security of your account, you are required to set a personal password before accessing the platform. This guarantees that only you have access to your account, and management cannot view your password.
+              To ensure the complete privacy and security of your account, you are required to set a personal password before accessing the platform. This guarantees that only you have access to your account.
             </p>
           </div>
         </div>
