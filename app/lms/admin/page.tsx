@@ -122,7 +122,7 @@ export default async function AdminPage() {
         })}
       </section>
 
-      {orgWide && (
+      {role === "admin" && (
         <section className="mb-8">
           <Link href="/lms/admin/sync" className="block">
             <Card className="border-[var(--chart-2)] bg-[var(--chart-2)]/5 hover:bg-[var(--chart-2)]/10 transition-colors cursor-pointer">
@@ -140,34 +140,6 @@ export default async function AdminPage() {
       )}
 
       <section className="mb-8">
-        <Card>
-          <CardHeader className="flex-row items-center justify-between gap-2">
-            <div className="flex items-center gap-4">
-              <CardTitle className="text-base">Learners</CardTitle>
-              <span className="text-sm text-muted-foreground tabular-nums">
-                {completionRate}% completion rate
-              </span>
-            </div>
-            <ExportCsvButton />
-          </CardHeader>
-          <CardContent>
-            {report.learners.length === 0 ? (
-              <p className="py-8 text-center text-sm text-muted-foreground">
-                No learners in scope yet.
-              </p>
-            ) : (
-              <LearnerManagement 
-                learners={report.learners} 
-                orgWide={orgWide} 
-                role={role} 
-                currentUserId={session.user.id} 
-              />
-            )}
-          </CardContent>
-        </Card>
-      </section>
-
-      <section>
         <Card>
           <CardHeader>
             <CardTitle className="text-base">Most popular courses</CardTitle>
@@ -198,6 +170,36 @@ export default async function AdminPage() {
           </CardContent>
         </Card>
       </section>
+
+      <section className="mb-8">
+        <Card>
+          <CardHeader className="flex-row items-center justify-between gap-2">
+            <div className="flex items-center gap-4">
+              <CardTitle className="text-base">Learners</CardTitle>
+              <span className="text-sm text-muted-foreground tabular-nums">
+                {completionRate}% completion rate
+              </span>
+            </div>
+            <ExportCsvButton />
+          </CardHeader>
+          <CardContent>
+            {report.learners.length === 0 ? (
+              <p className="py-8 text-center text-sm text-muted-foreground">
+                No learners in scope yet.
+              </p>
+            ) : (
+              <LearnerManagement 
+                learners={report.learners} 
+                orgWide={orgWide} 
+                role={role} 
+                currentUserId={session.user.id} 
+              />
+            )}
+          </CardContent>
+        </Card>
+      </section>
+
+
 
       {canManageCourses && (
         <section>
