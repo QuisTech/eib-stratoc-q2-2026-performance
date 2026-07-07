@@ -335,7 +335,13 @@ export async function getAdminReport(): Promise<AdminReport> {
 
   if (orgWide) {
     if (role === "group_head") {
-      learnerRows = await db.select().from(user).where(ne(user.subsidiary, "BLACK")).orderBy(asc(user.name))
+      const userSubLower = viewer.subsidiary?.toLowerCase() || ""
+      const canSeeBlack = userSubLower.startsWith("dci -") || userSubLower === "directorate of clandestine & intelligence" || userSubLower === "black"
+      if (canSeeBlack) {
+        learnerRows = await db.select().from(user).orderBy(asc(user.name))
+      } else {
+        learnerRows = await db.select().from(user).where(ne(user.subsidiary, "BLACK")).orderBy(asc(user.name))
+      }
     } else {
       learnerRows = await db.select().from(user).orderBy(asc(user.name))
     }
@@ -371,11 +377,16 @@ export async function getAdminReport(): Promise<AdminReport> {
 
   let allDbCourses = await db.select().from(courses)
   if (role === "group_head") {
-    allDbCourses = allDbCourses.filter(c => {
-      if (!c.subsidiaries) return true;
-      const subs = c.subsidiaries.split(',').map(s => s.trim().toUpperCase());
-      return !subs.includes("BLACK");
-    });
+    const userSubLower = viewer.subsidiary?.toLowerCase() || ""
+    const canSeeBlack = userSubLower.startsWith("dci -") || userSubLower === "directorate of clandestine & intelligence" || userSubLower === "black"
+    
+    if (!canSeeBlack) {
+      allDbCourses = allDbCourses.filter(c => {
+        if (!c.subsidiaries) return true;
+        const subs = c.subsidiaries.split(',').map(s => s.trim().toUpperCase());
+        return !subs.includes("BLACK");
+      });
+    }
   }
 
   const courseTitle = new Map(allDbCourses.map((c) => [c.id, c.title]))
