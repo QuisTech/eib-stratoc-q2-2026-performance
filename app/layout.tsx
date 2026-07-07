@@ -16,6 +16,7 @@ const sourceSerif = Source_Serif_4({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://lms.eibstratoc.com'),
   title: 'EIB Group | 90-Day Strategic Plan (Q3 2026)',
   description:
     'The 90-day strategic plan for the EIB Group Training & Organizational Development function (July–September 2026): strategic goal, phased roadmap, ROI dashboard, and consolidated subsidiary input from the Performance Improvement Task Force.',
