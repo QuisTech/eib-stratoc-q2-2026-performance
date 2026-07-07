@@ -23,10 +23,25 @@ export default async function BriefingsPage() {
   const courses = await getCourses()
 
   // Filter for Strategic Briefings that this user is allowed to see
-  const visibleBriefings = courses.filter((c) => 
-    isStrategicBriefing(c.subsidiaries, c.customContent) && 
-    isCourseVisibleToUser(c.subsidiaries, userSubsidiary, userRole)
-  )
+  const visibleBriefings = courses.filter((c) => {
+    if (!isStrategicBriefing(c.subsidiaries, c.customContent)) return false;
+
+    const courseSubsList = c.subsidiaries ? c.subsidiaries.split(",").map((s) => s.trim().toLowerCase()) : []
+    
+    // BLACK subsidiary is highly classified. Only admin, DCI, or BLACK users can see it.
+    if (courseSubsList.includes("black")) {
+      const userSubLower = userSubsidiary?.toLowerCase() || ""
+      return (
+        userRole === "admin" ||
+        userSubLower.startsWith("dci -") ||
+        userSubLower === "directorate of clandestine & intelligence" ||
+        userSubLower === "black"
+      )
+    }
+
+    // Since this is the Strategic Briefing view, ALL Managers (Group Heads & Subsidiary Managers) can see it!
+    return true;
+  })
 
   // Group briefings by subsidiary tag
   const groupedBriefings: Record<string, typeof courses> = {}
