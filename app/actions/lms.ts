@@ -334,7 +334,11 @@ export async function getAdminReport(): Promise<AdminReport> {
   let learnerRows: typeof user.$inferSelect[] = []
 
   if (orgWide) {
-    learnerRows = await db.select().from(user).orderBy(asc(user.name))
+    if (role === "group_head") {
+      learnerRows = await db.select().from(user).where(ne(user.subsidiary, "BLACK")).orderBy(asc(user.name))
+    } else {
+      learnerRows = await db.select().from(user).orderBy(asc(user.name))
+    }
   } else {
     // 1. Find all courses authored by the viewer
     const myCourses = await db.select({ id: courses.id }).from(courses).where(eq(courses.authorId, viewer.id))
@@ -365,7 +369,15 @@ export async function getAdminReport(): Promise<AdminReport> {
     }
   }
 
-  const allDbCourses = await db.select().from(courses)
+  let allDbCourses = await db.select().from(courses)
+  if (role === "group_head") {
+    allDbCourses = allDbCourses.filter(c => {
+      if (!c.subsidiaries) return true;
+      const subs = c.subsidiaries.split(',').map(s => s.trim().toUpperCase());
+      return !subs.includes("BLACK");
+    });
+  }
+
   const courseTitle = new Map(allDbCourses.map((c) => [c.id, c.title]))
   const coursePrice = new Map(allDbCourses.map((c) => [c.id, c.priceNaira]))
   
