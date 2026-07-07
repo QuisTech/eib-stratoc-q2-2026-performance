@@ -20,21 +20,8 @@ export const metadata: Metadata = {
   description:
     'The 90-day strategic plan for the EIB Group Training & Organizational Development function (July–September 2026): strategic goal, phased roadmap, ROI dashboard, and consolidated subsidiary input from the Performance Improvement Task Force.',
   icons: {
-    icon: [
-      {
-        url: '/icon-light-32x32.png',
-        media: '(prefers-color-scheme: light)',
-      },
-      {
-        url: '/icon-dark-32x32.png',
-        media: '(prefers-color-scheme: dark)',
-      },
-      {
-        url: '/icon.svg',
-        type: 'image/svg+xml',
-      },
-    ],
-    apple: '/apple-icon.png',
+    icon: '/favicon.png',
+    apple: '/favicon.png',
   },
 }
 
