@@ -8,6 +8,7 @@ import { Filter, Search } from "lucide-react"
 import { ResetQuizAttemptsButton } from "./reset-quiz-attempts-button"
 import { ResetPasswordButton } from "./reset-password-button"
 import { DeleteUserButton } from "./delete-user-button"
+import { EditNameButton } from "./edit-name-button"
 
 function initials(name: string) {
   return (name || "")
@@ -139,6 +140,7 @@ export function LearnerManagement({
                   {role === "admin" && (
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end">
+                        <EditNameButton userId={l.id} userName={l.name} />
                         <ResetQuizAttemptsButton userId={l.id} userName={l.name} enrolledCourses={l.enrolledCourses} />
                         <ResetPasswordButton userId={l.id} userName={l.name} />
                         {currentUserId !== l.id && <DeleteUserButton userId={l.id} userName={l.name} />}

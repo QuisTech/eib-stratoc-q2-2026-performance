@@ -645,6 +645,22 @@ export async function adminResetUserPassword(userId: string) {
   revalidatePath("/lms/admin")
 }
 
+export async function adminUpdateUserName(userId: string, newName: string) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session?.user) throw new Error("Unauthorized")
+
+  if (session.user.role !== "admin") {
+    throw new Error("Forbidden: Only Super Admins can edit names")
+  }
+
+  if (!newName.trim()) {
+    throw new Error("Name cannot be empty")
+  }
+
+  await db.update(user).set({ name: newName.trim() }).where(eq(user.id, userId))
+  revalidatePath("/lms/admin")
+}
+
 export async function adminDeleteUser(userId: string) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) throw new Error("Unauthorized")
