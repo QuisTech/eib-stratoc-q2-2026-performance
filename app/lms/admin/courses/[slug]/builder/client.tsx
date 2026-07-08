@@ -32,8 +32,12 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
     setError(null)
     try {
       const generated = await generateCourseContentWithGemini(course.title, course.category || "General")
-      setLessons(generated.lessons)
-      setQuiz(generated.quiz)
+      if (generated.error) {
+        setError(generated.error)
+      } else {
+        setLessons(generated.lessons)
+        setQuiz(generated.quiz)
+      }
     } catch (err: any) {
       setError(err.message)
     } finally {

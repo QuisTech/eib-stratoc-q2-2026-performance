@@ -3,15 +3,18 @@
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 
+// Allow up to 60 seconds on Vercel for Gemini generation
+export const maxDuration = 60;
+
 export async function generateCourseContentWithGemini(title: string, category: string) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user || session.user.role !== "admin") {
-    throw new Error("Unauthorized: Only the Super Admin can generate AI content.")
+    return { error: "Unauthorized: Only the Super Admin can generate AI content." }
   }
 
   const apiKey = process.env.GEMINI_API_KEY
   if (!apiKey) {
-    throw new Error("Gemini API key is not configured.")
+    return { error: "Gemini API key is not configured in this environment. Please ensure you redeployed on Vercel after adding the key!" }
   }
 
   const prompt = `You are a corporate training expert for EIB Group. Generate a high-quality 5-lesson curriculum and a 5-question multiple choice quiz for a course titled "${title}" in the category of "${category}". Ensure the content is professional, actionable, and substantive. Do not use filler text. Each lesson must have sections and takeaways.`
@@ -90,19 +93,19 @@ export async function generateCourseContentWithGemini(title: string, category: s
     if (!response.ok) {
       const errText = await response.text();
       console.error("Gemini API REST Error:", errText);
-      throw new Error(`Failed to communicate with Gemini API: ${response.status}`);
+      return { error: `Failed to communicate with Gemini API: ${response.status}. Details: ${errText}` };
     }
 
     const data = await response.json();
     const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
     
     if (!textResponse) {
-      throw new Error("Invalid response format from Gemini API.");
+      return { error: "Invalid response format from Gemini API." };
     }
     
     return JSON.parse(textResponse)
   } catch (error: any) {
     console.error("Gemini API Error:", error)
-    throw new Error(error.message || "Failed to communicate with Gemini API.")
+    return { error: error.message || "Failed to communicate with Gemini API." }
   }
 }
