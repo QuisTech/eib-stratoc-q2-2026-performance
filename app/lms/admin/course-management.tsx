@@ -2,11 +2,17 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { Edit, BookOpen, Filter } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Edit, BookOpen, Filter, Copy, Loader2 } from "lucide-react"
 import { formatNaira } from "@/lib/utils"
+import { duplicateCourseAsLMS } from "@/app/actions/lms"
 
-export function CourseManagement({ courses }: { courses: any[] }) {
+export function CourseManagement({ courses, userRole }: { courses: any[]; userRole: string }) {
   const [filter, setFilter] = useState("All")
+  const [duplicatingSlug, setDuplicatingSlug] = useState<string | null>(null)
+  const [duplicateError, setDuplicateError] = useState<string | null>(null)
+  const [duplicateSuccess, setDuplicateSuccess] = useState<string | null>(null)
+  const router = useRouter()
 
   // Extract unique subsidiaries
   const subsidiariesSet = new Set<string>()
@@ -29,6 +35,22 @@ export function CourseManagement({ courses }: { courses: any[] }) {
         return subs.includes(filter)
       })
 
+  async function handleDuplicate(slug: string, title: string) {
+    if (!confirm(`Duplicate "${title}" as a regular LMS Course visible to staff?`)) return
+    setDuplicatingSlug(slug)
+    setDuplicateError(null)
+    setDuplicateSuccess(null)
+    try {
+      const result = await duplicateCourseAsLMS(slug)
+      setDuplicateSuccess(`Duplicated! New course slug: ${result.newSlug}`)
+      router.refresh()
+    } catch (err: any) {
+      setDuplicateError(err.message)
+    } finally {
+      setDuplicatingSlug(null)
+    }
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center gap-2">
@@ -43,6 +65,13 @@ export function CourseManagement({ courses }: { courses: any[] }) {
           ))}
         </select>
       </div>
+
+      {duplicateError && (
+        <div className="rounded-md bg-destructive/15 p-3 text-sm font-medium text-destructive">{duplicateError}</div>
+      )}
+      {duplicateSuccess && (
+        <div className="rounded-md bg-green-500/15 p-3 text-sm font-medium text-green-700 dark:text-green-400">{duplicateSuccess}</div>
+      )}
 
       {filteredCourses.length === 0 ? (
         <p className="py-8 text-center text-sm text-muted-foreground">
@@ -63,7 +92,16 @@ export function CourseManagement({ courses }: { courses: any[] }) {
             <tbody>
               {filteredCourses.map((c) => (
                 <tr key={c.id} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
-                  <td className="px-4 py-3 font-medium">{c.title}</td>
+                  <td className="px-4 py-3 font-medium">
+                    <div className="flex items-center gap-2">
+                      {c.title}
+                      {c.isBriefing && (
+                        <span className="inline-flex items-center rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
+                          Briefing
+                        </span>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-4 py-3 text-muted-foreground">{c.category}</td>
                   <td className="px-4 py-3 text-muted-foreground">
                     <div className="flex flex-wrap gap-1">
@@ -94,6 +132,20 @@ export function CourseManagement({ courses }: { courses: any[] }) {
                     >
                       <BookOpen className="h-3.5 w-3.5" /> Build Content
                     </Link>
+                    {c.isBriefing && userRole === "admin" && (
+                      <button
+                        onClick={() => handleDuplicate(c.slug, c.title)}
+                        disabled={duplicatingSlug === c.slug}
+                        className="inline-flex items-center gap-1.5 rounded-md border border-emerald-500 bg-emerald-500/10 px-3 py-1.5 text-xs font-medium text-emerald-600 hover:bg-emerald-500 hover:text-white disabled:opacity-50 dark:text-emerald-400"
+                      >
+                        {duplicatingSlug === c.slug ? (
+                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5" />
+                        )}
+                        Duplicate as LMS Course
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}

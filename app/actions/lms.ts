@@ -959,3 +959,52 @@ export async function getAdminUserDetail(targetUserId: string): Promise<AdminUse
     },
   }
 }
+
+// --- Duplicate Briefing as LMS Course --------------------------------------
+
+export async function duplicateCourseAsLMS(slug: string) {
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session?.user) throw new Error("Unauthorized")
+
+  const role = session.user.role as string
+  if (role !== "admin") throw new Error("Forbidden: Only Super Admins can duplicate courses")
+
+  // Fetch the source course
+  const rows = await db.select().from(courses).where(eq(courses.slug, slug)).limit(1)
+  if (rows.length === 0) throw new Error("Course not found")
+  const source = rows[0]
+
+  // Generate a unique slug for the clone
+  const baseSlug = source.slug + "-staff-training"
+  let newSlug = baseSlug
+  let attempt = 0
+  while (true) {
+    const existing = await db.select({ id: courses.id }).from(courses).where(eq(courses.slug, newSlug)).limit(1)
+    if (existing.length === 0) break
+    attempt++
+    newSlug = `${baseSlug}-${attempt}`
+  }
+
+  // Clone the course with isBriefing = false
+  await db.insert(courses).values({
+    slug: newSlug,
+    title: source.title + " (Staff Training)",
+    description: source.description,
+    category: source.category,
+    level: source.level,
+    format: source.format,
+    durationHours: source.durationHours,
+    priceNaira: source.priceNaira,
+    subsidiaries: source.subsidiaries,
+    videoUrl: source.videoUrl,
+    imageUrl: source.imageUrl,
+    customContent: source.customContent,
+    isBriefing: false,
+    authorId: session.user.id,
+  })
+
+  revalidatePath("/lms")
+  revalidatePath("/lms/admin")
+  revalidatePath("/briefings")
+  return { newSlug }
+}

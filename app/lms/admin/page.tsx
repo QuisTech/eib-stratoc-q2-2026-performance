@@ -208,7 +208,7 @@ export default async function AdminPage() {
               <CardTitle className="text-base">Course Management</CardTitle>
             </CardHeader>
             <CardContent>
-              <CourseManagement courses={report.allCourses} />
+              <CourseManagement courses={report.allCourses} userRole={report.viewerRole} />
             </CardContent>
           </Card>
         </section>
