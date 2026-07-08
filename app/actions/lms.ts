@@ -16,7 +16,7 @@ import {
   type Certificate,
 } from "@/lib/db/schema"
 import { getLessons, gradeQuiz } from "@/lib/lms-content"
-import { and, eq, inArray, sql, asc, desc, like } from "drizzle-orm"
+import { and, eq, inArray, sql, asc, desc, like, ne } from "drizzle-orm"
 import { headers } from "next/headers"
 import { hashPassword } from "better-auth/crypto"
 import { revalidatePath } from "next/cache"
