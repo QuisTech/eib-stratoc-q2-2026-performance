@@ -3,10 +3,11 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { saveCustomCourseContent } from "@/app/actions/lms"
-import { ArrowLeft, Plus, Trash2, Save, Loader2, HelpCircle } from "lucide-react"
+import { generateCourseContentWithGemini } from "@/app/actions/gemini"
+import { ArrowLeft, Plus, Trash2, Save, Loader2, HelpCircle, Sparkles } from "lucide-react"
 import Link from "next/link"
 
-export default function CourseBuilderClient({ course }: { course: any }) {
+export default function CourseBuilderClient({ course, userRole }: { course: any; userRole: string }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -24,6 +25,21 @@ export default function CourseBuilderClient({ course }: { course: any }) {
 
   const [lessons, setLessons] = useState<any[]>(initialLessons)
   const [quiz, setQuiz] = useState<any[]>(initialQuiz)
+  const [isGenerating, setIsGenerating] = useState(false)
+
+  async function handleGenerateWithGemini() {
+    setIsGenerating(true)
+    setError(null)
+    try {
+      const generated = await generateCourseContentWithGemini(course.title, course.category || "General")
+      setLessons(generated.lessons)
+      setQuiz(generated.quiz)
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setIsGenerating(false)
+    }
+  }
 
   async function handleSave() {
     setLoading(true)
@@ -152,14 +168,26 @@ export default function CourseBuilderClient({ course }: { course: any }) {
             Add your own lessons and quiz questions. When saved, this overrides the Generative Engine.
           </p>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={loading}
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-        >
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-          Save Content
-        </button>
+        <div className="flex items-center gap-3">
+          {userRole === "admin" && (
+            <button
+              onClick={handleGenerateWithGemini}
+              disabled={isGenerating || loading}
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-indigo-600 px-6 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+            >
+              {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+              Spark with Gemini (Admin Only)
+            </button>
+          )}
+          <button
+            onClick={handleSave}
+            disabled={loading || isGenerating}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          >
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            Save Content
+          </button>
+        </div>
       </div>
 
       {error && <div className="mb-6 rounded-md bg-destructive/15 p-4 text-sm font-medium text-destructive">{error}</div>}

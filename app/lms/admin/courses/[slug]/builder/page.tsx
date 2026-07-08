@@ -22,5 +22,5 @@ export default async function CourseBuilderPage({
   if (!course) redirect("/lms/admin")
   if (role !== "admin" && course.authorId !== session.user.id) redirect("/lms/admin")
 
-  return <CourseBuilderClient course={course} />
+  return <CourseBuilderClient course={course} userRole={role} />
 }
