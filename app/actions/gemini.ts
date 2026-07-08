@@ -3,9 +3,6 @@
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 
-// Allow up to 60 seconds on Vercel for Gemini generation
-export const maxDuration = 60;
-
 export async function generateCourseContentWithGemini(title: string, category: string) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user || session.user.role !== "admin") {

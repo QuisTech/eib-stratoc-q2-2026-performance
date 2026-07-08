@@ -6,6 +6,8 @@ import { courses } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
 import CourseBuilderClient from "./client"
 
+export const maxDuration = 60;
+
 export default async function CourseBuilderPage({
   params,
 }: {
