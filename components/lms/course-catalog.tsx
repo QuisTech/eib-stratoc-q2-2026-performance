@@ -40,7 +40,12 @@ export function CourseCatalog({
     const set = new Set<string>()
     for (const c of courses) {
       if (c.subsidiaries) {
-        c.subsidiaries.split(',').forEach(s => set.add(s.trim()))
+        c.subsidiaries.split(',').forEach(s => {
+          const trimmed = s.trim()
+          if (trimmed.toUpperCase() !== 'BLACK') {
+            set.add(trimmed)
+          }
+        })
       }
     }
     return Array.from(set).sort()
@@ -79,7 +84,7 @@ export function CourseCatalog({
       } else {
         // Group by subsidiary
         // If a course has multiple subsidiaries, it should appear in all relevant subsidiary groups
-        keys = c.subsidiaries ? c.subsidiaries.split(',').map(s => s.trim()) : ["General"]
+        keys = c.subsidiaries ? c.subsidiaries.split(',').map(s => s.trim()).filter(s => s.toUpperCase() !== 'BLACK') : ["General"]
         
         // If the user is filtering by a specific subsidiary, we only want to show that group and the Global group
         if (filterSubsidiary !== "All") {
