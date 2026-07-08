@@ -480,6 +480,7 @@ export async function createCourse(data: {
   subsidiaries: string
   videoUrl?: string
   imageUrl?: string
+  isBriefing?: boolean
 }) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) throw new Error("Unauthorized")
@@ -507,6 +508,7 @@ export async function createCourse(data: {
       subsidiaries: data.subsidiaries,
       videoUrl: data.videoUrl,
       imageUrl: data.imageUrl,
+      isBriefing: !!data.isBriefing,
       authorId: session.user.id,
     })
   } catch (err: any) {
@@ -528,6 +530,7 @@ export async function updateCourse(slug: string, data: {
   subsidiaries: string
   videoUrl?: string
   imageUrl?: string
+  isBriefing?: boolean
 }) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user) throw new Error("Unauthorized")
@@ -555,6 +558,7 @@ export async function updateCourse(slug: string, data: {
     subsidiaries: data.subsidiaries,
     videoUrl: data.videoUrl,
     imageUrl: data.imageUrl,
+    isBriefing: !!data.isBriefing,
   }).where(eq(courses.slug, slug))
 
   revalidatePath("/lms")

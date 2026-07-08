@@ -30,6 +30,7 @@ export default function NewCoursePage() {
         subsidiaries: formData.get("subsidiaries") as string,
         videoUrl: (formData.get("videoUrl") as string) || undefined,
         imageUrl: (formData.get("imageUrl") as string) || undefined,
+        isBriefing: formData.get("isBriefing") === "on",
       })
       router.push("/lms/admin")
       router.refresh()
@@ -119,6 +120,11 @@ export default function NewCoursePage() {
                 <label htmlFor="subsidiaries" className="text-sm font-medium">Target Subsidiaries</label>
                 <input id="subsidiaries" name="subsidiaries" required className="h-10 rounded-md border border-input bg-background px-3 text-sm" placeholder="e.g. Briech UAS, DCI - SAC" />
               </div>
+            </div>
+
+            <div className="flex items-center gap-2 mt-2">
+              <input type="checkbox" id="isBriefing" name="isBriefing" className="h-4 w-4 rounded border-input" />
+              <label htmlFor="isBriefing" className="text-sm font-medium">Mark as Strategic Briefing (Hides from LMS Course Catalog)</label>
             </div>
 
             <div className="flex flex-col gap-1.5">

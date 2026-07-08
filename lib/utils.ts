@@ -80,19 +80,3 @@ export function isCourseVisibleToUser(
   return false
 }
 
-/**
- * Determines whether a course should be classified as a "Strategic Briefing" 
- * instead of a standard training course.
- * Briefings are presentations from the management retreat (customContent is not null) 
- * that are NOT tagged as 'Global'.
- */
-export function isStrategicBriefing(
-  courseSubsidiaries: string | null,
-  customContent: string | null | any
-): boolean {
-  if (!customContent) return false
-  if (!courseSubsidiaries) return false
-  
-  const courseSubsList = courseSubsidiaries.split(",").map((s) => s.trim().toLowerCase())
-  return !courseSubsList.includes("global")
-}

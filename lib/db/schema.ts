@@ -74,6 +74,7 @@ export const courses = pgTable("courses", {
   videoUrl: text("videoUrl"), // dynamic video embed link
   imageUrl: text("imageUrl"), // thumbnail image for the course
   customContent: text("customContent"), // JSON string containing custom lessons and quiz
+  isBriefing: boolean("isBriefing").notNull().default(false), // true = Strategic Briefing, false = regular LMS Course
   authorId: text("authorId"), // tracks the manager/admin who created this course
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })

@@ -2,7 +2,7 @@ import { redirect } from "next/navigation"
 import { headers } from "next/headers"
 import { auth } from "@/lib/auth"
 import { getCourses } from "@/app/actions/lms"
-import { isCourseVisibleToUser, isStrategicBriefing } from "@/lib/utils"
+import { isCourseVisibleToUser } from "@/lib/utils"
 import { FileText, Download } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
@@ -24,7 +24,7 @@ export default async function BriefingsPage() {
 
   // Filter for Strategic Briefings that this user is allowed to see
   const visibleBriefings = courses.filter((c) => {
-    if (!isStrategicBriefing(c.subsidiaries, c.customContent)) return false;
+    if (!c.isBriefing) return false;
 
     const courseSubsList = c.subsidiaries ? c.subsidiaries.split(",").map((s) => s.trim().toLowerCase()) : []
     

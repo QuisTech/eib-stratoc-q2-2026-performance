@@ -5,7 +5,7 @@ import { auth } from "@/lib/auth"
 import { getCourses, getMyEnrollments } from "@/app/actions/lms"
 import { CourseCard } from "@/components/lms/course-card"
 import { CourseCatalog } from "@/components/lms/course-catalog"
-import { formatNaira, isCourseVisibleToUser, isStrategicBriefing } from "@/lib/utils"
+import { formatNaira, isCourseVisibleToUser } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
 import { PrintActions } from "@/components/print-actions"
@@ -56,7 +56,7 @@ export default async function LmsPage() {
   const userSubsidiary = session.user.subsidiary || null
 
   const visibleCourses = courses.filter((c) =>
-    !isStrategicBriefing(c.subsidiaries, c.customContent) && 
+    !c.isBriefing && 
     isCourseVisibleToUser(c.subsidiaries, userSubsidiary, userRole)
   )
 
