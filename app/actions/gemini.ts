@@ -10,11 +10,12 @@ export async function generateCourseContentWithGemini(title: string, category: s
   }
 
   const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) {
-    return { error: "Gemini API key is not configured in this environment. Please ensure you redeployed on Vercel after adding the key!" }
+  const groqApiKey = process.env.GROQ_API_KEY
+  if (!apiKey && !groqApiKey) {
+    return { error: "Neither Gemini nor Groq API keys are configured." }
   }
 
-  const prompt = `You are a corporate training expert for EIB Group. Generate a high-quality 5-lesson curriculum and a 5-question multiple choice quiz for a course titled "${title}" in the category of "${category}". Ensure the content is professional, actionable, and substantive. Do not use filler text. Each lesson must have sections and takeaways.`
+  const prompt = `You are a corporate training expert for EIB Group. Generate a high-quality 5-lesson curriculum and a 10-question multiple choice quiz for a course titled "${title}" in the category of "${category}". Ensure the content is professional, actionable, and substantive. Do not use filler text. Each lesson must have sections and takeaways.`
 
   const responseSchema = {
     type: "OBJECT",
@@ -71,38 +72,88 @@ export async function generateCourseContentWithGemini(title: string, category: s
     required: ["lessons", "quiz"]
   }
 
-  try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          responseMimeType: "application/json",
-          responseSchema: responseSchema,
-          temperature: 0.7
+  // Attempt Gemini first if key exists
+  if (apiKey) {
+    try {
+      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            responseMimeType: "application/json",
+            responseSchema: responseSchema,
+            temperature: 0.7
+          }
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        
+        if (textResponse) {
+          return JSON.parse(textResponse)
         }
-      })
-    });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("Gemini API REST Error:", errText);
-      return { error: `Failed to communicate with Gemini API: ${response.status}. Details: ${errText}` };
+      } else {
+        console.warn("Gemini API REST Error:", await response.text());
+      }
+    } catch (error: any) {
+      console.warn("Gemini API Failed, falling back...", error);
     }
-
-    const data = await response.json();
-    const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
-    
-    if (!textResponse) {
-      return { error: "Invalid response format from Gemini API." };
-    }
-    
-    return JSON.parse(textResponse)
-  } catch (error: any) {
-    console.error("Gemini API Error:", error)
-    return { error: error.message || "Failed to communicate with Gemini API." }
   }
+
+  // Fallback to Groq if Gemini failed or is unavailable
+  if (groqApiKey) {
+    try {
+      const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${groqApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: "llama3-70b-8192", // Fast and robust for JSON
+          messages: [
+            {
+              role: "system",
+              content: `You are a corporate training expert for EIB Group. You MUST return ONLY valid JSON matching this exact structure:
+{
+  "lessons": [{ "key": "string", "title": "string", "minutes": number, "summary": "string", "sections": [{ "heading": "string", "body": ["string"] }], "takeaways": ["string"] }],
+  "quiz": [{ "id": "string", "prompt": "string", "options": ["string"], "correctIndex": number, "explanation": "string" }]
+}`
+            },
+            {
+              role: "user",
+              content: prompt
+            }
+          ],
+          response_format: { type: "json_object" },
+          temperature: 0.7
+        })
+      });
+
+      if (!groqResponse.ok) {
+        const errText = await groqResponse.text();
+        console.error("Groq API Error:", errText);
+        return { error: `Gemini and Groq fallback both failed. Groq status: ${groqResponse.status}. Details: ${errText}` };
+      }
+
+      const data = await groqResponse.json();
+      const textResponse = data.choices?.[0]?.message?.content;
+      
+      if (!textResponse) {
+        return { error: "Invalid response format from Groq fallback API." };
+      }
+      
+      return JSON.parse(textResponse)
+    } catch (error: any) {
+      console.error("Groq API Error:", error)
+      return { error: `Gemini failed, and Groq fallback threw an error: ${error.message}` }
+    }
+  }
+
+  return { error: "Failed to generate content: Gemini failed and Groq API key is missing." };
 }
