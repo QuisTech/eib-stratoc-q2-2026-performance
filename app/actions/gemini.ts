@@ -141,55 +141,75 @@ Requirements:
 
   // Fallback to Groq if Gemini failed or is unavailable
   if (groqApiKey) {
-    try {
-      const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${groqApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: "llama3-70b-8192",
-          messages: [
-            {
-              role: "system",
-              content: `${EIB_GROUP_CONTEXT}
+    const MODEL_TIERS = ["llama-3.3-70b-versatile", "llama-3.1-8b-instant"] as const;
+    const MAX_RETRIES = 2;
+    let lastError = "";
 
-You are a corporate training expert for EIB Group (the Nigerian conglomerate described above). You MUST return ONLY valid JSON matching this exact structure:
-{
-  "lessons": [{ "key": "string", "title": "string", "minutes": number, "summary": "string", "sections": [{ "heading": "string", "body": ["string"] }], "takeaways": ["string"] }],
-  "quiz": [{ "id": "string", "prompt": "string", "options": ["string"], "correctIndex": number, "explanation": "string" }]
-}
-Generate 5 lessons and 10 quiz questions. Do NOT mention the European Investment Bank or the EU.`
+    for (const model of MODEL_TIERS) {
+      for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        try {
+          console.log(`[Groq Fallback] Trying model=${model} attempt=${attempt}/${MAX_RETRIES}`);
+          const groqResponse = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${groqApiKey}`,
+              'Content-Type': 'application/json',
             },
-            {
-              role: "user",
-              content: prompt
+            body: JSON.stringify({
+              model: model,
+              messages: [
+                {
+                  role: "system",
+                  content: `${EIB_GROUP_CONTEXT}\n\nYou are a corporate training expert for EIB Group (the Nigerian conglomerate described above). You MUST return ONLY valid JSON matching this exact structure:\n{\n  "lessons": [{ "key": "string", "title": "string", "minutes": number, "summary": "string", "sections": [{ "heading": "string", "body": ["string"] }], "takeaways": ["string"] }],\n  "quiz": [{ "id": "string", "prompt": "string", "options": ["string"], "correctIndex": number, "explanation": "string" }]\n}\nGenerate 5 lessons and 10 quiz questions. Do NOT mention the European Investment Bank or the EU.`
+                },
+                {
+                  role: "user",
+                  content: prompt
+                }
+              ],
+              response_format: { type: "json_object" },
+              temperature: 0.7
+            })
+          });
+
+          if (!groqResponse.ok) {
+            const errText = await groqResponse.text();
+            lastError = errText;
+            console.warn(`[Groq Fallback] Model ${model} attempt ${attempt} failed with status: ${groqResponse.status}. Details: ${errText}`);
+            
+            // Check if it's a rate limit or server error to decide on retry
+            if (![429, 500, 502, 503].includes(groqResponse.status) && !errText.includes("rate limit")) {
+              break; // Break retry loop if it's not a retryable error (e.g. 400 Bad Request)
             }
-          ],
-          response_format: { type: "json_object" },
-          temperature: 0.7
-        })
-      });
+            
+            // Backoff before retrying
+            if (attempt < MAX_RETRIES) {
+              await new Promise(res => setTimeout(res, 1000 * attempt));
+            }
+            continue;
+          }
 
-      if (!groqResponse.ok) {
-        const errText = await groqResponse.text();
-        console.error("Groq API Error:", errText);
-        return { error: `Gemini and Groq fallback both failed. Groq status: ${groqResponse.status}. Details: ${errText}` };
+          const data = await groqResponse.json();
+          const textResponse = data.choices?.[0]?.message?.content;
+
+          if (!textResponse) {
+            lastError = "Invalid response format from Groq fallback API (empty content).";
+            continue;
+          }
+
+          console.log(`[Groq Fallback] ✓ Success on model=${model}`);
+          return JSON.parse(textResponse);
+        } catch (error: any) {
+          lastError = error.message;
+          console.warn(`[Groq Fallback] Error on model=${model} attempt=${attempt}: ${error.message}`);
+          if (attempt < MAX_RETRIES) {
+            await new Promise(res => setTimeout(res, 1000 * attempt));
+          }
+        }
       }
-
-      const data = await groqResponse.json();
-      const textResponse = data.choices?.[0]?.message?.content;
-
-      if (!textResponse) {
-        return { error: "Invalid response format from Groq fallback API." };
-      }
-
-      return JSON.parse(textResponse)
-    } catch (error: any) {
-      console.error("Groq API Error:", error)
-      return { error: `Gemini failed, and Groq fallback threw an error: ${error.message}` }
     }
+
+    return { error: `Gemini failed, and all Groq fallback models were exhausted. Last Groq Error: ${lastError}` };
   }
 
   return { error: "Failed to generate content: Gemini failed and Groq API key is missing." };
