@@ -8,7 +8,7 @@ const EIB_GROUP_CONTEXT = `
 CRITICAL CONTEXT — READ THIS FIRST:
 EIB Group is a NIGERIAN private-sector conglomerate headquartered in Nigeria. It is NOT the European Investment Bank. Do NOT reference the EU, European Union, or any European institutions.
 
-EIB Group is led by CEO/Chairman Michael Marquis and operates across multiple subsidiaries in Nigeria and West Africa:
+EIB Group is led by CEO/Chairman Bright Echefu and operates across multiple subsidiaries in Nigeria and West Africa:
 - EIB Stratoc: Strategic operations consulting, corporate governance, and organizational development.
 - EIB Stratoc (PSAC/PSAP): Public Safety Answering Point — emergency dispatch, 911/112 call handling, OSINT, and GIS operations.
 - DCI (Directorate of Clandestine & Intelligence): Intelligence analysis, counter-intelligence, security operations, and covert investigations. Sub-units include DCI-SAC, DCI-RAW, DCI-Intel, and DCI-PSAP.
@@ -70,8 +70,8 @@ Requirements:
                 type: "OBJECT",
                 properties: {
                   heading: { type: "STRING" },
-                  body: { 
-                    type: "ARRAY", 
+                  body: {
+                    type: "ARRAY",
                     items: { type: "STRING", description: "Paragraphs of text. Can use markdown." }
                   }
                 },
@@ -128,7 +128,7 @@ Requirements:
       if (response.ok) {
         const data = await response.json();
         const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        
+
         if (textResponse) {
           return JSON.parse(textResponse)
         }
@@ -181,11 +181,11 @@ Generate 5 lessons and 10 quiz questions. Do NOT mention the European Investment
 
       const data = await groqResponse.json();
       const textResponse = data.choices?.[0]?.message?.content;
-      
+
       if (!textResponse) {
         return { error: "Invalid response format from Groq fallback API." };
       }
-      
+
       return JSON.parse(textResponse)
     } catch (error: any) {
       console.error("Groq API Error:", error)
