@@ -58,6 +58,35 @@ export function isCourseVisibleToUser(
     return true
   }
 
+  // Domain to subsidiary mapping
+  const domainMap: Record<string, string> = {
+    "@eibstratoc.com": "eib stratoc",
+    "@psac.eibstratoc.com": "eib stratoc (psac)",
+    "@poctova.com": "poctova",
+    "@luftreiber.com": "luftreiber automobile",
+    "@gigaforensics.com": "giga forensics",
+    "@briechatlantic.com": "briech atlantic",
+    "@briechuas.com": "briech uas",
+    "@briechhospital.com": "briech hospital",
+    "@brightfm.com": "bright fm",
+    "@bef.com": "bef",
+    "@eibgroup.com": "eib group",
+    "@dci.com": "directorate of clandestine & intelligence"
+  };
+
+  const userEmailLower = userEmail?.toLowerCase() || "";
+  let domainSubsidiary = "";
+  for (const [domain, sub] of Object.entries(domainMap)) {
+    if (userEmailLower.endsWith(domain)) {
+      domainSubsidiary = sub;
+      break;
+    }
+  }
+
+  const userSubsToMatch = new Set<string>();
+  if (userSubLower) userSubsToMatch.add(userSubLower);
+  if (domainSubsidiary) userSubsToMatch.add(domainSubsidiary);
+
   // If the course is tagged as "EIB Group", it is a group-level strategic course visible ONLY to leaders/managers
   if (courseSubsList.includes("eib group")) {
     return role === "lead" || role === "admin" || role === "group_head" || role === "executive"
@@ -69,20 +98,24 @@ export function isCourseVisibleToUser(
   }
 
   // If the user has no subsidiary (and wasn't caught by the DICO email check), they can only see global courses
-  if (!userSubsidiary) {
+  if (userSubsToMatch.size === 0) {
     return false
   }
 
   // Direct match
-  if (courseSubsList.includes(userSubLower)) {
+  if (courseSubsList.some(s => userSubsToMatch.has(s))) {
     return true
   }
 
   // Special Directorate wildcard logic:
   // Directorate of Clandestine & Intelligence lead/learners can see all "DCI - *" courses
   // Also, any specific DCI sub-department (e.g. "DCI - SAC") can see ALL other "DCI - *" courses
-  if (userSubLower === "directorate of clandestine & intelligence" || userSubLower.startsWith("dci -")) {
-    return courseSubsList.some((s) => s.startsWith("dci -") || s === "directorate of clandestine & intelligence")
+  for (const sub of Array.from(userSubsToMatch)) {
+    if (sub === "directorate of clandestine & intelligence" || sub.startsWith("dci -")) {
+      if (courseSubsList.some((s) => s.startsWith("dci -") || s === "directorate of clandestine & intelligence")) {
+        return true
+      }
+    }
   }
 
   return false
