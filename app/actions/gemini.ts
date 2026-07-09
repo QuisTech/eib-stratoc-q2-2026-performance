@@ -3,7 +3,28 @@
 import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 
-export async function generateCourseContentWithGemini(title: string, category: string) {
+// Hardcoded company profile so the AI never confuses EIB Group with the European Investment Bank
+const EIB_GROUP_CONTEXT = `
+CRITICAL CONTEXT — READ THIS FIRST:
+EIB Group is a NIGERIAN private-sector conglomerate headquartered in Nigeria. It is NOT the European Investment Bank. Do NOT reference the EU, European Union, or any European institutions.
+
+EIB Group is led by CEO/Chairman Michael Marquis and operates across multiple subsidiaries in Nigeria and West Africa:
+- EIB Stratoc: Strategic operations consulting, corporate governance, and organizational development.
+- EIB Stratoc (PSAC/PSAP): Public Safety Answering Point — emergency dispatch, 911/112 call handling, OSINT, and GIS operations.
+- DCI (Directorate of Clandestine & Intelligence): Intelligence analysis, counter-intelligence, security operations, and covert investigations. Sub-units include DCI-SAC, DCI-RAW, DCI-Intel, and DCI-PSAP.
+- BLACK: Specialized clandestine operations and high-risk security services.
+- BEF (Building Enterprise Foundation): Foundation for enterprise development, youth empowerment, and social investment.
+- Bright FM: Media, radio broadcasting, and corporate communications.
+- Luftreiber Automobile: Automotive services, fleet management, and vehicle logistics.
+- Giga Forensics: Digital forensics, cyber investigations, and evidence analysis.
+- POCTOVA: Financial technology, postal, and logistics services.
+- Briech Atlantic: Maritime operations, offshore services, and Atlantic trade.
+- Briech UAS: Unmanned aerial systems (drones), surveillance, and aerial intelligence.
+
+The company culture emphasizes operational excellence, security-first thinking, subsidiary compliance, and professional development of all staff. Training content should reflect African/Nigerian corporate environments, use Nigerian Naira (₦) for currency references, and be relevant to the specific subsidiary context when applicable.
+`.trim()
+
+export async function generateCourseContentWithGemini(title: string, category: string, customContext?: string) {
   const session = await auth.api.getSession({ headers: await headers() })
   if (!session?.user || session.user.role !== "admin") {
     return { error: "Unauthorized: Only the Super Admin can generate AI content." }
@@ -15,7 +36,21 @@ export async function generateCourseContentWithGemini(title: string, category: s
     return { error: "Neither Gemini nor Groq API keys are configured." }
   }
 
-  const prompt = `You are a corporate training expert for EIB Group. Generate a high-quality 5-lesson curriculum and a 10-question multiple choice quiz for a course titled "${title}" in the category of "${category}". Ensure the content is professional, actionable, and substantive. Do not use filler text. Each lesson must have sections and takeaways.`
+  const customInstructions = customContext?.trim()
+    ? `\n\nADDITIONAL INSTRUCTIONS FROM THE ADMIN:\n${customContext.trim()}`
+    : ""
+
+  const prompt = `${EIB_GROUP_CONTEXT}
+
+You are a corporate training expert creating curriculum for EIB Group (the Nigerian conglomerate described above). Generate a high-quality 5-lesson curriculum and a 10-question multiple choice quiz for a course titled "${title}" in the category of "${category}".
+
+Requirements:
+- Content MUST be professional, actionable, and substantive. No filler text.
+- Each lesson must have detailed sections with real, practical information.
+- Each lesson must include key takeaways.
+- Quiz questions must test genuine understanding, not trivial facts.
+- All content must be relevant to EIB Group's Nigerian corporate context.
+- Do NOT mention the European Investment Bank or the EU anywhere.${customInstructions}`
 
   const responseSchema = {
     type: "OBJECT",
@@ -115,15 +150,18 @@ export async function generateCourseContentWithGemini(title: string, category: s
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: "llama3-70b-8192", // Fast and robust for JSON
+          model: "llama3-70b-8192",
           messages: [
             {
               role: "system",
-              content: `You are a corporate training expert for EIB Group. You MUST return ONLY valid JSON matching this exact structure:
+              content: `${EIB_GROUP_CONTEXT}
+
+You are a corporate training expert for EIB Group (the Nigerian conglomerate described above). You MUST return ONLY valid JSON matching this exact structure:
 {
   "lessons": [{ "key": "string", "title": "string", "minutes": number, "summary": "string", "sections": [{ "heading": "string", "body": ["string"] }], "takeaways": ["string"] }],
   "quiz": [{ "id": "string", "prompt": "string", "options": ["string"], "correctIndex": number, "explanation": "string" }]
-}`
+}
+Generate 5 lessons and 10 quiz questions. Do NOT mention the European Investment Bank or the EU.`
             },
             {
               role: "user",

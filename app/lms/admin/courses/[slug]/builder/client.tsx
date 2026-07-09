@@ -26,12 +26,14 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
   const [lessons, setLessons] = useState<any[]>(initialLessons)
   const [quiz, setQuiz] = useState<any[]>(initialQuiz)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [customContext, setCustomContext] = useState("")
+  const [showContextBox, setShowContextBox] = useState(false)
 
   async function handleGenerateWithGemini() {
     setIsGenerating(true)
     setError(null)
     try {
-      const generated = await generateCourseContentWithGemini(course.title, course.category || "General")
+      const generated = await generateCourseContentWithGemini(course.title, course.category || "General", customContext || undefined)
       if (generated.error) {
         setError(generated.error)
       } else {
@@ -193,6 +195,37 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
           </button>
         </div>
       </div>
+
+      {/* AI Context Box — only visible to admin */}
+      {userRole === "admin" && (
+        <div className="mb-6">
+          <button
+            type="button"
+            onClick={() => setShowContextBox(!showContextBox)}
+            className="text-sm font-medium text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 flex items-center gap-1.5"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+            {showContextBox ? "Hide" : "Show"} AI Context & Instructions
+          </button>
+          {showContextBox && (
+            <div className="mt-3 rounded-lg border border-indigo-200 bg-indigo-50/50 p-4 dark:border-indigo-800 dark:bg-indigo-950/30">
+              <label className="block text-sm font-medium text-indigo-800 dark:text-indigo-300 mb-1">
+                Custom Instructions for AI Generation
+              </label>
+              <p className="text-xs text-muted-foreground mb-2">
+                Give the AI extra context about this specific course. E.g., &quot;This course is for PSAP emergency dispatchers&quot; or &quot;Focus on Nigerian financial regulations&quot;. The AI already knows EIB Group&apos;s subsidiaries and structure.
+              </p>
+              <textarea
+                value={customContext}
+                onChange={(e) => setCustomContext(e.target.value)}
+                placeholder="e.g. This course targets DCI-PSAP staff. Focus on emergency call handling protocols, OSINT techniques, and Nigerian emergency response standards..."
+                rows={3}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:ring-1 focus:ring-indigo-500 outline-none"
+              />
+            </div>
+          )}
+        </div>
+      )}
 
       {error && <div className="mb-6 rounded-md bg-destructive/15 p-4 text-sm font-medium text-destructive">{error}</div>}
 
