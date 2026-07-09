@@ -29,7 +29,8 @@ export async function generateMetadata({
 }: {
   params: Promise<Params>
 }): Promise<Metadata> {
-  const { slug, lesson } = await params
+  const { slug, lesson: rawLesson } = await params
+  const lesson = decodeURIComponent(rawLesson)
   const course = await getCourseBySlug(slug)
   if (!course) return { title: "Lesson not found | EIB Group LMS" }
   const found = getLessons(course).find((l) => l.key === lesson)
@@ -37,7 +38,8 @@ export async function generateMetadata({
 }
 
 export default async function LessonPage({ params }: { params: Promise<Params> }) {
-  const { slug, lesson: lessonKey } = await params
+  const { slug, lesson: rawLessonKey } = await params
+  const lessonKey = decodeURIComponent(rawLessonKey)
   const course = await getCourseBySlug(slug)
   if (!course) notFound()
 
