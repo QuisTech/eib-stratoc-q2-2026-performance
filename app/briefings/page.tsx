@@ -20,8 +20,6 @@ export default async function BriefingsPage() {
     redirect("/")
   }
 
-  const userEmail = session.user.email || null
-
   const courses = await getCourses()
 
   // Filter for Strategic Briefings that this user is allowed to see
@@ -33,11 +31,8 @@ export default async function BriefingsPage() {
     // BLACK subsidiary is highly classified. Only admin, DCI, or BLACK users can see it.
     if (courseSubsList.includes("black")) {
       const userSubLower = userSubsidiary?.toLowerCase() || ""
-      const isDicoEmail = userEmail?.toLowerCase().endsWith("@dico.eibstratoc.com") || false
-      
       return (
         userRole === "admin" ||
-        isDicoEmail ||
         userSubLower.startsWith("dci -") ||
         userSubLower === "directorate of clandestine & intelligence" ||
         userSubLower === "black"
