@@ -10,15 +10,14 @@ EIB Group is a NIGERIAN private-sector conglomerate headquartered in Nigeria. It
 
 EIB Group is led by CEO/Chairman Bright Echefu and operates across multiple subsidiaries in Nigeria and West Africa:
 - EIB Stratoc: Strategic operations consulting, corporate governance, and organizational development.
-- EIB Stratoc (PSAC/PSAP): Public Safety Answering Point — emergency dispatch, 911/112 call handling, OSINT, and GIS operations.
 - DCI (Directorate of Clandestine & Intelligence): Intelligence analysis, counter-intelligence, security operations, and covert investigations. Sub-units include DCI-SAC, DCI-RAW, DCI-Intel, and DCI-PSAP.
 - BLACK: Specialized clandestine operations and high-risk security services.
-- BEF (Building Enterprise Foundation): Foundation for enterprise development, youth empowerment, and social investment.
+- BEF (Bright Echefu Foundation): Foundation for enterprise development, youth empowerment, and social investment.
 - Bright FM: Media, radio broadcasting, and corporate communications.
 - Luftreiber Automobile: Automotive services, fleet management, and vehicle logistics.
 - Giga Forensics: Digital forensics, cyber investigations, and evidence analysis.
 - POCTOVA: Financial technology, postal, and logistics services.
-- Briech Atlantic: Maritime operations, offshore services, and Atlantic trade.
+- Briech Atlantic: Real Estate company championing IOT in modren buildings.
 - Briech UAS: Unmanned aerial systems (drones), surveillance, and aerial intelligence.
 
 The company culture emphasizes operational excellence, security-first thinking, subsidiary compliance, and professional development of all staff. Training content should reflect African/Nigerian corporate environments, use Nigerian Naira (₦) for currency references, and be relevant to the specific subsidiary context when applicable.
