@@ -94,7 +94,8 @@ export async function enrollInCourse(courseId: number) {
   const isVisible = isCourseVisibleToUser(
     course.subsidiaries,
     viewer.subsidiary || null,
-    viewer.role || "learner"
+    viewer.role || "learner",
+    viewer.email || null
   )
   if (!isVisible) {
     throw new Error("Forbidden: You are not authorized to enroll in this course")

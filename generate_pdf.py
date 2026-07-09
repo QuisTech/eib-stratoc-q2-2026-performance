@@ -22,7 +22,8 @@ def main():
         "deborah.eyefia@gigaforensics.com", "mubarak.sani@briechuas.com", "helen.chikwem@eibstratoc.com",
         "helen.chikwem@dico.eibstratoc.com", "benjamin.antah@eibstratoc.com", "kenneth.mbadugha@briechatlantic.com",
         "junaid.raza@luftreiber.com", "anita.erukunuakpor@brightfm.com", "daniel.ejike@brightfm.com",
-        "alinwaeze.jude@bef.com", "joy.abraham@briechhospital.com", "ishaku.tarfa@eibgroup.com"
+        "alinwaeze.jude@bef.com", "joy.abraham@briechhospital.com", "ishaku.tarfa@eibgroup.com", "marquis.abimbola@dico.eibstratoc.com",
+        "babatunde.babalola@eibgroup.com", "uche.duruji@eibgroup.com"
     }
 
     subsidiaries = {}
@@ -67,11 +68,13 @@ def main():
     notice = (
         "SECURITY NOTICE: REQUIRED PASSWORD UPDATE\n\n"
         "Welcome! Your account was generated using a temporary default password during our system rollout.\n\n"
-        "To ensure the complete privacy and security of your account, you are required to set a personal password before accessing the platform. This guarantees that only you have access to your account."
+        "To ensure the complete privacy and security of your account, you are required to set a personal password before accessing the platform. This guarantees that only you have access to your account.\n\n"
+        "AHEAD OF THE CURVE: We are continuously expanding our training catalog, actively populating the platform with world-class, industry-standard courses designed to elevate your professional capabilities and drive our Group forward.\n\n"
+        "STRATEGIC ALIGNMENT: All Executive Retreat Briefings are securely available on the platform for direct consulting, reference, and strategic alignment (Accessible exclusively to Group Heads and Subsidiary Managers)."
     )
     
     # MultiCell with borders, centered, filled
-    pdf.multi_cell(0, 8, notice, border=1, align='C', fill=True)
+    pdf.multi_cell(0, 6, notice, border=1, align='C', fill=True)
     pdf.ln(10)
     
     # Reset colors for the rest of the document
@@ -81,7 +84,15 @@ def main():
     
     first_page = True
     
-    for sub in sorted(subsidiaries.keys()):
+    # Custom sort: 'EIB Group' first, 'ADMINISTRATION' second, rest alphabetically
+    def sub_sort_key(s):
+        if s == 'EIB Group':
+            return '00'
+        elif 'ADMINISTRATION' in s:
+            return '01'
+        return s
+        
+    for sub in sorted(subsidiaries.keys(), key=sub_sort_key):
         if first_page:
             first_page = False
         else:

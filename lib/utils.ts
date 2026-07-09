@@ -21,20 +21,22 @@ export function formatNaira(amount: number): string {
 export function isCourseVisibleToUser(
   courseSubsidiaries: string | null,
   userSubsidiary: string | null,
-  userRole: string | null
+  userRole: string | null,
+  userEmail: string | null = null
 ): boolean {
   const role = userRole || "learner"
-
   const userSubLower = userSubsidiary ? userSubsidiary.trim().toLowerCase() : ""
-
   const courseSubsList = courseSubsidiaries ? courseSubsidiaries.split(",").map((s) => s.trim().toLowerCase()) : []
+  const isDicoEmail = userEmail?.toLowerCase().endsWith("@dico.eibstratoc.com") || false
 
   // TOP SECRET CLEARANCE: BLACK courses are highly classified
   // Even Top Management (Group Heads) cannot bypass this unless they are in DCI.
   // Exception: The system Super Admin (role === "admin") can see everything.
+  // Exception 2: Anyone with a @dico.eibstratoc.com email is considered part of DCI/BLACK.
   if (courseSubsList.includes("black")) {
     return (
       role === "admin" ||
+      isDicoEmail ||
       userSubLower.startsWith("dci -") ||
       userSubLower === "directorate of clandestine & intelligence" ||
       userSubLower === "black"
@@ -61,7 +63,12 @@ export function isCourseVisibleToUser(
     return role === "lead" || role === "admin" || role === "group_head" || role === "executive"
   }
 
-  // If the user has no subsidiary, they can only see global courses
+  // If the user's email is @dico.eibstratoc.com, they can see ALL DCI courses ("dci - *")
+  if (isDicoEmail && courseSubsList.some((s) => s.startsWith("dci -") || s === "directorate of clandestine & intelligence")) {
+    return true
+  }
+
+  // If the user has no subsidiary (and wasn't caught by the DICO email check), they can only see global courses
   if (!userSubsidiary) {
     return false
   }
@@ -73,8 +80,9 @@ export function isCourseVisibleToUser(
 
   // Special Directorate wildcard logic:
   // Directorate of Clandestine & Intelligence lead/learners can see all "DCI - *" courses
-  if (userSubLower === "directorate of clandestine & intelligence") {
-    return courseSubsList.some((s) => s.startsWith("dci -"))
+  // Also, any specific DCI sub-department (e.g. "DCI - SAC") can see ALL other "DCI - *" courses
+  if (userSubLower === "directorate of clandestine & intelligence" || userSubLower.startsWith("dci -")) {
+    return courseSubsList.some((s) => s.startsWith("dci -") || s === "directorate of clandestine & intelligence")
   }
 
   return false

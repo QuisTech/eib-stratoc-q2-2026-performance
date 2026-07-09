@@ -40,7 +40,8 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
   const isVisible = isCourseVisibleToUser(
     course.subsidiaries,
     session.user.subsidiary || null,
-    session.user.role || "learner"
+    session.user.role || "learner",
+    session.user.email || null
   )
   if (!isVisible) {
     notFound()

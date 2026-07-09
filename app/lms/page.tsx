@@ -54,16 +54,17 @@ export default async function LmsPage() {
 
   const userRole = session.user.role || "learner"
   const userSubsidiary = session.user.subsidiary || null
+  const userEmail = session.user.email || null
 
   const visibleCourses = courses.filter((c) =>
     !c.isBriefing && 
-    isCourseVisibleToUser(c.subsidiaries, userSubsidiary, userRole)
+    isCourseVisibleToUser(c.subsidiaries, userSubsidiary, userRole, userEmail)
   )
 
   const enrollments = await getMyEnrollments()
   const enrollMap = new Map(enrollments.map((e) => [e.courseId, e]))
   const myCourses = courses.filter(
-    (c) => enrollMap.has(c.id) && isCourseVisibleToUser(c.subsidiaries, userSubsidiary, userRole)
+    (c) => enrollMap.has(c.id) && isCourseVisibleToUser(c.subsidiaries, userSubsidiary, userRole, userEmail)
   )
 
   const myValue = myCourses.reduce((s, c) => s + c.priceNaira, 0)
