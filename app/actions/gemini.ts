@@ -41,7 +41,7 @@ export async function generateCourseContentWithGemini(title: string, category: s
 
   const prompt = `${EIB_GROUP_CONTEXT}
 
-You are a corporate training expert creating curriculum for EIB Group (the Nigerian conglomerate described above). Generate a high-quality 5-lesson curriculum and a 10-question multiple choice quiz for a course titled "${title}" in the category of "${category}".
+You are a corporate training expert creating curriculum for EIB Group (the Nigerian conglomerate described above). Generate a high-quality curriculum (between 5 and 10 lessons depending on what is appropriate for the topic) and a 10-question multiple choice quiz for a course titled "${title}" in the category of "${category}".
 
 Requirements:
 - Content MUST be professional, actionable, and substantive. No filler text.
@@ -160,7 +160,7 @@ Requirements:
               messages: [
                 {
                   role: "system",
-                  content: `${EIB_GROUP_CONTEXT}\n\nYou are a corporate training expert for EIB Group (the Nigerian conglomerate described above). You MUST return ONLY valid JSON matching this exact structure:\n{\n  "lessons": [{ "key": "string", "title": "string", "minutes": number, "summary": "string", "sections": [{ "heading": "string", "body": ["string"] }], "takeaways": ["string"] }],\n  "quiz": [{ "id": "string", "prompt": "string", "options": ["string"], "correctIndex": number, "explanation": "string" }]\n}\nGenerate 5 lessons and 10 quiz questions. Do NOT mention the European Investment Bank or the EU.`
+                  content: `${EIB_GROUP_CONTEXT}\n\nYou are a corporate training expert for EIB Group (the Nigerian conglomerate described above). You MUST return ONLY valid JSON matching this exact structure:\n{\n  "lessons": [{ "key": "string", "title": "string", "minutes": number, "summary": "string", "sections": [{ "heading": "string", "body": ["string"] }], "takeaways": ["string"] }],\n  "quiz": [{ "id": "string", "prompt": "string", "options": ["string"], "correctIndex": number, "explanation": "string" }]\n}\nGenerate between 5 and 10 lessons and 10 quiz questions. Do NOT mention the European Investment Bank or the EU.`
                 },
                 {
                   role: "user",
