@@ -841,17 +841,31 @@ function shuffleDeterministic<T>(arr: T[], seed: number): T[] {
   return a
 }
 
+export type QuestionResult = {
+  isCorrect: boolean
+  correctIndex: number
+  explanation: string
+}
+
 export function gradeQuiz(
   course: Course,
   answers: number[],
-): { score: number; total: number; percent: number; passed: boolean } {
+): { score: number; total: number; percent: number; passed: boolean; details: QuestionResult[] } {
   const quiz = getQuiz(course)
   const total = quiz.length
   let score = 0
+  const details: QuestionResult[] = []
+
   quiz.forEach((q, i) => {
-    if (answers[i] === q.correctIndex) score++
+    const isCorrect = answers[i] === q.correctIndex
+    if (isCorrect) score++
+    details.push({
+      isCorrect,
+      correctIndex: q.correctIndex,
+      explanation: q.explanation || "No explanation provided."
+    })
   })
   const policy = getQuizPolicy(course)
   const percent = total > 0 ? Math.round((score / total) * 100) : 0
-  return { score, total, percent, passed: percent >= policy.passThreshold }
+  return { score, total, percent, passed: percent >= policy.passThreshold, details }
 }

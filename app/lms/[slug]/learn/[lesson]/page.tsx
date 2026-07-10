@@ -11,6 +11,8 @@ import {
 import { getLessons } from "@/lib/lms-content"
 import { Card, CardContent } from "@/components/ui/card"
 import { LessonCompleteButton } from "@/components/lms/lesson-complete-button"
+import { Flashcards } from "@/components/lms/flashcards"
+import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
 import { ArrowLeft, CheckCircle2, Circle, Clock, Lightbulb, Lock, Paperclip } from "lucide-react"
 import { isCourseVisibleToUser } from "@/lib/utils"
 
@@ -148,20 +150,48 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
           )}
 
           <div className="mt-7 flex flex-col gap-7">
-            {lesson.sections.map((s) => (
-              <section key={s.heading}>
-                <h2 className="font-heading text-xl font-bold">{s.heading}</h2>
-                <div className="mt-2 flex flex-col gap-3">
-                  {s.body.map((p, i) => (
-                    <p 
-                      key={i} 
-                      className="text-pretty leading-relaxed text-muted-foreground"
-                      dangerouslySetInnerHTML={{ __html: parseMarkdown(p) }}
-                    />
-                  ))}
-                </div>
-              </section>
-            ))}
+            {lesson.sections.map((s, idx) => {
+              if (idx === 0) {
+                return (
+                  <section key={s.heading}>
+                    <h2 className="font-heading text-xl font-bold">{s.heading}</h2>
+                    <div className="mt-2 flex flex-col gap-3">
+                      {s.body.map((p, i) => (
+                        <p 
+                          key={i} 
+                          className="text-pretty leading-relaxed text-muted-foreground"
+                          dangerouslySetInnerHTML={{ __html: parseMarkdown(p) }}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                )
+              }
+              return null
+            })}
+
+            {lesson.sections.length > 1 && (
+              <Accordion type="multiple" className="w-full">
+                {lesson.sections.slice(1).map((s, idx) => (
+                  <AccordionItem key={s.heading} value={`section-${idx}`}>
+                    <AccordionTrigger className="font-heading text-lg font-bold hover:no-underline text-left">
+                      {s.heading}
+                    </AccordionTrigger>
+                    <AccordionContent>
+                      <div className="flex flex-col gap-3 pt-2">
+                        {s.body.map((p, i) => (
+                          <p 
+                            key={i} 
+                            className="text-pretty leading-relaxed text-muted-foreground text-base"
+                            dangerouslySetInnerHTML={{ __html: parseMarkdown(p) }}
+                          />
+                        ))}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+            )}
           </div>
 
           {lesson.attachments && lesson.attachments.length > 0 && (
@@ -184,21 +214,12 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
             </div>
           )}
 
-          <Card className="mt-8 border-l-4" style={{ borderLeftColor: "var(--accent)" }}>
-            <CardContent className="p-5">
-              <h3 className="flex items-center gap-2 font-heading text-base font-semibold">
-                <Lightbulb className="h-4 w-4 text-accent" /> Key takeaways
-              </h3>
-              <ul className="mt-3 flex flex-col gap-2">
-                {lesson.takeaways.map((t) => (
-                  <li key={t} className="flex gap-2 text-sm">
-                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--chart-1)]" />
-                    <span>{t}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+          <div className="mt-12">
+            <h3 className="flex items-center gap-2 font-heading text-xl font-bold mb-5">
+              <Lightbulb className="h-5 w-5 text-accent" /> Key Takeaways
+            </h3>
+            <Flashcards takeaways={lesson.takeaways} />
+          </div>
 
           <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6">
             {index > 0 ? (
