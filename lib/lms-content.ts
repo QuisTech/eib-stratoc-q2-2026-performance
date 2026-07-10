@@ -83,13 +83,24 @@ export type Lesson = {
   takeaways: string[]
   attachments?: { title: string; url: string }[]
 }
-export type QuizQuestion = {
+export type MultipleChoiceQuestion = {
+  type?: "multiple_choice" // Optional for backwards compatibility with old JSON
   id: string
   prompt: string
   options: string[]
   correctIndex: number
   explanation: string
 }
+
+export type MatchingQuestion = {
+  type: "matching"
+  id: string
+  prompt: string
+  pairs: { left: string; right: string }[]
+  explanation: string
+}
+
+export type QuizQuestion = MultipleChoiceQuestion | MatchingQuestion
 
 export const INITIATIVE_NAMES: Record<number, string> = {
   1: "Organization-Wide TNA",
@@ -564,6 +575,17 @@ const CONCEPT_BANK: Record<string, BankQuestion[]> = {
   ],
   Financial: [
     {
+      type: "matching",
+      prompt: "Match the financial term with its correct definition:",
+      pairs: [
+        { left: "Budget", right: "Plan and control resource use against planned activity" },
+        { left: "Actuals", right: "The real money spent or earned" },
+        { left: "Variance", right: "The difference between planned and real spending" }
+      ],
+      explanation: "A budget is a plan, actuals are reality, and variance is the difference between them.",
+      id: "q-fin-match-1"
+    } as any,
+    {
       prompt: "What is the purpose of a budget?",
       options: [
         "To restrict all spending to zero",
@@ -845,11 +867,12 @@ export type QuestionResult = {
   isCorrect: boolean
   correctIndex: number
   explanation: string
+  pairResults?: Record<string, boolean>
 }
 
 export function gradeQuiz(
   course: Course,
-  answers: number[],
+  answers: any[],
 ): { score: number; total: number; percent: number; passed: boolean; details: QuestionResult[] } {
   const quiz = getQuiz(course)
   const total = quiz.length
@@ -857,12 +880,37 @@ export function gradeQuiz(
   const details: QuestionResult[] = []
 
   quiz.forEach((q, i) => {
-    const isCorrect = answers[i] === q.correctIndex
+    let isCorrect = false
+    let correctIndex = -1
+    let pairResults: Record<string, boolean> | undefined = undefined
+
+    if (q.type === "matching") {
+      const userPairs = (answers[i] || []) as { left: string; right: string }[]
+      const expectedPairs = q.pairs
+      pairResults = {}
+      
+      let allCorrect = true
+      for (const ep of expectedPairs) {
+        const up = userPairs.find(u => u.left === ep.left)
+        if (up && up.right === ep.right) {
+          pairResults[ep.left] = true
+        } else {
+          pairResults[ep.left] = false
+          allCorrect = false
+        }
+      }
+      isCorrect = allCorrect && userPairs.length === expectedPairs.length
+    } else {
+      correctIndex = q.correctIndex
+      isCorrect = answers[i] === q.correctIndex
+    }
+
     if (isCorrect) score++
     details.push({
       isCorrect,
-      correctIndex: q.correctIndex,
-      explanation: q.explanation || "No explanation provided."
+      correctIndex,
+      explanation: q.explanation || "No explanation provided.",
+      pairResults
     })
   })
   const policy = getQuizPolicy(course)

@@ -8,18 +8,181 @@ import { Card, CardContent } from "@/components/ui/card"
 import { submitQuiz } from "@/app/actions/lms"
 import { Loader2, CheckCircle2, XCircle, Award, RotateCcw } from "lucide-react"
 
-type ClientQuestion = { id: string; prompt: string; options: string[] }
+type ClientQuestion = { 
+  type?: "multiple_choice" | "matching"
+  id: string
+  prompt: string
+  options?: string[]
+  pairs?: { left: string; right: string }[]
+}
+
 type QuestionResult = {
   isCorrect: boolean
   correctIndex: number
   explanation: string
+  pairResults?: Record<string, boolean>
 }
 type Result = { score: number; total: number; percent: number; passed: boolean; details: QuestionResult[] }
 
 type ShuffledQuestion = {
   q: ClientQuestion
   originalIndex: number
-  shuffledOptions: { opt: string; originalOptionIndex: number }[]
+  shuffledOptions?: { opt: string; originalOptionIndex: number }[]
+  shuffledLeft?: string[]
+  shuffledRight?: string[]
+}
+
+function MatchingQuestionUI({
+  question,
+  originalIndex,
+  shuffledLeft,
+  shuffledRight,
+  answers,
+  setAnswers,
+  disabled,
+  result
+}: {
+  question: ClientQuestion
+  originalIndex: number
+  shuffledLeft: string[]
+  shuffledRight: string[]
+  answers: Record<number, any>
+  setAnswers: (fn: (a: any) => any) => void
+  disabled: boolean
+  result?: QuestionResult
+}) {
+  const currentAnswer = answers[originalIndex] || [] 
+  
+  const pool = shuffledRight.filter(r => !currentAnswer.some((a: any) => a.right === r))
+
+  const handleDragStart = (e: React.DragEvent, rightItem: string, sourceLeft?: string) => {
+    if (disabled) {
+      e.preventDefault()
+      return
+    }
+    e.dataTransfer.setData("text/plain", JSON.stringify({ rightItem, sourceLeft }))
+    e.dataTransfer.effectAllowed = "move"
+  }
+
+  const handleDropSlot = (e: React.DragEvent, targetLeft: string) => {
+    e.preventDefault()
+    if (disabled) return
+    try {
+      const data = JSON.parse(e.dataTransfer.getData("text/plain"))
+      const { rightItem, sourceLeft } = data
+      
+      setAnswers((prev: any) => {
+        const next = { ...prev }
+        let currentAnswersForQ = next[originalIndex] ? [...next[originalIndex]] : []
+        
+        if (sourceLeft) {
+          currentAnswersForQ = currentAnswersForQ.filter((a: any) => a.left !== sourceLeft)
+        }
+        currentAnswersForQ = currentAnswersForQ.filter((a: any) => a.left !== targetLeft)
+        currentAnswersForQ.push({ left: targetLeft, right: rightItem })
+        next[originalIndex] = currentAnswersForQ
+        return next
+      })
+    } catch {}
+  }
+
+  const handleDropPool = (e: React.DragEvent) => {
+    e.preventDefault()
+    if (disabled) return
+    try {
+      const data = JSON.parse(e.dataTransfer.getData("text/plain"))
+      const { sourceLeft } = data
+      if (sourceLeft) {
+        setAnswers((prev: any) => {
+          const next = { ...prev }
+          let currentAnswersForQ = next[originalIndex] ? [...next[originalIndex]] : []
+          currentAnswersForQ = currentAnswersForQ.filter((a: any) => a.left !== sourceLeft)
+          next[originalIndex] = currentAnswersForQ
+          return next
+        })
+      }
+    } catch {}
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = "move"
+  }
+
+  return (
+    <div className="mt-4 flex flex-col gap-4">
+      <div 
+        className="rounded-md border border-dashed border-muted-foreground/30 bg-muted/20 p-4 min-h-[80px]"
+        onDrop={handleDropPool}
+        onDragOver={handleDragOver}
+      >
+        <p className="mb-2 text-xs font-semibold uppercase text-muted-foreground">Drag from here</p>
+        <div className="flex flex-wrap gap-2">
+          {pool.map((r) => (
+            <div
+              key={r}
+              draggable={!disabled}
+              onDragStart={(e) => handleDragStart(e, r)}
+              className={"cursor-grab active:cursor-grabbing rounded border bg-background px-3 py-2 text-sm shadow-sm hover:border-primary transition-colors" + (disabled ? " opacity-50 cursor-not-allowed" : "")}
+            >
+              {r}
+            </div>
+          ))}
+          {pool.length === 0 && <span className="text-sm text-muted-foreground italic">All items placed</span>}
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3">
+        {shuffledLeft.map(left => {
+          const matched = currentAnswer.find((a: any) => a.left === left)
+          const isCorrectPair = result?.pairResults?.[left]
+
+          let slotClass = "flex-1 rounded-md border border-dashed p-2 min-h-[42px] transition-colors"
+          if (matched) {
+            if (result) {
+              if (isCorrectPair) {
+                slotClass = "flex-1 rounded-md border border-[var(--chart-1)] bg-[var(--chart-1)]/10"
+              } else {
+                slotClass = "flex-1 rounded-md border border-destructive bg-destructive/10"
+              }
+            } else {
+              slotClass = "flex-1 rounded-md border border-primary bg-primary/5"
+            }
+          }
+
+          return (
+            <div key={left} className="flex flex-col sm:flex-row sm:items-stretch gap-3">
+              <div className="flex-1 rounded-md border bg-muted/30 px-3 py-2.5 text-sm flex items-center">
+                {left}
+              </div>
+              <div className="hidden sm:flex items-center text-muted-foreground">→</div>
+              <div 
+                className={slotClass}
+                onDrop={(e) => handleDropSlot(e, left)}
+                onDragOver={handleDragOver}
+              >
+                {matched ? (
+                  <div 
+                    draggable={!disabled}
+                    onDragStart={(e) => handleDragStart(e, matched.right, left)}
+                    className={"flex h-full items-center justify-between cursor-grab active:cursor-grabbing rounded border bg-background px-3 py-1.5 text-sm shadow-sm" + (disabled ? " cursor-default" : "")}
+                  >
+                    <span>{matched.right}</span>
+                    {result && isCorrectPair && <CheckCircle2 className="h-4 w-4 text-[var(--chart-1)] ml-2 shrink-0" />}
+                    {result && !isCorrectPair && <XCircle className="h-4 w-4 text-destructive ml-2 shrink-0" />}
+                  </div>
+                ) : (
+                  <div className="flex h-full items-center justify-center text-xs text-muted-foreground italic">
+                    Drop here
+                  </div>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
 }
 
 export function QuizForm({
@@ -34,7 +197,7 @@ export function QuizForm({
   passThreshold: number
 }) {
   const router = useRouter()
-  const [answers, setAnswers] = useState<Record<number, number>>({})
+  const [answers, setAnswers] = useState<Record<number, any>>({})
   const [result, setResult] = useState<Result | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
@@ -42,10 +205,23 @@ export function QuizForm({
   const [isMounted, setIsMounted] = useState(false)
   const [shuffled, setShuffled] = useState<ShuffledQuestion[]>([])
 
-  useEffect(() => {
+  const buildShuffled = () => {
     const randomized = questions.map((q, qi) => {
-      const options = q.options.map((opt, oi) => ({ opt, originalOptionIndex: oi }))
-      // Shuffle options
+      if (q.type === "matching" && q.pairs) {
+        const lefts = q.pairs.map(p => p.left)
+        const rights = q.pairs.map(p => p.right)
+        for (let i = lefts.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1))
+          ;[lefts[i], lefts[j]] = [lefts[j], lefts[i]]
+        }
+        for (let i = rights.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1))
+          ;[rights[i], rights[j]] = [rights[j], rights[i]]
+        }
+        return { q, originalIndex: qi, shuffledLeft: lefts, shuffledRight: rights }
+      }
+
+      const options = (q.options || []).map((opt, oi) => ({ opt, originalOptionIndex: oi }))
       for (let i = options.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1))
         ;[options[i], options[j]] = [options[j], options[i]]
@@ -53,17 +229,25 @@ export function QuizForm({
       return { q, originalIndex: qi, shuffledOptions: options }
     })
     
-    // Shuffle questions
     for (let i = randomized.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
       ;[randomized[i], randomized[j]] = [randomized[j], randomized[i]]
     }
-    
-    setShuffled(randomized)
+    return randomized
+  }
+
+  useEffect(() => {
+    setShuffled(buildShuffled())
     setIsMounted(true)
   }, [questions])
 
-  const allAnswered = questions.every((_, i) => answers[i] !== undefined)
+  const allAnswered = questions.every((q, i) => {
+    if (q.type === "matching") {
+      const ans = answers[i] as { left: string; right: string }[] | undefined
+      return ans && ans.length === q.pairs?.length
+    }
+    return answers[i] !== undefined
+  })
 
   function submit() {
     setError(null)
@@ -71,7 +255,6 @@ export function QuizForm({
       setError("Please answer every question before submitting.")
       return
     }
-    // Map answers back to original question order
     const ordered = questions.map((_, i) => answers[i])
     startTransition(async () => {
       try {
@@ -88,22 +271,7 @@ export function QuizForm({
     setAnswers({})
     setResult(null)
     setError(null)
-    
-    // Reshuffle on retake
-    const randomized = questions.map((q, qi) => {
-      const options = q.options.map((opt, oi) => ({ opt, originalOptionIndex: oi }))
-      for (let i = options.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1))
-        ;[options[i], options[j]] = [options[j], options[i]]
-      }
-      return { q, originalIndex: qi, shuffledOptions: options }
-    })
-    
-    for (let i = randomized.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
-      ;[randomized[i], randomized[j]] = [randomized[j], randomized[i]]
-    }
-    setShuffled(randomized)
+    setShuffled(buildShuffled())
   }
 
   if (!isMounted) {
@@ -151,7 +319,7 @@ export function QuizForm({
               </div>
             ) : (
               <div className="flex flex-wrap items-center justify-center gap-3">
-                <Button onClick={() => window.location.reload()} size="lg">
+                <Button onClick={retake} size="lg">
                   <RotateCcw className="mr-2 h-4 w-4" /> Retake Assessment
                 </Button>
                 <Link
@@ -182,51 +350,64 @@ export function QuizForm({
                     )}
                   </div>
                 )}
-                <div className="flex-1">
+                <div className="flex-1 overflow-hidden">
                   <p className="font-medium">
                     <span className="text-muted-foreground">Question {qi + 1}. </span>
                     {sq.q.prompt}
                   </p>
                   
-                  <fieldset className="mt-3 flex flex-col gap-2" disabled={!!result}>
-                    <legend className="sr-only">{sq.q.prompt}</legend>
-                    {sq.shuffledOptions.map((optObj, oi) => {
-                      const selected = answers[sq.originalIndex] === optObj.originalOptionIndex
-                      const isCorrectOption = qResult?.correctIndex === optObj.originalOptionIndex
-                      
-                      let optionClasses = selected
-                          ? "border-primary bg-primary/5"
-                          : "border-input hover:bg-muted"
-                          
-                      if (result) {
-                        if (isCorrectOption) {
-                          optionClasses = "border-[var(--chart-1)] bg-[var(--chart-1)]/10 ring-1 ring-[var(--chart-1)]"
-                        } else if (selected && !isCorrectOption) {
-                          optionClasses = "border-destructive bg-destructive/10 ring-1 ring-destructive opacity-75"
-                        } else {
-                          optionClasses = "border-input opacity-50"
+                  {sq.q.type === "matching" && sq.q.pairs ? (
+                    <MatchingQuestionUI
+                      question={sq.q}
+                      originalIndex={sq.originalIndex}
+                      shuffledLeft={sq.shuffledLeft!}
+                      shuffledRight={sq.shuffledRight!}
+                      answers={answers}
+                      setAnswers={setAnswers}
+                      disabled={!!result}
+                      result={qResult}
+                    />
+                  ) : (
+                    <fieldset className="mt-3 flex flex-col gap-2" disabled={!!result}>
+                      <legend className="sr-only">{sq.q.prompt}</legend>
+                      {sq.shuffledOptions!.map((optObj, oi) => {
+                        const selected = answers[sq.originalIndex] === optObj.originalOptionIndex
+                        const isCorrectOption = qResult?.correctIndex === optObj.originalOptionIndex
+                        
+                        let optionClasses = selected
+                            ? "border-primary bg-primary/5"
+                            : "border-input hover:bg-muted"
+                            
+                        if (result) {
+                          if (isCorrectOption) {
+                            optionClasses = "border-[var(--chart-1)] bg-[var(--chart-1)]/10 ring-1 ring-[var(--chart-1)]"
+                          } else if (selected && !isCorrectOption) {
+                            optionClasses = "border-destructive bg-destructive/10 ring-1 ring-destructive opacity-75"
+                          } else {
+                            optionClasses = "border-input opacity-50"
+                          }
                         }
-                      }
 
-                      return (
-                        <label
-                          key={oi}
-                          className={`flex cursor-pointer items-center gap-3 rounded-md border px-3 py-2.5 text-sm transition-colors ${optionClasses}`}
-                        >
-                          <input
-                            type="radio"
-                            name={`q-${sq.originalIndex}`}
-                            checked={selected}
-                            onChange={() => setAnswers((a) => ({ ...a, [sq.originalIndex]: optObj.originalOptionIndex }))}
-                            className="h-4 w-4 accent-[var(--primary)] disabled:opacity-50"
-                          />
-                          <span className="flex-1">{optObj.opt}</span>
-                          {result && isCorrectOption && <CheckCircle2 className="h-4 w-4 text-[var(--chart-1)]" />}
-                          {result && selected && !isCorrectOption && <XCircle className="h-4 w-4 text-destructive" />}
-                        </label>
-                      )
-                    })}
-                  </fieldset>
+                        return (
+                          <label
+                            key={oi}
+                            className={`flex cursor-pointer items-center gap-3 rounded-md border px-3 py-2.5 text-sm transition-colors ${optionClasses}`}
+                          >
+                            <input
+                              type="radio"
+                              name={`q-${sq.originalIndex}`}
+                              checked={selected}
+                              onChange={() => setAnswers((a) => ({ ...a, [sq.originalIndex]: optObj.originalOptionIndex }))}
+                              className="h-4 w-4 accent-[var(--primary)] disabled:opacity-50"
+                            />
+                            <span className="flex-1">{optObj.opt}</span>
+                            {result && isCorrectOption && <CheckCircle2 className="h-4 w-4 text-[var(--chart-1)]" />}
+                            {result && selected && !isCorrectOption && <XCircle className="h-4 w-4 text-destructive" />}
+                          </label>
+                        )
+                      })}
+                    </fieldset>
+                  )}
 
                   {qResult && (
                     <div className="mt-4 rounded-md border bg-background p-4 text-sm">

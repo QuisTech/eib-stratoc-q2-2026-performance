@@ -159,7 +159,7 @@ export async function getMyQuizAttempts(courseId: number): Promise<QuizAttempt[]
 }
 
 /** Grade a submitted quiz, record the attempt, and recompute completion. */
-export async function submitQuiz(courseId: number, answers: number[]) {
+export async function submitQuiz(courseId: number, answers: any[]) {
   const userId = await getUserId()
   const course = await getCourseById(courseId)
   if (!course) throw new Error("Course not found")

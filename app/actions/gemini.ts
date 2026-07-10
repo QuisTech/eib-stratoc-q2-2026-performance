@@ -48,6 +48,7 @@ Requirements:
 - Each lesson must have detailed sections with real, practical information.
 - Each lesson must include key takeaways.
 - Quiz questions must test genuine understanding, not trivial facts.
+- Include exactly ONE 'matching' question in the quiz, and the rest should be 'multiple_choice' questions.
 - All content must be relevant to EIB Group's Nigerian corporate context.
 - Do NOT mention the European Investment Bank or the EU anywhere.${customInstructions}`
 
@@ -90,16 +91,29 @@ Requirements:
         items: {
           type: "OBJECT",
           properties: {
+            type: { type: "STRING", description: "Either 'multiple_choice' or 'matching'" },
             id: { type: "STRING", description: "A unique string ID for the question, e.g. q1" },
-            prompt: { type: "STRING", description: "The quiz question" },
+            prompt: { type: "STRING", description: "The quiz question or matching instruction" },
             options: {
               type: "ARRAY",
-              items: { type: "STRING", description: "Multiple choice option text" }
+              items: { type: "STRING", description: "Multiple choice option text (only if multiple_choice)" }
             },
-            correctIndex: { type: "INTEGER", description: "0-indexed integer of the correct option" },
+            correctIndex: { type: "INTEGER", description: "0-indexed integer of the correct option (only if multiple_choice)" },
+            pairs: {
+              type: "ARRAY",
+              description: "Pairs to be matched (only if matching)",
+              items: {
+                type: "OBJECT",
+                properties: {
+                  left: { type: "STRING" },
+                  right: { type: "STRING" }
+                },
+                required: ["left", "right"]
+              }
+            },
             explanation: { type: "STRING", description: "Explanation of why the answer is correct" }
           },
-          required: ["id", "prompt", "options", "correctIndex", "explanation"]
+          required: ["type", "id", "prompt", "explanation"]
         }
       }
     },
