@@ -254,16 +254,26 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
                     <Progress value={enrollment?.progress ?? 0} className="mt-2 h-2" />
                   </div>
 
-                  {enrollment?.status === "completed" ? (
+                  <div className="mb-3 flex items-center justify-between">
                     <div className="flex items-center gap-2 text-sm font-medium text-[var(--chart-1)]">
-                      <CheckCircle2 className="h-4 w-4" /> Course complete
+                      {enrollment?.status === "completed" && (
+                        <>
+                          <CheckCircle2 className="h-4 w-4" /> Course complete
+                        </>
+                      )}
                     </div>
-                  ) : (
-                    <Link href={continueHref} className={buttonVariants({ size: "sm" })}>
-                      <PlayCircle className="mr-2 h-4 w-4" />
-                      {completedKeys.size === 0 ? "Start learning" : "Continue learning"}
-                    </Link>
-                  )}
+                  </div>
+                  <Link 
+                    href={enrollment?.status === "completed" ? `/lms/${slug}/learn/${lessons[0].key}` : continueHref} 
+                    className={buttonVariants({ size: "sm" })}
+                  >
+                    <PlayCircle className="mr-2 h-4 w-4" />
+                    {enrollment?.status === "completed" 
+                      ? "Review course materials" 
+                      : completedKeys.size === 0 
+                        ? "Start learning" 
+                        : "Continue learning"}
+                  </Link>
 
                   <Link
                     href={`/lms/${slug}/quiz`}
