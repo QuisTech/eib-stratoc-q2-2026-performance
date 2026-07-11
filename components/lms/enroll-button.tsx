@@ -40,7 +40,7 @@ export function EnrollButton({ courseId, enrolled, isCompleted, size = "sm", var
         size={size}
         variant="outline"
         disabled
-        className="opacity-100 font-medium text-green-600 dark:text-green-400 border-green-200 dark:border-green-900 bg-green-50/50 dark:bg-green-900/10"
+        className="disabled:opacity-100 font-medium text-green-600 dark:!text-emerald-400 border-green-200 dark:border-green-900 bg-green-50/50 dark:bg-green-900/10"
       >
         <Check className="mr-2 h-4 w-4" />
         Completed
