@@ -230,7 +230,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
                     <span className="font-heading text-3xl font-bold tabular-nums text-muted-foreground line-through">
                       {formatNaira(course.priceNaira)}
                     </span>
-                    <span className="font-heading text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                    <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                       Free
                     </span>
                   </div>
@@ -240,7 +240,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
                 </div>
               ) : (
                 <div className="border-b border-border pb-4">
-                  <span className="font-heading text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+                  <span className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
                     Free
                   </span>
                   <p className="mt-2 text-sm text-muted-foreground">

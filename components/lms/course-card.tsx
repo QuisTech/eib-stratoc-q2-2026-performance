@@ -74,7 +74,7 @@ export function CourseCard({
           </div>
         ) : (
           <div className="flex items-baseline gap-2">
-            <span className="font-heading text-xl font-bold text-emerald-600 dark:text-emerald-400">
+            <span className="text-base font-semibold text-emerald-600 dark:text-emerald-400">
               Free
             </span>
           </div>
