@@ -3,11 +3,11 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Edit, BookOpen, Filter, Copy, Loader2 } from "lucide-react"
+import { Edit, BookOpen, Filter, Copy, Loader2, Trash2 } from "lucide-react"
 import { formatNaira } from "@/lib/utils"
-import { duplicateCourseAsLMS } from "@/app/actions/lms"
+import { duplicateCourseAsLMS, deleteCourse } from "@/app/actions/lms"
 
-export function CourseManagement({ courses, userRole }: { courses: any[]; userRole: string }) {
+export function CourseManagement({ courses, userRole, userEmail }: { courses: any[]; userRole: string; userEmail?: string }) {
   const [filter, setFilter] = useState("All")
   const [duplicatingSlug, setDuplicatingSlug] = useState<string | null>(null)
   const [duplicateError, setDuplicateError] = useState<string | null>(null)
@@ -48,6 +48,17 @@ export function CourseManagement({ courses, userRole }: { courses: any[]; userRo
       setDuplicateError(err.message)
     } finally {
       setDuplicatingSlug(null)
+    }
+  }
+
+  async function handleDelete(slug: string, title: string) {
+    if (!confirm(`Are you strictly sure you want to permanently delete "${title}"? This will delete all enrollments and progress as well!`)) return
+    try {
+      await deleteCourse(slug)
+      setDuplicateSuccess(`Deleted course "${title}"`)
+      router.refresh()
+    } catch (err: any) {
+      setDuplicateError(err.message)
     }
   }
 
@@ -144,6 +155,14 @@ export function CourseManagement({ courses, userRole }: { courses: any[]; userRo
                           <Copy className="h-3.5 w-3.5" />
                         )}
                         Duplicate as LMS Course
+                      </button>
+                    )}
+                    {userRole === "admin" && userEmail === "michael.marquis@eibgroup.com" && (
+                      <button
+                        onClick={() => handleDelete(c.slug, c.title)}
+                        className="inline-flex items-center gap-1.5 rounded-md border border-red-500 bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-500 hover:text-white dark:text-red-400"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" /> Delete
                       </button>
                     )}
                   </td>
