@@ -197,6 +197,12 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
             </div>
           )}
 
+          {lesson.labeledGraphic && lesson.labeledGraphic.imageUrl && (
+            <div className="mt-12">
+              <LabeledGraphic data={lesson.labeledGraphic} />
+            </div>
+          )}
+
           {lesson.knowledgeCheck && (
             <div className="mt-12">
               <KnowledgeMatch question={lesson.knowledgeCheck} />
