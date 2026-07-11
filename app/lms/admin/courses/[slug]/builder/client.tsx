@@ -1,10 +1,10 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { saveCustomCourseContent } from "@/app/actions/lms"
-import { generateCourseContentWithGemini } from "@/app/actions/gemini"
-import { ArrowLeft, Plus, Trash2, Save, Loader2, HelpCircle, Sparkles } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Save, Loader2, HelpCircle, Sparkles, Square } from "lucide-react"
+import { experimental_useObject as useObject } from "@ai-sdk/react"
 import Link from "next/link"
 import { GraphicBuilder } from "@/components/lms/graphic-builder"
 
@@ -26,29 +26,60 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
 
   const [lessons, setLessons] = useState<any[]>(initialLessons)
   const [quiz, setQuiz] = useState<any[]>(initialQuiz)
-  const [isGenerating, setIsGenerating] = useState(false)
   const [customContext, setCustomContext] = useState("")
   const [showContextBox, setShowContextBox] = useState(false)
 
-  async function handleGenerateWithGemini() {
-    setIsGenerating(true)
-    setError(null)
-    try {
-      const generated = await generateCourseContentWithGemini(course.title, course.category || "General", customContext || undefined)
-      if (generated.error) {
-        setError(generated.error)
-      } else if (!generated.lessons || !generated.quiz) {
-        setError("The AI generation timed out or returned malformed data. Please try again.")
-      } else {
-        setLessons(generated.lessons)
-        setQuiz(generated.quiz)
+  const isAppendMode = useRef(false)
+
+  const { object, submit, isLoading, stop, error: streamError } = useObject({
+    api: "/api/lms/generate-course",
+    onFinish: ({ object }) => {
+      if (object?.lessons) {
+        if (isAppendMode.current) {
+          // If we were appending, add the new lessons to the end of the existing ones
+          setLessons((prev) => [...prev, ...object.lessons!])
+        } else {
+          // Full generation overrides everything
+          setLessons(object.lessons)
+          if (object.quiz) setQuiz(object.quiz)
+        }
       }
-    } catch (err: any) {
-      setError(err.message)
-    } finally {
-      setIsGenerating(false)
     }
+  })
+
+  useEffect(() => {
+    if (streamError) setError(streamError.message)
+  }, [streamError])
+
+  function handleGenerateWithGemini() {
+    isAppendMode.current = false
+    setError(null)
+    submit({
+      title: course.title,
+      category: course.category || "General",
+      customContext: customContext || undefined
+    })
   }
+
+  function handleAppendWithGemini() {
+    isAppendMode.current = true
+    setError(null)
+    submit({
+      title: course.title,
+      category: course.category || "General",
+      customContext: customContext || undefined,
+      existingLessons: lessons
+    })
+  }
+
+  // Determine what to display while generating vs resting
+  const displayLessons = isLoading && object?.lessons 
+    ? (isAppendMode.current ? [...lessons, ...object.lessons] : object.lessons)
+    : lessons
+
+  const displayQuiz = isLoading && !isAppendMode.current && object?.quiz 
+    ? object.quiz 
+    : quiz
 
   async function handleSave() {
     setLoading(true)
@@ -179,18 +210,30 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
         </div>
         <div className="flex items-center gap-3">
           {userRole === "admin" && (
-            <button
-              onClick={handleGenerateWithGemini}
-              disabled={isGenerating || loading}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-indigo-600 px-6 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
-            >
-              {isGenerating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-              Spark with Gemini (Admin Only)
-            </button>
+            <div className="flex gap-2">
+              {isLoading ? (
+                <button
+                  onClick={() => stop()}
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-red-600 px-6 text-sm font-medium text-white hover:bg-red-700"
+                >
+                  <Square className="h-4 w-4" fill="currentColor" />
+                  Stop Streaming
+                </button>
+              ) : (
+                <button
+                  onClick={handleGenerateWithGemini}
+                  disabled={loading}
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-indigo-600 px-6 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Spark Course with Gemini
+                </button>
+              )}
+            </div>
           )}
           <button
             onClick={handleSave}
-            disabled={loading || isGenerating}
+            disabled={loading || isLoading}
             className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
@@ -234,25 +277,38 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
 
       {/* LESSONS SECTION */}
       <div className="mb-12">
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
           <h2 className="text-xl font-bold">Lessons</h2>
-          <button
-            onClick={addLesson}
-            className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-foreground hover:bg-accent/80"
-          >
-            <Plus className="h-4 w-4" /> Add Lesson
-          </button>
+          <div className="flex gap-2">
+            {userRole === "admin" && (
+              <button
+                onClick={handleAppendWithGemini}
+                disabled={isLoading || loading}
+                className="inline-flex items-center gap-1.5 rounded-md bg-indigo-100 px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-200 disabled:opacity-50"
+              >
+                {isLoading && isAppendMode.current ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                Append Lesson with Spark
+              </button>
+            )}
+            <button
+              onClick={addLesson}
+              disabled={isLoading}
+              className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-foreground hover:bg-accent/80 disabled:opacity-50"
+            >
+              <Plus className="h-4 w-4" /> Add Lesson
+            </button>
+          </div>
         </div>
 
-        {lessons.length === 0 && (
+        {displayLessons.length === 0 && (
           <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
             No lessons added yet. Click "Add Lesson" to begin.
           </div>
         )}
 
-        <div className="space-y-6">
-          {lessons.map((lesson, lIndex) => (
-            <div key={lesson.key} className="relative rounded-lg border bg-card p-6 shadow-sm">
+        <div className="space-y-8">
+          {displayLessons.map((lesson, lIndex) => (
+            <div key={lesson.key || lIndex} className={`relative rounded-xl border bg-card p-6 shadow-sm ${isLoading ? "opacity-70 pointer-events-none" : ""}`}>
               <button
                 onClick={() => removeLesson(lIndex)}
                 className="absolute right-4 top-4 text-muted-foreground hover:text-destructive"
@@ -376,29 +432,27 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
       </div>
 
       {/* QUIZ SECTION */}
-      <div>
+      <div className="mb-12">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <HelpCircle className="h-5 w-5 text-primary" />
-            Quiz Questions
-          </h2>
+          <h2 className="text-xl font-bold">Course Final Quiz</h2>
           <button
             onClick={addQuestion}
-            className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-foreground hover:bg-accent/80"
+            disabled={isLoading}
+            className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-foreground hover:bg-accent/80 disabled:opacity-50"
           >
             <Plus className="h-4 w-4" /> Add Question
           </button>
         </div>
 
-        {quiz.length === 0 && (
+        {displayQuiz.length === 0 && (
           <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
-            No quiz questions added. The course will not have an assessment if left empty.
+            No quiz questions added yet.
           </div>
         )}
 
-        <div className="space-y-6">
-          {quiz.map((q, qIndex) => (
-            <div key={q.id} className="relative rounded-lg border bg-card p-6 shadow-sm">
+        <div className="space-y-8">
+          {displayQuiz.map((question, qIndex) => (
+            <div key={question.id || qIndex} className={`relative rounded-xl border bg-card p-6 shadow-sm ${isLoading ? "opacity-70 pointer-events-none" : ""}`}>
               <button
                 onClick={() => removeQuestion(qIndex)}
                 className="absolute right-4 top-4 text-muted-foreground hover:text-destructive"

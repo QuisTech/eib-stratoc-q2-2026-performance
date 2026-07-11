@@ -1,0 +1,154 @@
+import { auth } from "@/lib/auth"
+import { headers } from "next/headers"
+import { streamObject } from "ai"
+import { createGoogleGenerativeAI } from "@ai-sdk/google"
+import { z } from "zod"
+
+const google = createGoogleGenerativeAI({
+  apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY,
+})
+
+// Allow streaming responses up to 5 minutes to prevent Vercel hobby timeouts on Edge/Node
+export const maxDuration = 300
+
+const EIB_GROUP_CONTEXT = `
+CRITICAL CONTEXT — READ THIS FIRST:
+EIB Group is a NIGERIAN private-sector corporate conglomerate headquartered in Nigeria. It is NOT the European Investment Bank. Do NOT reference the EU, European Union, or any European institutions.
+
+The company culture emphasizes operational excellence, security-first thinking, strict compliance, and the professional development of all staff. 
+Training content should reflect professional African/Nigerian corporate environments and use Nigerian Naira (₦) for currency references when applicable.
+
+IMPORTANT INSTRUCTION ON TONE AND NEUTRALITY:
+Write the content using highly professional, neutral corporate language. 
+CRITICAL RULE: NEVER use the terms "EIB Group", "DCI", "BLACK", "Giga Forensics", "POCTOVA", "BEF", "Bright FM", or any specific company or subsidiary names in the generated content. ALWAYS refer to the company generically as "the organization", "the company", or "the business". Focus entirely on delivering exceptionally rich, substantive, and highly detailed educational material.
+`.trim()
+
+const lessonSchema = z.object({
+  key: z.string().describe("A unique string key for the lesson, e.g. lesson-1-intro"),
+  title: z.string().describe("Lesson title"),
+  minutes: z.number().describe("Estimated minutes to complete"),
+  summary: z.string().describe("Brief summary of the lesson"),
+  sections: z.array(
+    z.object({
+      heading: z.string(),
+      body: z.array(z.string()).describe("Paragraphs of text. Can use markdown."),
+    })
+  ),
+  takeaways: z.array(z.string()),
+  labeledGraphic: z
+    .object({
+      imageUrl: z.string().describe("URL to the background image. Use https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=2000 as a placeholder."),
+      hotspots: z.array(
+        z.object({
+          id: z.string(),
+          x: z.number().describe("X coordinate percentage (0-100)"),
+          y: z.number().describe("Y coordinate percentage (0-100)"),
+          title: z.string(),
+          content: z.string(),
+        })
+      ),
+    })
+    .optional()
+    .describe("Optional interactive labeled graphic (image map). Only generate if highly relevant to the lesson."),
+  knowledgeCheck: z
+    .object({
+      type: z.literal("matching"),
+      id: z.string(),
+      prompt: z.string(),
+      pairs: z.array(
+        z.object({
+          left: z.string(),
+          right: z.string(),
+        })
+      ),
+      explanation: z.string(),
+    })
+    .optional()
+    .describe("Optional drag-and-drop matching exercise to test the user within the lesson. Include in at least 50% of lessons."),
+})
+
+const quizSchema = z.array(
+  z.object({
+    type: z.enum(["multiple_choice", "matching"]),
+    id: z.string(),
+    prompt: z.string(),
+    options: z.array(z.string()).optional(),
+    correctIndex: z.number().optional(),
+    pairs: z
+      .array(
+        z.object({
+          left: z.string(),
+          right: z.string(),
+        })
+      )
+      .optional(),
+    explanation: z.string(),
+  })
+).describe("A 10-question quiz. Include exactly ONE matching question and 9 multiple_choice questions.")
+
+const courseSchema = z.object({
+  lessons: z.array(lessonSchema),
+  quiz: quizSchema.optional(), // Quiz is optional because Append mode doesn't generate it
+})
+
+export async function POST(req: Request) {
+  // Authentication Check
+  const session = await auth.api.getSession({ headers: await headers() })
+  if (!session?.user || session.user.role !== "admin") {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 })
+  }
+
+  const { title, category, customContext, existingLessons } = await req.json()
+  const isAppendMode = existingLessons && existingLessons.length > 0
+
+  const customInstructions = customContext?.trim()
+    ? `\n\nADDITIONAL INSTRUCTIONS FROM THE ADMIN:\n${customContext.trim()}`
+    : ""
+
+  let prompt = ""
+
+  if (isAppendMode) {
+    const existingTitles = existingLessons.map((l: any) => l.title).join(", ")
+    prompt = `${EIB_GROUP_CONTEXT}
+
+You are a corporate training expert creating curriculum for the Nigerian conglomerate described above.
+The course is titled "${title}" in the category of "${category}".
+
+The admin has already generated ${existingLessons.length} lessons: [${existingTitles}].
+Your task is to generate EXACTLY ONE highly detailed, rich, and substantive NEW lesson that logically follows the existing ones to continue the curriculum.
+
+Requirements:
+- Generate exactly ONE lesson inside the "lessons" array. Do NOT generate a quiz.
+- Content MUST be exceptionally rich, actionable, and substantive. Provide deep explanations.
+- Include detailed sections with real, practical information and robust paragraphs.
+- Include key takeaways.
+- All content must be relevant to the Nigerian corporate context.
+- CRITICAL: Do NOT use any subsidiary names. Use generic terms like "the organization".
+- Do NOT mention the European Investment Bank or the EU anywhere.${customInstructions}`
+  } else {
+    prompt = `${EIB_GROUP_CONTEXT}
+
+You are a corporate training expert creating curriculum for the Nigerian conglomerate described above.
+Generate a highly detailed, rich, and substantive curriculum. You MUST generate AT LEAST 7 lessons (up to 10) to ensure comprehensive coverage of the topic, and a 10-question multiple choice quiz for a course titled "${title}" in the category of "${category}".
+
+Requirements:
+- Content MUST be exceptionally rich, actionable, and substantive. Provide deep explanations, not just high-level fluff.
+- Each lesson must have detailed sections with real, practical information and robust paragraphs.
+- Each lesson must include key takeaways.
+- Include a 'knowledgeCheck' (drag-and-drop matching exercise) in at least 50% of the lessons to reinforce learning.
+- Quiz questions must test genuine understanding, not trivial facts.
+- Include exactly ONE 'matching' question in the final quiz, and the rest should be 'multiple_choice' questions.
+- All content must be relevant to the Nigerian corporate context.
+- CRITICAL: Do NOT use any subsidiary names in the content. Use generic terms like "the organization".
+- Do NOT mention the European Investment Bank or the EU anywhere.${customInstructions}`
+  }
+
+  const result = streamObject({
+    model: google("gemini-2.5-flash"),
+    schema: courseSchema,
+    prompt: prompt,
+    temperature: 0.7,
+  })
+
+  return result.toTextStreamResponse()
+}
