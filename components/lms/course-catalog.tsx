@@ -210,6 +210,7 @@ export function CourseCatalog({
                     course={c}
                     enrolled={enrollMap.has(c.id)}
                     progress={enrollMap.get(c.id)?.progress}
+                    isCompleted={enrollMap.get(c.id)?.status === "completed"}
                   />
                 ))}
               </div>

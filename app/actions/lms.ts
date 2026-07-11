@@ -116,6 +116,18 @@ export async function enrollInCourse(courseId: number) {
 
 export async function unenrollFromCourse(courseId: number) {
   const userId = await getUserId()
+  const existing = await db
+    .select()
+    .from(enrollments)
+    .where(and(eq(enrollments.userId, userId), eq(enrollments.courseId, courseId)))
+    .limit(1)
+
+  if (existing.length === 0) return
+
+  if (existing[0].status === "completed") {
+    throw new Error("Cannot drop a course that has already been completed.")
+  }
+
   await db
     .delete(enrollments)
     .where(and(eq(enrollments.userId, userId), eq(enrollments.courseId, courseId)))

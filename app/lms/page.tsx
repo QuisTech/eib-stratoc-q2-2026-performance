@@ -149,6 +149,7 @@ export default async function LmsPage() {
                 course={c}
                 enrolled
                 progress={enrollMap.get(c.id)?.progress ?? 0}
+                isCompleted={enrollMap.get(c.id)?.status === "completed"}
               />
             ))}
           </div>

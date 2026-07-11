@@ -22,6 +22,7 @@ export function CourseCard({
   course: Course
   enrolled: boolean
   progress?: number
+  isCompleted?: boolean
 }) {
   return (
     <Card className="avoid-break flex flex-col overflow-hidden">
@@ -93,7 +94,7 @@ export function CourseCard({
         )}
 
         <div className="mt-auto flex items-center gap-2 pt-1">
-          <EnrollButton courseId={course.id} enrolled={enrolled} />
+          <EnrollButton courseId={course.id} enrolled={enrolled} isCompleted={isCompleted} />
           <Link
             href={`/lms/${course.slug}`}
             className={buttonVariants({ variant: "ghost", size: "sm" })}

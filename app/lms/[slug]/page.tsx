@@ -290,7 +290,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
                   )}
 
                   <div className="border-t border-border pt-4">
-                    <EnrollButton courseId={course.id} enrolled variant="ghost" />
+                    <EnrollButton courseId={course.id} enrolled variant="ghost" isCompleted={quizPassed} />
                   </div>
                 </>
               ) : (

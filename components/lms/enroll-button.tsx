@@ -9,11 +9,12 @@ import { Loader2, Check, Plus, X } from "lucide-react"
 type Props = {
   courseId: number
   enrolled: boolean
+  isCompleted?: boolean
   size?: "sm" | "default"
   variant?: "default" | "secondary" | "outline" | "ghost"
 }
 
-export function EnrollButton({ courseId, enrolled, size = "sm", variant }: Props) {
+export function EnrollButton({ courseId, enrolled, isCompleted, size = "sm", variant }: Props) {
   const [pending, startTransition] = useTransition()
   const router = useRouter()
 
@@ -26,6 +27,21 @@ export function EnrollButton({ courseId, enrolled, size = "sm", variant }: Props
       }
       router.refresh()
     })
+  }
+
+  if (isCompleted) {
+    return (
+      <Button
+        type="button"
+        size={size}
+        variant="outline"
+        disabled
+        className="opacity-100 font-medium text-green-600 dark:text-green-500 border-green-200 dark:border-green-900 bg-green-50/50 dark:bg-green-900/10"
+      >
+        <Check className="mr-2 h-4 w-4" />
+        Completed
+      </Button>
+    )
   }
 
   if (enrolled) {
