@@ -44,6 +44,17 @@ export async function generateMetadata({
   return {
     title: `${course.title} | EIB Group LMS`,
     description: course.description,
+    openGraph: {
+      title: `${course.title} | EIB Group LMS`,
+      description: course.description,
+      images: course.imageUrl ? [{ url: course.imageUrl }] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${course.title} | EIB Group LMS`,
+      description: course.description,
+      images: course.imageUrl ? [course.imageUrl] : [],
+    },
   }
 }
 
