@@ -416,26 +416,39 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
                 />
               </div>
 
-              <div className="mb-4 space-y-2">
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Options (Select the correct one)</label>
-                {q.options.map((opt: string, oIndex: number) => (
-                  <div key={oIndex} className="flex items-center gap-3">
-                    <input
-                      type="radio"
-                      name={`correct-${q.id}`}
-                      checked={q.correctIndex === oIndex}
-                      onChange={() => updateQuestion(qIndex, "correctIndex", oIndex)}
-                      className="h-4 w-4 text-primary"
-                    />
-                    <input
-                      value={opt}
-                      onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
-                      className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-                      placeholder={`Option ${oIndex + 1}`}
-                    />
-                  </div>
-                ))}
-              </div>
+              {q.type === "matching" ? (
+                <div className="mb-4 space-y-2">
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Matching Pairs</label>
+                  {(q.pairs || []).map((pair: any, pIndex: number) => (
+                    <div key={pIndex} className="flex items-center gap-2">
+                      <div className="w-1/2 rounded-md border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">{pair.left}</div>
+                      <div className="w-1/2 rounded-md border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">{pair.right}</div>
+                    </div>
+                  ))}
+                  <p className="text-xs text-muted-foreground mt-1">Editing pairs in the builder is disabled. Delete and recreate if needed.</p>
+                </div>
+              ) : (
+                <div className="mb-4 space-y-2">
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Options (Select the correct one)</label>
+                  {(q.options || []).map((opt: string, oIndex: number) => (
+                    <div key={oIndex} className="flex items-center gap-3">
+                      <input
+                        type="radio"
+                        name={`correct-${q.id}`}
+                        checked={q.correctIndex === oIndex}
+                        onChange={() => updateQuestion(qIndex, "correctIndex", oIndex)}
+                        className="h-4 w-4 text-primary"
+                      />
+                      <input
+                        value={opt}
+                        onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
+                        className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                        placeholder={`Option ${oIndex + 1}`}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
 
               <div>
                 <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Explanation (Shown after answering)</label>
