@@ -276,11 +276,27 @@ export async function recomputeCourseProgress(userId: string, courseId: number) 
     .limit(1)
   const quizPassed = passedRows.length > 0
 
+  // Fetch existing enrollment to prevent downgrading progress
+  const existingRows = await db
+    .select({ progress: enrollments.progress, status: enrollments.status })
+    .from(enrollments)
+    .where(and(eq(enrollments.userId, userId), eq(enrollments.courseId, courseId)))
+    .limit(1)
+  const existing = existingRows[0] || { progress: 0, status: "enrolled" }
+
   const completedSteps = doneLessons + (quizPassed ? 1 : 0)
   
-  let progress = Math.round((completedSteps / totalSteps) * 100)
-  let isComplete = doneLessons >= lessons.length && quizPassed
-  let status = isComplete ? "completed" : progress > 0 ? "in_progress" : "enrolled"
+  let calculatedProgress = Math.round((completedSteps / totalSteps) * 100)
+  let calculatedIsComplete = doneLessons >= lessons.length && quizPassed
+  let calculatedStatus = calculatedIsComplete ? "completed" : calculatedProgress > 0 ? "in_progress" : "enrolled"
+
+  // Never downgrade progress (protects legacy/imported data if lesson rows are missing)
+  let progress = Math.max(calculatedProgress, existing.progress)
+  let isComplete = calculatedIsComplete || existing.status === "completed"
+  
+  let status = calculatedStatus
+  if (existing.status === "completed" || isComplete) status = "completed"
+  else if (existing.status === "in_progress" || progress > 0) status = "in_progress"
 
   if (hasCertificate) {
     progress = 100
