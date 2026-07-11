@@ -34,7 +34,7 @@ export async function generateCourseContentWithGemini(title: string, category: s
 
   const prompt = `${EIB_GROUP_CONTEXT}
 
-You are a corporate training expert creating curriculum for EIB Group (the Nigerian conglomerate described above). Generate a highly detailed, rich, and substantive curriculum (between 5 and 10 lessons depending on what is appropriate for the topic) and a 10-question multiple choice quiz for a course titled "${title}" in the category of "${category}".
+You are a corporate training expert creating curriculum for EIB Group (the Nigerian conglomerate described above). Generate a highly detailed, rich, and substantive curriculum. You MUST generate AT LEAST 7 lessons (up to 10) to ensure comprehensive coverage of the topic, and a 10-question multiple choice quiz for a course titled "${title}" in the category of "${category}".
 
 Requirements:
 - Content MUST be exceptionally rich, actionable, and substantive. Provide deep explanations, not just high-level fluff.
@@ -218,7 +218,7 @@ Requirements:
               messages: [
                 {
                   role: "system",
-                  content: `${EIB_GROUP_CONTEXT}\n\nYou are a corporate training expert for EIB Group (the Nigerian conglomerate described above). You MUST return ONLY valid JSON matching this exact structure:\n{\n  "lessons": [{ "key": "string", "title": "string", "minutes": number, "summary": "string", "sections": [{ "heading": "string", "body": ["string"] }], "takeaways": ["string"], "labeledGraphic": { "imageUrl": "string", "hotspots": [{ "id": "string", "x": number, "y": number, "title": "string", "content": "string" }] }, "knowledgeCheck": { "type": "matching", "id": "string", "prompt": "string", "pairs": [{ "left": "string", "right": "string" }], "explanation": "string" } }],\n  "quiz": [{ "type": "multiple_choice" | "matching", "id": "string", "prompt": "string", "options": ["string"], "correctIndex": number, "pairs": [{ "left": "string", "right": "string" }], "explanation": "string" }]\n}\nGenerate between 5 and 10 lessons and 10 quiz questions. Exactly ONE quiz question MUST be type="matching", and the rest type="multiple_choice". Do NOT mention the European Investment Bank or the EU.`
+                  content: `${EIB_GROUP_CONTEXT}\n\nYou are a corporate training expert for EIB Group (the Nigerian conglomerate described above). You MUST return ONLY valid JSON matching this exact structure:\n{\n  "lessons": [{ "key": "string", "title": "string", "minutes": number, "summary": "string", "sections": [{ "heading": "string", "body": ["string"] }], "takeaways": ["string"], "labeledGraphic": { "imageUrl": "string", "hotspots": [{ "id": "string", "x": number, "y": number, "title": "string", "content": "string" }] }, "knowledgeCheck": { "type": "matching", "id": "string", "prompt": "string", "pairs": [{ "left": "string", "right": "string" }], "explanation": "string" } }],\n  "quiz": [{ "type": "multiple_choice" | "matching", "id": "string", "prompt": "string", "options": ["string"], "correctIndex": number, "pairs": [{ "left": "string", "right": "string" }], "explanation": "string" }]\n}\nYou MUST generate AT LEAST 7 lessons (up to 10) and exactly 10 quiz questions. Exactly ONE quiz question MUST be type="matching", and the rest type="multiple_choice". Do NOT mention the European Investment Bank or the EU.`
                 },
                 {
                   role: "user",
