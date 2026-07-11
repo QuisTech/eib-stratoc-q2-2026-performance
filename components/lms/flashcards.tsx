@@ -36,13 +36,13 @@ function Flashcard({ index, text }: { index: number; text: string }) {
       >
         <span className="visually-hidden-always">Front of card</span>
         <div className="flashcard-side__content flashcard-side__content--large flashcard-side__content--front">
-          <div className="flashcard-side__description font-heading text-lg font-bold text-primary brand--head brand--linkColor">
+          <div className="flashcard-side__description font-heading text-lg font-bold text-primary dark:text-slate-100 brand--head brand--linkColor">
             <div className="fr-view"><p>Key Concept {index}</p></div>
           </div>
           <div className="flashcard-side-flip">
             <button
               aria-label="Click to flip"
-              className="flashcard-side-flip__btn flashcard-side-flip__btn--prefers-keyboard text-slate-500 hover:text-primary transition-colors"
+              className="flashcard-side-flip__btn flashcard-side-flip__btn--prefers-keyboard text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors"
               tabIndex={isFlipped ? -1 : 0}
               type="button"
               onClick={handleFlip}
@@ -72,14 +72,14 @@ function Flashcard({ index, text }: { index: number; text: string }) {
         <span className="visually-hidden-always">Back of card</span>
         <div className="flashcard-side__content flashcard-side__content--large">
           <div className="flashcard-side__description flashcard-side__description--long flashcard-side__description--large brand--head">
-            <div className="brand--linkColor text-slate-800 text-sm font-medium">
+            <div className="brand--linkColor text-slate-800 dark:text-slate-200 text-sm font-medium">
               <div className="fr-view"><p>{text}</p></div>
             </div>
           </div>
           <div className="flashcard-side-flip">
             <button
               aria-label="Click to flip"
-              className="flashcard-side-flip__btn flashcard-side-flip__btn--prefers-keyboard text-slate-500 hover:text-primary transition-colors"
+              className="flashcard-side-flip__btn flashcard-side-flip__btn--prefers-keyboard text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors"
               tabIndex={isFlipped ? 0 : -1}
               type="button"
               onClick={handleFlip}
