@@ -451,8 +451,8 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
         )}
 
         <div className="space-y-8">
-          {displayQuiz.map((question, qIndex) => (
-            <div key={question.id || qIndex} className={`relative rounded-xl border bg-card p-6 shadow-sm ${isLoading ? "opacity-70 pointer-events-none" : ""}`}>
+          {displayQuiz.map((q, qIndex) => (
+            <div key={q.id || qIndex} className={`relative rounded-xl border bg-card p-6 shadow-sm ${isLoading ? "opacity-70 pointer-events-none" : ""}`}>
               <button
                 onClick={() => removeQuestion(qIndex)}
                 className="absolute right-4 top-4 text-muted-foreground hover:text-destructive"
