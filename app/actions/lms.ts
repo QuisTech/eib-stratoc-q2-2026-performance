@@ -256,12 +256,22 @@ export async function recomputeCourseProgress(userId: string, courseId: number) 
   const lessons = getLessons(course)
   const totalSteps = lessons.length + 1 // + the quiz
 
+  // Fetch ALL lesson progress rows for this user+course (including legacy keys
+  // from before the course was customized via the Course Builder).
   const doneLessonRows = await db
     .select({ lessonKey: lessonProgress.lessonKey })
     .from(lessonProgress)
     .where(and(eq(lessonProgress.userId, userId), eq(lessonProgress.courseId, courseId)))
+
+  // Count lessons matching current keys
   const validKeys = new Set(lessons.map((l) => l.key))
-  const doneLessons = doneLessonRows.filter((r) => validKeys.has(r.lessonKey)).length
+  const currentKeyMatches = doneLessonRows.filter((r) => validKeys.has(r.lessonKey)).length
+
+  // Also count total unique legacy lesson rows (old keys from before customization).
+  // Use whichever count is higher — this ensures progress is never lost when
+  // course content is regenerated or customized with new lesson keys.
+  const totalLegacyLessons = new Set(doneLessonRows.map((r) => r.lessonKey)).size
+  const doneLessons = Math.max(currentKeyMatches, Math.min(totalLegacyLessons, lessons.length))
 
   const passedRows = await db
     .select({ id: quizAttempts.id })
@@ -276,27 +286,11 @@ export async function recomputeCourseProgress(userId: string, courseId: number) 
     .limit(1)
   const quizPassed = passedRows.length > 0
 
-  // Fetch existing enrollment to prevent downgrading progress
-  const existingRows = await db
-    .select({ progress: enrollments.progress, status: enrollments.status })
-    .from(enrollments)
-    .where(and(eq(enrollments.userId, userId), eq(enrollments.courseId, courseId)))
-    .limit(1)
-  const existing = existingRows[0] || { progress: 0, status: "enrolled" }
-
   const completedSteps = doneLessons + (quizPassed ? 1 : 0)
   
-  let calculatedProgress = Math.round((completedSteps / totalSteps) * 100)
-  let calculatedIsComplete = doneLessons >= lessons.length && quizPassed
-  let calculatedStatus = calculatedIsComplete ? "completed" : calculatedProgress > 0 ? "in_progress" : "enrolled"
-
-  // Never downgrade progress (protects legacy/imported data if lesson rows are missing)
-  let progress = Math.max(calculatedProgress, existing.progress)
-  let isComplete = calculatedIsComplete || existing.status === "completed"
-  
-  let status = calculatedStatus
-  if (existing.status === "completed" || isComplete) status = "completed"
-  else if (existing.status === "in_progress" || progress > 0) status = "in_progress"
+  let progress = Math.round((completedSteps / totalSteps) * 100)
+  let isComplete = doneLessons >= lessons.length && quizPassed
+  let status = isComplete ? "completed" : progress > 0 ? "in_progress" : "enrolled"
 
   if (hasCertificate) {
     progress = 100
