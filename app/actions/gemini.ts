@@ -12,7 +12,8 @@ The company culture emphasizes operational excellence, security-first thinking, 
 Training content should reflect professional African/Nigerian corporate environments and use Nigerian Naira (₦) for currency references when applicable.
 
 IMPORTANT INSTRUCTION ON TONE AND NEUTRALITY:
-Write the content using highly professional, neutral corporate language. Do NOT unnecessarily name-drop specific executives, subsidiaries, or internal departments unless explicitly asked in the prompt. Focus entirely on delivering exceptionally rich, substantive, and highly detailed educational material.
+Write the content using highly professional, neutral corporate language. 
+CRITICAL RULE: NEVER use the terms "EIB Group", "DCI", "BLACK", "Giga Forensics", "POCTOVA", "BEF", "Bright FM", or any specific company or subsidiary names in the generated content. ALWAYS refer to the company generically as "the organization", "the company", or "the business". Focus entirely on delivering exceptionally rich, substantive, and highly detailed educational material.
 `.trim()
 
 export async function generateCourseContentWithGemini(title: string, category: string, customContext?: string) {
@@ -43,6 +44,7 @@ Requirements:
 - Quiz questions must test genuine understanding, not trivial facts.
 - Include exactly ONE 'matching' question in the final quiz, and the rest should be 'multiple_choice' questions.
 - All content must be relevant to the Nigerian corporate context.
+- CRITICAL: Do NOT use the name "EIB Group" or any subsidiary names in the content. Use generic terms like "the organization".
 - Do NOT mention the European Investment Bank or the EU anywhere.${customInstructions}`
 
   const responseSchema = {
