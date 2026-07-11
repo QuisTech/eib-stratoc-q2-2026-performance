@@ -12,7 +12,7 @@ import { getLessons } from "@/lib/lms-content"
 import { Card, CardContent } from "@/components/ui/card"
 import { LessonCompleteButton } from "@/components/lms/lesson-complete-button"
 import { Flashcards } from "@/components/lms/flashcards"
-import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion"
+import { ScormAccordion } from "@/components/lms/scorm-accordion"
 import { ArrowLeft, CheckCircle2, Circle, Clock, Lightbulb, Lock, Paperclip } from "lucide-react"
 import { isCourseVisibleToUser } from "@/lib/utils"
 
@@ -171,26 +171,7 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
             })}
 
             {lesson.sections.length > 1 && (
-              <Accordion type="multiple" className="w-full">
-                {lesson.sections.slice(1).map((s, idx) => (
-                  <AccordionItem key={s.heading} value={`section-${idx}`}>
-                    <AccordionTrigger className="font-heading text-lg font-bold hover:no-underline text-left">
-                      {s.heading}
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="flex flex-col gap-3 pt-2">
-                        {s.body.map((p, i) => (
-                          <p 
-                            key={i} 
-                            className="text-pretty leading-relaxed text-muted-foreground text-base"
-                            dangerouslySetInnerHTML={{ __html: parseMarkdown(p) }}
-                          />
-                        ))}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
+              <ScormAccordion sections={lesson.sections.slice(1)} />
             )}
           </div>
 

@@ -1,0 +1,1 @@
+ALTER TABLE "courses" ADD COLUMN "isBriefing" boolean DEFAULT false NOT NULL;
