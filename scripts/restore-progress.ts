@@ -11,41 +11,29 @@ dotenv.config({ path: path.resolve(__dirname, "../.env.local") })
 const pool = new Pool({ connectionString: process.env.DATABASE_URL })
 const db = drizzle(pool, { schema })
 
-const dataToRestore = [
-  { email: "marquis.abimbola@dico.eibstratoc.com", course: "EVP: Standard Operating Procedures & Reporting", status: "in_progress", progress: 67 },
-  { email: "iheanyichukwu.okpo@gigaforensics.com", course: "EVP: Standard Operating Procedures & Reporting", status: "in_progress", progress: 67 },
-  { email: "iheanyichukwu.okpo@gigaforensics.com", course: "EIB Group Global Orientation", status: "in_progress", progress: 17 },
-]
-
 async function run() {
-  console.log("Restoring progress...")
+  console.log("Finding corrupted enrollments on local DB...")
+  const enrollments = await db.select().from(schema.enrollments).where(eq(schema.enrollments.progress, 0))
   
-  for (const item of dataToRestore) {
-    // 1. Find user
-    const users = await db.select().from(schema.user).where(eq(schema.user.email, item.email))
-    if (users.length === 0) {
-      console.log(`User not found: ${item.email}`)
-      continue
-    }
-    const userId = users[0].id
-
-    // 2. Find course
-    const courses = await db.select().from(schema.courses).where(eq(schema.courses.title, item.course))
-    if (courses.length === 0) {
-      console.log(`Course not found: ${item.course}`)
-      continue
-    }
-    const courseId = courses[0].id
-
-    // 3. Update enrollment
-    await db.update(schema.enrollments)
-      .set({ status: item.status, progress: item.progress })
-      .where(and(eq(schema.enrollments.userId, userId), eq(schema.enrollments.courseId, courseId)))
+  let fixedCount = 0;
+  for (const e of enrollments) {
+    const lessonProgs = await db.select().from(schema.lessonProgress)
+      .where(and(eq(schema.lessonProgress.userId, e.userId), eq(schema.lessonProgress.courseId, e.courseId)))
+    
+    if (lessonProgs.length > 0) {
+      // They have lessons, but progress is 0. This means it was clobbered by the course builder customization bug!
+      let newProgress = Math.min(Math.round((lessonProgs.length / 5) * 100), 99)
       
-    console.log(`Restored ${item.email} - ${item.course} -> ${item.progress}%`)
+      await db.update(schema.enrollments)
+        .set({ progress: newProgress, status: "in_progress" })
+        .where(and(eq(schema.enrollments.userId, e.userId), eq(schema.enrollments.courseId, e.courseId)))
+        
+      console.log(`Fixed UserId: ${e.userId}, CourseId: ${e.courseId}, OldLessons: ${lessonProgs.length}, NewProgress: ${newProgress}%`)
+      fixedCount++
+    }
   }
   
-  console.log("Done.")
+  console.log(`Fixed ${fixedCount} corrupted enrollments.`)
   await pool.end()
 }
 
