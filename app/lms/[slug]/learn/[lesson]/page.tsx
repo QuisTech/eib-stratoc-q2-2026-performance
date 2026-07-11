@@ -13,6 +13,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { LessonCompleteButton } from "@/components/lms/lesson-complete-button"
 import { Flashcards } from "@/components/lms/flashcards"
 import { ScormAccordion } from "@/components/lms/scorm-accordion"
+import { LabeledGraphic } from "@/components/lms/labeled-graphic"
 import { ArrowLeft, CheckCircle2, Circle, Clock, Lightbulb, Lock, Paperclip } from "lucide-react"
 import { isCourseVisibleToUser } from "@/lib/utils"
 

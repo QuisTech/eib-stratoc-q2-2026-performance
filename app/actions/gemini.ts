@@ -81,6 +81,28 @@ Requirements:
             takeaways: {
               type: "ARRAY",
               items: { type: "STRING" }
+            },
+            labeledGraphic: {
+              type: "OBJECT",
+              description: "Optional interactive labeled graphic (image map). Only generate if highly relevant to the lesson.",
+              properties: {
+                imageUrl: { type: "STRING", description: "URL to the background image. Use https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=2000 as a placeholder." },
+                hotspots: {
+                  type: "ARRAY",
+                  items: {
+                    type: "OBJECT",
+                    properties: {
+                      id: { type: "STRING" },
+                      x: { type: "INTEGER", description: "X coordinate percentage (0-100)" },
+                      y: { type: "INTEGER", description: "Y coordinate percentage (0-100)" },
+                      title: { type: "STRING" },
+                      content: { type: "STRING" }
+                    },
+                    required: ["id", "x", "y", "title", "content"]
+                  }
+                }
+              },
+              required: ["imageUrl", "hotspots"]
             }
           },
           required: ["key", "title", "minutes", "summary", "sections", "takeaways"]
@@ -179,7 +201,7 @@ Requirements:
               messages: [
                 {
                   role: "system",
-                  content: `${EIB_GROUP_CONTEXT}\n\nYou are a corporate training expert for EIB Group (the Nigerian conglomerate described above). You MUST return ONLY valid JSON matching this exact structure:\n{\n  "lessons": [{ "key": "string", "title": "string", "minutes": number, "summary": "string", "sections": [{ "heading": "string", "body": ["string"] }], "takeaways": ["string"] }],\n  "quiz": [{ "type": "multiple_choice" | "matching", "id": "string", "prompt": "string", "options": ["string"], "correctIndex": number, "pairs": [{ "left": "string", "right": "string" }], "explanation": "string" }]\n}\nGenerate between 5 and 10 lessons and 10 quiz questions. Exactly ONE quiz question MUST be type="matching", and the rest type="multiple_choice". Do NOT mention the European Investment Bank or the EU.`
+                  content: `${EIB_GROUP_CONTEXT}\n\nYou are a corporate training expert for EIB Group (the Nigerian conglomerate described above). You MUST return ONLY valid JSON matching this exact structure:\n{\n  "lessons": [{ "key": "string", "title": "string", "minutes": number, "summary": "string", "sections": [{ "heading": "string", "body": ["string"] }], "takeaways": ["string"], "labeledGraphic": { "imageUrl": "string", "hotspots": [{ "id": "string", "x": number, "y": number, "title": "string", "content": "string" }] } }],\n  "quiz": [{ "type": "multiple_choice" | "matching", "id": "string", "prompt": "string", "options": ["string"], "correctIndex": number, "pairs": [{ "left": "string", "right": "string" }], "explanation": "string" }]\n}\nGenerate between 5 and 10 lessons and 10 quiz questions. Exactly ONE quiz question MUST be type="matching", and the rest type="multiple_choice". Do NOT mention the European Investment Bank or the EU.`
                 },
                 {
                   role: "user",

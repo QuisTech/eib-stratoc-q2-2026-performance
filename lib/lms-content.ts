@@ -73,6 +73,19 @@ export function getQuizPolicy(course: Course): QuizPolicy {
 }
 
 export type LessonSection = { heading: string; body: string[] }
+export type LabeledGraphicHotspot = {
+  id: string
+  x: number
+  y: number
+  title: string
+  content: string
+}
+
+export type LabeledGraphicData = {
+  imageUrl: string
+  hotspots: LabeledGraphicHotspot[]
+}
+
 export type Lesson = {
   key: string
   title: string
@@ -82,6 +95,7 @@ export type Lesson = {
   sections: LessonSection[]
   takeaways: string[]
   attachments?: { title: string; url: string }[]
+  labeledGraphic?: LabeledGraphicData
 }
 export type MultipleChoiceQuestion = {
   type?: "multiple_choice" // Optional for backwards compatibility with old JSON

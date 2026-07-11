@@ -6,6 +6,7 @@ import { saveCustomCourseContent } from "@/app/actions/lms"
 import { generateCourseContentWithGemini } from "@/app/actions/gemini"
 import { ArrowLeft, Plus, Trash2, Save, Loader2, HelpCircle, Sparkles } from "lucide-react"
 import Link from "next/link"
+import { GraphicBuilder } from "@/components/lms/graphic-builder"
 
 export default function CourseBuilderClient({ course, userRole }: { course: any; userRole: string }) {
   const router = useRouter()
@@ -359,6 +360,13 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
                     + Add Attachment
                   </button>
                 </div>
+              </div>
+
+              <div className="mt-6 border-t pt-6">
+                <GraphicBuilder 
+                  data={lesson.labeledGraphic} 
+                  onChange={(data) => updateLesson(lIndex, "labeledGraphic", data)} 
+                />
               </div>
             </div>
           ))}
