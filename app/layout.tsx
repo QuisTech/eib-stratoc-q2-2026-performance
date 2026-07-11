@@ -42,7 +42,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${sourceSerif.variable} bg-background`}
+      className={`${geistSans.variable} ${geistMono.variable} ${sourceSerif.variable} bg-background print:bg-white`}
       suppressHydrationWarning
     >
       <head>
@@ -58,7 +58,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="font-sans antialiased">
+      <body className="font-sans antialiased print:bg-white">
         <ForcePasswordChange />
         <SiteHeader />
         {children}
