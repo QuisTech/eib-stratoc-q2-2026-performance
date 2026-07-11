@@ -17,8 +17,9 @@ EIB Group is led by CEO/Chairman Bright Echefu and operates across multiple subs
 - Luftreiber Automobile: Automotive services, fleet management, and vehicle logistics.
 - Giga Forensics: Digital forensics, cyber investigations, and evidence analysis.
 - POCTOVA: Financial technology, postal, and logistics services.
-- Briech Atlantic: Real Estate company championing IOT in modren buildings.
+- Briech Atlantic: Real Estate company championing IOT in modern buildings.
 - Briech UAS: Unmanned aerial systems (drones), surveillance, and aerial intelligence.
+- Luft PayTV: Direct-to-home (DTH) satellite television company providing entertainment.
 
 The company culture emphasizes operational excellence, security-first thinking, subsidiary compliance, and professional development of all staff. Training content should reflect African/Nigerian corporate environments, use Nigerian Naira (₦) for currency references, and be relevant to the specific subsidiary context when applicable.
 `.trim()

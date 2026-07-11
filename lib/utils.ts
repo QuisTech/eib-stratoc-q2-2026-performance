@@ -71,7 +71,8 @@ export function isCourseVisibleToUser(
     "@brightfm.com": "bright fm",
     "@bef.com": "bef",
     "@eibgroup.com": "eib group",
-    "@dci.com": "directorate of clandestine & intelligence"
+    "@dci.com": "directorate of clandestine & intelligence",
+    "@lufttv.com": "luft paytv"
   };
 
   const userEmailLower = userEmail?.toLowerCase() || "";
