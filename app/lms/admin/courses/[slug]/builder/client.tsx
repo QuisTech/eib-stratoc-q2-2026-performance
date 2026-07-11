@@ -37,6 +37,8 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
       const generated = await generateCourseContentWithGemini(course.title, course.category || "General", customContext || undefined)
       if (generated.error) {
         setError(generated.error)
+      } else if (!generated.lessons || !generated.quiz) {
+        setError("The AI generation timed out or returned malformed data. Please try again.")
       } else {
         setLessons(generated.lessons)
         setQuiz(generated.quiz)
