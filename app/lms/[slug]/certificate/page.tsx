@@ -75,30 +75,30 @@ export default async function CertificatePage({
       </div>
 
       {/* Certificate */}
-      <article className="avoid-break relative overflow-hidden rounded-lg border-2 border-primary/30 bg-card p-8 shadow-sm md:p-14">
+      <article className="avoid-break relative overflow-hidden rounded-lg border-2 border-primary/30 bg-white p-8 shadow-sm md:p-14 text-slate-900">
         <div
-          className="pointer-events-none absolute inset-3 rounded-md border border-accent/30"
+          className="pointer-events-none absolute inset-3 rounded-md border border-slate-200"
           aria-hidden
         />
         <div className="relative flex flex-col items-center text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-md bg-primary text-primary-foreground">
+          <span className="flex h-14 w-14 items-center justify-center rounded-md bg-primary text-white">
             <ShieldCheck className="h-7 w-7" />
           </span>
-          <p className="mt-4 font-heading text-sm font-semibold uppercase tracking-[0.3em] text-muted-foreground">
+          <p className="mt-4 font-heading text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">
             EIB Group
           </p>
-          <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">
+          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
             Training &amp; Organizational Development
           </p>
 
           <h1 className="mt-7 font-heading text-3xl font-bold md:text-4xl">
             Certificate of Completion
           </h1>
-          <p className="mt-5 text-sm text-muted-foreground">This certifies that</p>
+          <p className="mt-5 text-sm text-slate-500">This certifies that</p>
           <p className="mt-2 font-heading text-2xl font-bold text-primary md:text-3xl">
             {certName}
           </p>
-          <p className="mt-4 max-w-xl text-pretty leading-relaxed text-muted-foreground">
+          <p className="mt-4 max-w-xl text-pretty leading-relaxed text-slate-600">
             has successfully completed all lessons and passed the assessment for
           </p>
           <p className="mt-2 text-balance font-heading text-xl font-semibold md:text-2xl">
@@ -106,17 +106,17 @@ export default async function CertificatePage({
           </p>
 
           <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs">
-            <span className="rounded-full bg-secondary px-3 py-1 font-medium text-secondary-foreground">
+            <span className="rounded-full bg-slate-100 px-3 py-1 font-medium text-slate-700">
               {course.category}
             </span>
-            <span className="rounded-full bg-secondary px-3 py-1 font-medium text-secondary-foreground">
+            <span className="rounded-full bg-slate-100 px-3 py-1 font-medium text-slate-700">
               {course.level}
             </span>
-            <span className="rounded-full bg-secondary px-3 py-1 font-medium text-secondary-foreground">
+            <span className="rounded-full bg-slate-100 px-3 py-1 font-medium text-slate-700">
               {course.durationHours} hours
             </span>
             {initiative && (
-              <span className="rounded-full bg-accent/15 px-3 py-1 font-medium text-accent-foreground">
+              <span className="rounded-full bg-primary/10 px-3 py-1 font-medium text-primary">
                 {initiative}
               </span>
             )}
@@ -125,20 +125,20 @@ export default async function CertificatePage({
 
 
           <div className="mt-10 grid w-full max-w-lg gap-6 sm:grid-cols-2">
-            <div className="border-t border-border pt-2 text-center">
+            <div className="border-t border-slate-200 pt-2 text-center">
               <p className="text-sm font-medium">{issued}</p>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Date issued</p>
+              <p className="text-xs uppercase tracking-wide text-slate-500">Date issued</p>
             </div>
-            <div className="border-t border-border pt-2 text-center">
+            <div className="border-t border-slate-200 pt-2 text-center">
               <p className="font-mono text-sm font-medium">{certificate.serial}</p>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+              <p className="text-xs uppercase tracking-wide text-slate-500">
                 Certificate ID
               </p>
             </div>
           </div>
 
-          <p className="mt-8 flex items-center gap-2 text-xs text-muted-foreground">
-            <Award className="h-4 w-4 text-accent" />
+          <p className="mt-8 flex items-center gap-2 text-xs text-slate-500">
+            <Award className="h-4 w-4 text-primary" />
             Verified record · EIB Group Learning Management System
           </p>
         </div>
