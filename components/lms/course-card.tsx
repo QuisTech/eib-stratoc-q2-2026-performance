@@ -18,6 +18,7 @@ export function CourseCard({
   course,
   enrolled,
   progress,
+  isCompleted,
 }: {
   course: Course
   enrolled: boolean
