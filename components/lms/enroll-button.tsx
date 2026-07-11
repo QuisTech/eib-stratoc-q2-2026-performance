@@ -20,12 +20,16 @@ export function EnrollButton({ courseId, enrolled, isCompleted, size = "sm", var
 
   function toggle() {
     startTransition(async () => {
-      if (enrolled) {
-        await unenrollFromCourse(courseId)
-      } else {
-        await enrollInCourse(courseId)
+      try {
+        if (enrolled) {
+          await unenrollFromCourse(courseId)
+        } else {
+          await enrollInCourse(courseId)
+        }
+        router.refresh()
+      } catch (err: any) {
+        alert(err.message || "Failed to update enrollment. Please try again.")
       }
-      router.refresh()
     })
   }
 

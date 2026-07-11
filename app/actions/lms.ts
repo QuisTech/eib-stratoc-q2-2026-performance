@@ -109,6 +109,7 @@ export async function enrollInCourse(courseId: number) {
 
   if (existing.length === 0) {
     await db.insert(enrollments).values({ userId, courseId, status: "enrolled", progress: 0 })
+    await recomputeCourseProgress(userId, courseId)
   }
   revalidatePath("/lms")
   revalidatePath("/lms/[slug]", "page")
