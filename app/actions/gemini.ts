@@ -6,22 +6,13 @@ import { headers } from "next/headers"
 // Hardcoded company profile so the AI never confuses EIB Group with the European Investment Bank
 const EIB_GROUP_CONTEXT = `
 CRITICAL CONTEXT — READ THIS FIRST:
-EIB Group is a NIGERIAN private-sector conglomerate headquartered in Nigeria. It is NOT the European Investment Bank. Do NOT reference the EU, European Union, or any European institutions.
+EIB Group is a NIGERIAN private-sector corporate conglomerate headquartered in Nigeria. It is NOT the European Investment Bank. Do NOT reference the EU, European Union, or any European institutions.
 
-EIB Group is led by CEO/Chairman Bright Echefu and operates across multiple subsidiaries in Nigeria and West Africa:
-- EIB Stratoc: Strategic operations consulting, corporate governance, and organizational development.
-- DCI (Directorate of Clandestine & Intelligence): Intelligence analysis, counter-intelligence, security operations, and covert investigations. Sub-units include DCI-SAC, DCI-RAW, DCI-Intel, and DCI-PSAP.
-- BLACK: Specialized clandestine operations and high-risk security services.
-- BEF (Bright Echefu Foundation): Foundation for enterprise development, youth empowerment, and social investment.
-- Bright FM: Media, radio broadcasting, and corporate communications.
-- Luftreiber Automobile: Automotive services, fleet management, and vehicle logistics.
-- Giga Forensics: Digital forensics, cyber investigations, and evidence analysis.
-- POCTOVA: Financial technology, postal, and logistics services.
-- Briech Atlantic: Real Estate company championing IOT in modern buildings.
-- Briech UAS: Unmanned aerial systems (drones), surveillance, and aerial intelligence.
-- Luft PayTV: Direct-to-home (DTH) satellite television company providing entertainment.
+The company culture emphasizes operational excellence, security-first thinking, strict compliance, and the professional development of all staff. 
+Training content should reflect professional African/Nigerian corporate environments and use Nigerian Naira (₦) for currency references when applicable.
 
-The company culture emphasizes operational excellence, security-first thinking, subsidiary compliance, and professional development of all staff. Training content should reflect African/Nigerian corporate environments, use Nigerian Naira (₦) for currency references, and be relevant to the specific subsidiary context when applicable.
+IMPORTANT INSTRUCTION ON TONE AND NEUTRALITY:
+Write the content using highly professional, neutral corporate language. Do NOT unnecessarily name-drop specific executives, subsidiaries, or internal departments unless explicitly asked in the prompt. Focus entirely on delivering exceptionally rich, substantive, and highly detailed educational material.
 `.trim()
 
 export async function generateCourseContentWithGemini(title: string, category: string, customContext?: string) {
@@ -42,15 +33,16 @@ export async function generateCourseContentWithGemini(title: string, category: s
 
   const prompt = `${EIB_GROUP_CONTEXT}
 
-You are a corporate training expert creating curriculum for EIB Group (the Nigerian conglomerate described above). Generate a high-quality curriculum (between 5 and 10 lessons depending on what is appropriate for the topic) and a 10-question multiple choice quiz for a course titled "${title}" in the category of "${category}".
+You are a corporate training expert creating curriculum for EIB Group (the Nigerian conglomerate described above). Generate a highly detailed, rich, and substantive curriculum (between 5 and 10 lessons depending on what is appropriate for the topic) and a 10-question multiple choice quiz for a course titled "${title}" in the category of "${category}".
 
 Requirements:
-- Content MUST be professional, actionable, and substantive. No filler text.
-- Each lesson must have detailed sections with real, practical information.
+- Content MUST be exceptionally rich, actionable, and substantive. Provide deep explanations, not just high-level fluff.
+- Each lesson must have detailed sections with real, practical information and robust paragraphs.
 - Each lesson must include key takeaways.
+- Include a 'knowledgeCheck' (drag-and-drop matching exercise) in at least 50% of the lessons to reinforce learning.
 - Quiz questions must test genuine understanding, not trivial facts.
-- Include exactly ONE 'matching' question in the quiz, and the rest should be 'multiple_choice' questions.
-- All content must be relevant to EIB Group's Nigerian corporate context.
+- Include exactly ONE 'matching' question in the final quiz, and the rest should be 'multiple_choice' questions.
+- All content must be relevant to the Nigerian corporate context.
 - Do NOT mention the European Investment Bank or the EU anywhere.${customInstructions}`
 
   const responseSchema = {
@@ -104,6 +96,28 @@ Requirements:
                 }
               },
               required: ["imageUrl", "hotspots"]
+            },
+            knowledgeCheck: {
+              type: "OBJECT",
+              description: "Optional drag-and-drop matching exercise to test the user within the lesson. Include in at least 50% of lessons.",
+              properties: {
+                type: { type: "STRING", enum: ["matching"] },
+                id: { type: "STRING" },
+                prompt: { type: "STRING" },
+                pairs: {
+                  type: "ARRAY",
+                  items: {
+                    type: "OBJECT",
+                    properties: {
+                      left: { type: "STRING" },
+                      right: { type: "STRING" }
+                    },
+                    required: ["left", "right"]
+                  }
+                },
+                explanation: { type: "STRING" }
+              },
+              required: ["type", "id", "prompt", "pairs", "explanation"]
             }
           },
           required: ["key", "title", "minutes", "summary", "sections", "takeaways"]
