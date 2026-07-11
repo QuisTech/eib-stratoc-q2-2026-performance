@@ -75,13 +75,13 @@ export default async function CertificatePage({
       </div>
 
       {/* Certificate */}
-      <article className="avoid-break relative overflow-hidden rounded-lg border-2 border-primary/30 bg-white p-8 shadow-sm md:p-14 text-slate-900">
+      <article className="avoid-break relative overflow-hidden rounded-lg border-2 border-blue-800/30 bg-white p-8 shadow-sm md:p-14 text-slate-900">
         <div
           className="pointer-events-none absolute inset-3 rounded-md border border-slate-200"
           aria-hidden
         />
         <div className="relative flex flex-col items-center text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-md bg-primary text-white">
+          <span className="flex h-14 w-14 items-center justify-center rounded-md bg-blue-800 text-white">
             <ShieldCheck className="h-7 w-7" />
           </span>
           <p className="mt-4 font-heading text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">
@@ -95,7 +95,7 @@ export default async function CertificatePage({
             Certificate of Completion
           </h1>
           <p className="mt-5 text-sm text-slate-500">This certifies that</p>
-          <p className="mt-2 font-heading text-2xl font-bold text-primary md:text-3xl">
+          <p className="mt-2 font-heading text-2xl font-bold text-blue-800 md:text-3xl">
             {certName}
           </p>
           <p className="mt-4 max-w-xl text-pretty leading-relaxed text-slate-600">
@@ -116,7 +116,7 @@ export default async function CertificatePage({
               {course.durationHours} hours
             </span>
             {initiative && (
-              <span className="rounded-full bg-primary/10 px-3 py-1 font-medium text-primary">
+              <span className="rounded-full bg-blue-800/10 px-3 py-1 font-medium text-blue-800">
                 {initiative}
               </span>
             )}
@@ -138,7 +138,7 @@ export default async function CertificatePage({
           </div>
 
           <p className="mt-8 flex items-center gap-2 text-xs text-slate-500">
-            <Award className="h-4 w-4 text-primary" />
+            <Award className="h-4 w-4 text-blue-800" />
             Verified record · EIB Group Learning Management System
           </p>
         </div>
