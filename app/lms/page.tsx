@@ -120,7 +120,7 @@ export default async function LmsPage() {
         <Card className="mt-3 border-accent/40 bg-accent/5">
           <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
             <p className="text-sm text-muted-foreground">
-              Training value you&apos;ve unlocked so far, fully sponsored by EIB Group
+              Training value you&apos;ve unlocked so far, fully sponsored by the organization
             </p>
             <span className="font-heading text-2xl font-bold tabular-nums text-foreground">
               {formatNaira(myValue)}

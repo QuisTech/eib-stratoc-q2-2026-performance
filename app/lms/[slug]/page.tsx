@@ -224,13 +224,27 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
         <aside className="lg:sticky lg:top-20 lg:self-start">
           <Card>
             <CardContent className="flex flex-col gap-5 p-6">
-              {course.priceNaira > 0 && (
+              {course.priceNaira > 0 ? (
                 <div className="border-b border-border pb-4">
-                  <span className="font-heading text-3xl font-bold tabular-nums">
-                    {formatNaira(course.priceNaira)}
+                  <div className="flex items-center gap-2">
+                    <span className="font-heading text-3xl font-bold tabular-nums text-muted-foreground line-through">
+                      {formatNaira(course.priceNaira)}
+                    </span>
+                    <span className="font-heading text-2xl font-bold text-emerald-600 dark:text-emerald-400">
+                      Free
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Equivalent market value of this training, fully sponsored by the organization.
+                  </p>
+                </div>
+              ) : (
+                <div className="border-b border-border pb-4">
+                  <span className="font-heading text-3xl font-bold text-emerald-600 dark:text-emerald-400">
+                    Free
                   </span>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Equivalent market value of this training, fully sponsored for EIB Group staff.
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    This course is provided completely free of charge.
                   </p>
                 </div>
               )}

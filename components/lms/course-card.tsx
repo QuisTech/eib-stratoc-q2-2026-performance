@@ -60,12 +60,23 @@ export function CourseCard({
           {course.description}
         </p>
 
-        {course.priceNaira > 0 && (
+        {course.priceNaira > 0 ? (
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-baseline gap-2">
+              <span className="font-heading text-xl font-bold tabular-nums text-muted-foreground line-through">
+                {formatNaira(course.priceNaira)}
+              </span>
+              <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">
+                Free for you
+              </span>
+            </div>
+            <span className="text-xs text-muted-foreground">Covered by the organization</span>
+          </div>
+        ) : (
           <div className="flex items-baseline gap-2">
-            <span className="font-heading text-xl font-bold tabular-nums text-foreground">
-              {formatNaira(course.priceNaira)}
+            <span className="font-heading text-xl font-bold text-emerald-600 dark:text-emerald-400">
+              Free
             </span>
-            <span className="text-xs text-muted-foreground">course value</span>
           </div>
         )}
 
