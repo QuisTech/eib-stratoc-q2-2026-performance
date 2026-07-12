@@ -97,6 +97,7 @@ export type Lesson = {
   attachments?: { title: string; url: string }[]
   labeledGraphic?: LabeledGraphicData
   knowledgeCheck?: MatchingQuestion
+  isPreview?: boolean
 }
 export type MultipleChoiceQuestion = {
   type?: "multiple_choice" // Optional for backwards compatibility with old JSON

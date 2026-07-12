@@ -29,6 +29,7 @@ import {
   ClipboardCheck,
   Award,
   PlayCircle,
+  Unlock,
 } from "lucide-react"
 
 type Params = { slug: string }
@@ -148,6 +149,8 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
             <ol className="mt-4 flex flex-col gap-3">
               {lessons.map((l, i) => {
                 const done = completedKeys.has(l.key)
+                const isFreePreview = i < 2 || !!l.isPreview
+                const canAccess = enrolled || isFreePreview
                 return (
                   <li key={l.key}>
                     <Card className="avoid-break">
@@ -163,18 +166,23 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
                         </span>
                         <div className="flex-1">
                           <div className="flex flex-wrap items-center justify-between gap-2">
-                            {enrolled ? (
+                            {canAccess ? (
                               <Link
                                 href={`/lms/${slug}/learn/${l.key}`}
-                                className="font-medium hover:text-primary"
+                                className="font-medium hover:text-primary flex items-center gap-2"
                               >
                                 {l.title}
+                                {!enrolled && isFreePreview && (
+                                  <Badge variant="outline" className="text-[10px] uppercase tracking-wider py-0 leading-none h-4">Preview</Badge>
+                                )}
                               </Link>
                             ) : (
                               <p className="font-medium">{l.title}</p>
                             )}
                             <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                              {!enrolled && <Lock className="h-3 w-3" />}~{l.minutes}m
+                              {!enrolled && !isFreePreview && <Lock className="h-3 w-3" />}
+                              {!enrolled && isFreePreview && <Unlock className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />}
+                              ~{l.minutes}m
                             </span>
                           </div>
                           <p className="mt-0.5 text-sm text-muted-foreground">{l.summary}</p>

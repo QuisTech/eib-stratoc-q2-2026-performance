@@ -337,6 +337,20 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
                 </div>
               </div>
 
+              <div className="mb-6 flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  id={`preview-${lIndex}`}
+                  checked={lesson.isPreview || false}
+                  onChange={(e) => updateLesson(lIndex, "isPreview", e.target.checked)}
+                  className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                />
+                <label htmlFor={`preview-${lIndex}`} className="text-sm font-medium text-foreground">
+                  Make this lesson a Free Preview
+                </label>
+                <span className="text-xs text-muted-foreground ml-2">(Allows users to view this lesson without logging in/enrolling)</span>
+              </div>
+
               <div>
                 <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Summary</label>
                 <input

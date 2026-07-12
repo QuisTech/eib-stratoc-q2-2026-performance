@@ -48,28 +48,33 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
   if (!course) notFound()
 
   const session = await auth.api.getSession({ headers: await headers() })
-  if (!session?.user) redirect(`/sign-in`)
-
-  // Enforce subsidiary visibility check
-  const isVisible = isCourseVisibleToUser(
-    course.subsidiaries,
-    session.user.subsidiary || null,
-    session.user.role || "learner",
-    session.user.email || null
-  )
-  if (!isVisible) {
-    notFound()
-  }
-
-  const enrollment = await getMyEnrollmentForCourse(course.id)
-  if (!enrollment) redirect(`/lms/${slug}`)
 
   const lessons = getLessons(course)
   const index = lessons.findIndex((l) => l.key === lessonKey)
   if (index === -1) notFound()
   const lesson = lessons[index]
+  
+  const isFreePreview = index < 2 || !!lesson.isPreview
+  let enrollment = null
 
-  const completedKeys = new Set(await getMyLessonProgress(course.id))
+  if (session?.user) {
+    const isVisible = isCourseVisibleToUser(
+      course.subsidiaries,
+      session.user.subsidiary || null,
+      session.user.role || "learner",
+      session.user.email || null
+    )
+    if (!isVisible) notFound()
+    enrollment = await getMyEnrollmentForCourse(course.id)
+  }
+
+  const canAccess = isFreePreview || !!enrollment
+  if (!canAccess) {
+    if (!session?.user) redirect(`/sign-in`)
+    else redirect(`/lms/${slug}`)
+  }
+
+  const completedKeys = session?.user && enrollment ? new Set(await getMyLessonProgress(course.id)) : new Set<string>()
   const isLast = index === lessons.length - 1
   const nextHref = isLast ? `/lms/${slug}/quiz` : `/lms/${slug}/learn/${lessons[index + 1].key}`
 
@@ -227,13 +232,22 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
             ) : (
               <span />
             )}
-            <LessonCompleteButton
-              courseId={course.id}
-              lessonKey={lesson.key}
-              alreadyComplete={completedKeys.has(lesson.key)}
-              nextHref={nextHref}
-              isLast={isLast}
-            />
+            {enrollment ? (
+              <LessonCompleteButton
+                courseId={course.id}
+                lessonKey={lesson.key}
+                alreadyComplete={completedKeys.has(lesson.key)}
+                nextHref={nextHref}
+                isLast={isLast}
+              />
+            ) : (
+              <div className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-900/20 dark:text-emerald-300 flex items-center justify-between gap-4 w-full sm:w-auto mt-4 sm:mt-0 flex-col sm:flex-row">
+                <span><strong>Enjoying this preview?</strong> Sign in and enroll to access the full course and track your progress.</span>
+                <Link href="/sign-in" className="inline-flex h-9 shrink-0 items-center justify-center rounded-md bg-emerald-600 px-4 text-sm font-medium text-white hover:bg-emerald-700">
+                  Sign In to Enroll
+                </Link>
+              </div>
+            )}
           </div>
         </article>
       </div>
