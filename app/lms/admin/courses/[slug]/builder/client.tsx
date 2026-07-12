@@ -320,7 +320,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
                 <div>
                   <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Lesson Title</label>
                   <input
-                    value={lesson.title}
+                    value={lesson.title || ""}
                     onChange={(e) => updateLesson(lIndex, "title", e.target.value)}
                     className="w-full rounded-md border bg-background px-3 py-2 text-sm"
                     placeholder="e.g. Introduction"
@@ -340,7 +340,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
               <div>
                 <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Summary</label>
                 <input
-                  value={lesson.summary}
+                  value={lesson.summary || ""}
                   onChange={(e) => updateLesson(lIndex, "summary", e.target.value)}
                   className="w-full rounded-md border bg-background px-3 py-2 text-sm mb-6"
                   placeholder="A brief summary of what this lesson covers"
@@ -350,16 +350,16 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
               <div className="mb-4">
                 <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Content Sections</label>
                 <div className="space-y-4">
-                  {lesson.sections.map((sec: any, sIndex: number) => (
+                  {(lesson.sections || []).map((sec: any, sIndex: number) => (
                     <div key={sIndex} className="rounded-md border bg-muted/30 p-4">
                       <input
-                        value={sec.heading}
+                        value={sec.heading || ""}
                         onChange={(e) => updateSection(lIndex, sIndex, "heading", e.target.value)}
                         className="mb-3 w-full font-medium bg-transparent border-b focus:outline-none focus:border-primary placeholder:text-muted-foreground"
                         placeholder="Section Heading"
                       />
                       <textarea
-                        value={sec.body.join("\n\n")}
+                        value={(sec.body || []).join("\n\n")}
                         onChange={(e) => updateSectionBody(lIndex, sIndex, e.target.value)}
                         className="w-full min-h-[100px] resize-y rounded-md border bg-background p-3 text-sm"
                         placeholder="Paragraph 1 (Supports Markdown: **bold**, *italic*, [link](url))&#10;&#10;Paragraph 2"
@@ -378,7 +378,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
               <div>
                 <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Key Takeaways (one per line)</label>
                 <textarea
-                  value={lesson.takeaways.join("\n")}
+                  value={(lesson.takeaways || []).join("\n")}
                   onChange={(e) => updateLesson(lIndex, "takeaways", e.target.value.split("\n"))}
                   className="w-full resize-y rounded-md border bg-background p-3 text-sm mb-6"
                   rows={3}
@@ -463,7 +463,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
               <div className="mb-4 pr-8">
                 <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Question Prompt</label>
                 <input
-                  value={q.prompt}
+                  value={q.prompt || ""}
                   onChange={(e) => updateQuestion(qIndex, "prompt", e.target.value)}
                   className="w-full font-medium rounded-md border bg-background px-3 py-2"
                   placeholder="What is..."
@@ -507,7 +507,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
               <div>
                 <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Explanation (Shown after answering)</label>
                 <input
-                  value={q.explanation}
+                  value={q.explanation || ""}
                   onChange={(e) => updateQuestion(qIndex, "explanation", e.target.value)}
                   className="w-full rounded-md border bg-background px-3 py-2 text-sm"
                   placeholder="Why is this the correct answer?"
