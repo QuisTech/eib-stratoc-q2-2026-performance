@@ -43,6 +43,15 @@ export const lessonSchema = z.object({
     })
     .optional()
     .describe("Optional drag-and-drop matching exercise to test the user within the lesson. Include in at least 50% of lessons."),
+  interactiveTabs: z
+    .array(
+      z.object({
+        tabTitle: z.string().describe("Short, punchy title for the tab (e.g. 'Technical Solutions')"),
+        content: z.string().describe("Detailed content inside the tab. Markdown supported."),
+      })
+    )
+    .optional()
+    .describe("Optional interactive tabbed component. Use this to present categorized data, parallel concepts, or steps in a process. Generate 2 to 4 tabs if highly relevant to the lesson."),
 })
 
 export const quizSchema = z.array(

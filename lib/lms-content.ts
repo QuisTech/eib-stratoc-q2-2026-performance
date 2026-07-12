@@ -97,6 +97,7 @@ export type Lesson = {
   attachments?: { title: string; url: string }[]
   labeledGraphic?: LabeledGraphicData
   knowledgeCheck?: MatchingQuestion
+  interactiveTabs?: { tabTitle: string; content: string }[]
   isPreview?: boolean
 }
 export type MultipleChoiceQuestion = {
@@ -306,7 +307,7 @@ export function lessonCount(course: Course): number {
 // --- Quiz ------------------------------------------------------------------
 // Subject-matter concept questions per skill-gap category. Each course quiz
 // combines a few of these with two guaranteed-correct, data-derived questions.
-type BankQuestion = Omit<QuizQuestion, "id">
+type BankQuestion = Omit<MultipleChoiceQuestion, "id"> | Omit<MatchingQuestion, "id">
 
 const CONCEPT_BANK: Record<string, BankQuestion[]> = {
   Technical: [

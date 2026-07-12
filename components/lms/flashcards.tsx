@@ -1,6 +1,9 @@
 "use client"
 
 import { useState } from "react"
+import { Lightbulb, Target, Compass, Shield, Zap, BookOpen, Flag, Key, Star, CheckCircle } from "lucide-react"
+
+const ICONS = [Lightbulb, Target, Compass, Shield, Zap, BookOpen, Flag, Key, Star, CheckCircle]
 
 export function Flashcards({ takeaways }: { takeaways: string[] }) {
   if (!takeaways || takeaways.length === 0) return null
@@ -16,6 +19,7 @@ export function Flashcards({ takeaways }: { takeaways: string[] }) {
 
 function Flashcard({ index, text }: { index: number; text: string }) {
   const [isFlipped, setIsFlipped] = useState(false)
+  const Icon = ICONS[(index - 1) % ICONS.length]
 
   const handleFlip = (e: React.MouseEvent | React.KeyboardEvent) => {
     e.stopPropagation()
@@ -36,7 +40,8 @@ function Flashcard({ index, text }: { index: number; text: string }) {
       >
         <span className="visually-hidden-always">Front of card</span>
         <div className="flashcard-side__content flashcard-side__content--large flashcard-side__content--front">
-          <div className="flashcard-side__description font-heading text-lg font-bold text-primary dark:text-slate-100 brand--head brand--linkColor">
+          <div className="flashcard-side__description font-heading text-lg font-bold text-primary dark:text-slate-100 brand--head brand--linkColor flex flex-col items-center justify-center gap-4">
+            <Icon className="w-12 h-12 opacity-80" strokeWidth={1.5} />
             <div className="fr-view"><p>Key Concept {index}</p></div>
           </div>
           <div className="flashcard-side-flip">

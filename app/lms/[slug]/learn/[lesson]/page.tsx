@@ -15,6 +15,7 @@ import { Flashcards } from "@/components/lms/flashcards"
 import { ScormAccordion } from "@/components/lms/scorm-accordion"
 import { LabeledGraphic } from "@/components/lms/labeled-graphic"
 import { KnowledgeMatch } from "@/components/lms/knowledge-match"
+import { InteractiveTabs } from "@/components/lms/interactive-tabs"
 import { ArrowLeft, CheckCircle2, Circle, Clock, Lightbulb, Lock, Paperclip } from "lucide-react"
 import { isCourseVisibleToUser } from "@/lib/utils"
 
@@ -211,6 +212,13 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
           {lesson.knowledgeCheck && (
             <div className="mt-12">
               <KnowledgeMatch question={lesson.knowledgeCheck} />
+            </div>
+          )}
+
+          {lesson.interactiveTabs && lesson.interactiveTabs.length > 0 && (
+            <div className="mt-12">
+              <h3 className="font-heading text-xl font-bold mb-4">Deep Dive</h3>
+              <InteractiveTabs tabs={lesson.interactiveTabs} />
             </div>
           )}
 
