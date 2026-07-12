@@ -18,6 +18,48 @@ async function run() {
   
   const data = JSON.parse(course.customContent)
   
+  // Lesson 1
+  const lesson1 = data.lessons.find((l: any) => l.title.includes("Introduction to Cybersecurity") || l.title.includes("Synergy"))
+  if (lesson1) {
+    lesson1.labeledGraphic = {
+      imageUrl: "/assets/cyber/lesson1_intro.png",
+      hotspots: [
+        { id: "hotspot-1-1", x: 50, y: 50, title: "CIA Triad", content: "Confidentiality, Integrity, and Availability form the foundation of cybersecurity. Every security control should protect sensitive information, maintain data accuracy, and ensure systems remain accessible when needed." },
+        { id: "hotspot-1-2", x: 80, y: 50, title: "Cyber Threats", content: "Cyber threats such as malware, phishing, ransomware, and insider attacks continuously evolve, making proactive monitoring and awareness essential." },
+        { id: "hotspot-1-3", x: 20, y: 50, title: "Security Operations Center", content: "The Security Operations Center (SOC) serves as the organization's central hub for continuously monitoring, detecting, analyzing, and responding to cybersecurity incidents." }
+      ]
+    }
+    console.log("Updated Lesson 1")
+  }
+
+  // Lesson 2
+  const lesson2 = data.lessons.find((l: any) => l.title.includes("Core Networking Concepts") || l.title.includes("Risk Management"))
+  if (lesson2) {
+    lesson2.labeledGraphic = {
+      imageUrl: "/assets/cyber/lesson2_risk_mgmt.png",
+      hotspots: [
+        { id: "hotspot-2-1", x: 50, y: 50, title: "Risk Assessment", content: "Organizations identify valuable assets, evaluate potential threats and vulnerabilities, and determine the likelihood and impact of cyber risks before selecting appropriate controls." },
+        { id: "hotspot-2-2", x: 20, y: 20, title: "Security Governance", content: "Effective governance establishes policies, assigns responsibilities, and ensures cybersecurity aligns with organizational objectives and regulatory requirements." },
+        { id: "hotspot-2-3", x: 80, y: 80, title: "Compliance Management", content: "Compliance with standards, regulations, and organizational policies helps reduce legal risk while strengthening overall cybersecurity maturity." }
+      ]
+    }
+    console.log("Updated Lesson 2")
+  }
+
+  // Lesson 3
+  const lesson3 = data.lessons.find((l: any) => l.title.includes("Network Security Architectures") || l.title.includes("Infrastructure Protection"))
+  if (lesson3) {
+    lesson3.labeledGraphic = {
+      imageUrl: "/assets/cyber/lesson3_network_sec.png",
+      hotspots: [
+        { id: "hotspot-3-1", x: 50, y: 50, title: "Network Segmentation", content: "Segmenting enterprise networks limits the spread of cyberattacks and improves security by separating critical systems from general user environments." },
+        { id: "hotspot-3-2", x: 80, y: 50, title: "Firewall Protection", content: "Firewalls inspect and control incoming and outgoing network traffic, preventing unauthorized access while allowing legitimate communications." },
+        { id: "hotspot-3-3", x: 20, y: 50, title: "Intrusion Detection", content: "Intrusion detection and monitoring systems continuously analyze network activity to identify suspicious behavior and support rapid incident response." }
+      ]
+    }
+    console.log("Updated Lesson 3")
+  }
+
   // Lesson 4
   const lesson4 = data.lessons.find((l: any) => l.title.includes("Identity and Access Management") || l.title.includes("Common Network Attacks"))
   if (lesson4) {
