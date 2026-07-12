@@ -61,6 +61,9 @@ export function LearnerManagement({
       const dateB = b.joinedAt ? new Date(b.joinedAt).getTime() : 0
       return dateB - dateA
     }
+    if (sortBy === "enrolled") {
+      return (b.enrolled || 0) - (a.enrolled || 0)
+    }
     return (a.name || "").localeCompare(b.name || "")
   })
 
@@ -100,6 +103,7 @@ export function LearnerManagement({
           >
             <option value="name">Name (A-Z)</option>
             <option value="joined">Recently Joined</option>
+            <option value="enrolled">Highest Enrolled</option>
           </select>
         </div>
       </div>
