@@ -4,6 +4,7 @@ import { Geist, Geist_Mono, Source_Serif_4 } from 'next/font/google'
 import './globals.css'
 import { SiteHeader } from '@/components/site-header'
 import { ForcePasswordChange } from '@/components/force-password-change'
+import { TooltipProvider } from '@/components/ui/tooltip'
 
 const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
 const geistMono = Geist_Mono({
@@ -59,10 +60,12 @@ export default function RootLayout({
         />
       </head>
       <body className="font-sans antialiased print:bg-white">
-        <ForcePasswordChange />
-        <SiteHeader />
-        {children}
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        <TooltipProvider>
+          <ForcePasswordChange />
+          <SiteHeader />
+          {children}
+          {process.env.NODE_ENV === 'production' && <Analytics />}
+        </TooltipProvider>
       </body>
     </html>
   )

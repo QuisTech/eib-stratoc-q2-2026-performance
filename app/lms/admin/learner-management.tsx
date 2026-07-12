@@ -9,6 +9,7 @@ import { ResetQuizAttemptsButton } from "./reset-quiz-attempts-button"
 import { ResetPasswordButton } from "./reset-password-button"
 import { DeleteUserButton } from "./delete-user-button"
 import { EditNameButton } from "./edit-name-button"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 function initials(name: string) {
   return (name || "")
@@ -148,7 +149,24 @@ export function LearnerManagement({
                   <td className="px-4 py-3 text-center tabular-nums text-muted-foreground text-xs whitespace-nowrap">
                     {l.joinedAt ? new Date(l.joinedAt).toLocaleDateString() : "—"}
                   </td>
-                  <td className="px-4 py-3 text-center tabular-nums">{l.enrolled}</td>
+                  <td className="px-4 py-3 text-center tabular-nums">
+                    {l.enrolled > 0 && l.enrolledCourses && l.enrolledCourses.length > 0 ? (
+                      <Tooltip delayDuration={100}>
+                        <TooltipTrigger className="cursor-help underline decoration-muted-foreground decoration-dotted underline-offset-2">
+                          {l.enrolled}
+                        </TooltipTrigger>
+                        <TooltipContent className="bg-popover text-popover-foreground shadow-md p-3 max-w-xs text-sm">
+                          <ul className="list-disc pl-4 space-y-1 text-left">
+                            {l.enrolledCourses.map((c: any) => (
+                              <li key={c.courseId}>{c.title}</li>
+                            ))}
+                          </ul>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      <span>{l.enrolled}</span>
+                    )}
+                  </td>
                   <td className="px-4 py-3 text-center tabular-nums">{l.inProgress}</td>
                   <td className="px-4 py-3 text-center tabular-nums">{l.completed}</td>
                   <td className="px-4 py-3 text-center tabular-nums">{l.certificates}</td>
