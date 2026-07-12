@@ -151,7 +151,7 @@ export function LearnerManagement({
                   </td>
                   <td className="px-4 py-3 text-center tabular-nums">
                     {l.enrolled > 0 && l.enrolledCourses && l.enrolledCourses.length > 0 ? (
-                      <Tooltip delayDuration={100}>
+                      <Tooltip>
                         <TooltipTrigger className="cursor-help underline decoration-muted-foreground decoration-dotted underline-offset-2">
                           {l.enrolled}
                         </TooltipTrigger>
