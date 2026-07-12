@@ -329,6 +329,7 @@ export type LearnerReportRow = {
   certificates: number
   avgProgress: number
   enrolledCourses: { courseId: number; title: string }[]
+  joinedAt: Date
 }
 
 export type AdminReport = {
@@ -465,6 +466,7 @@ export async function getAdminReport(): Promise<AdminReport> {
       certificates: certCountByUser.get(u.id) ?? 0,
       avgProgress,
       enrolledCourses,
+      joinedAt: u.createdAt,
     }
   })
 

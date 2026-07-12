@@ -33,6 +33,7 @@ export function LearnerManagement({
 }) {
   const [filter, setFilter] = useState("All")
   const [search, setSearch] = useState("")
+  const [sortBy, setSortBy] = useState("name")
 
   // Extract unique subsidiaries
   const subsidiariesSet = new Set<string>(["Global"])
@@ -53,6 +54,13 @@ export function LearnerManagement({
        if (!(l.name || "").toLowerCase().includes(q) && !(l.email || "").toLowerCase().includes(q)) return false
     }
     return true
+  }).sort((a, b) => {
+    if (sortBy === "joined") {
+      const dateA = a.joinedAt ? new Date(a.joinedAt).getTime() : 0
+      const dateB = b.joinedAt ? new Date(b.joinedAt).getTime() : 0
+      return dateB - dateA
+    }
+    return (a.name || "").localeCompare(b.name || "")
   })
 
   return (
@@ -82,6 +90,17 @@ export function LearnerManagement({
               onChange={(e) => setSearch(e.target.value)}
             />
         </div>
+        <div className="flex items-center gap-2 ml-auto">
+          <span className="text-sm text-muted-foreground hidden sm:inline">Sort by:</span>
+          <select 
+            className="text-sm rounded-md border border-input bg-background px-3 py-1.5 focus:ring-1 focus:ring-primary outline-none"
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+          >
+            <option value="name">Name (A-Z)</option>
+            <option value="joined">Recently Joined</option>
+          </select>
+        </div>
       </div>
 
       {filteredLearners.length === 0 ? (
@@ -95,6 +114,7 @@ export function LearnerManagement({
               <tr className="border-b bg-muted/50 text-left text-xs uppercase tracking-wide text-muted-foreground">
                 <th className="px-4 py-3 font-medium">Learner</th>
                 {orgWide && <th className="px-4 py-3 font-medium">Subsidiary</th>}
+                <th className="px-4 py-3 text-center font-medium">Joined</th>
                 <th className="px-4 py-3 text-center font-medium">Enrolled</th>
                 <th className="px-4 py-3 text-center font-medium">In progress</th>
                 <th className="px-4 py-3 text-center font-medium">Completed</th>
@@ -125,6 +145,9 @@ export function LearnerManagement({
                   {orgWide && (
                     <td className="px-4 py-3 text-muted-foreground">{l.subsidiary ?? "—"}</td>
                   )}
+                  <td className="px-4 py-3 text-center tabular-nums text-muted-foreground text-xs whitespace-nowrap">
+                    {l.joinedAt ? new Date(l.joinedAt).toLocaleDateString() : "—"}
+                  </td>
                   <td className="px-4 py-3 text-center tabular-nums">{l.enrolled}</td>
                   <td className="px-4 py-3 text-center tabular-nums">{l.inProgress}</td>
                   <td className="px-4 py-3 text-center tabular-nums">{l.completed}</td>

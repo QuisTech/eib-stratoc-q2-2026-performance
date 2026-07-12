@@ -7,6 +7,7 @@ import { ArrowLeft, Plus, Trash2, Save, Loader2, HelpCircle, Sparkles, Square } 
 import { experimental_useObject as useObject } from "@ai-sdk/react"
 import Link from "next/link"
 import { GraphicBuilder } from "@/components/lms/graphic-builder"
+import { courseSchema } from "@/lib/lms-schema"
 
 export default function CourseBuilderClient({ course, userRole }: { course: any; userRole: string }) {
   const router = useRouter()
@@ -33,6 +34,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
 
   const { object, submit, isLoading, stop, error: streamError } = useObject({
     api: "/api/lms/generate-course",
+    schema: courseSchema,
     onFinish: ({ object }) => {
       if (object?.lessons) {
         if (isAppendMode.current) {

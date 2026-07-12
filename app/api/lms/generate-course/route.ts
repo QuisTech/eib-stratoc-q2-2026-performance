@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { streamObject } from "ai"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
-import { z } from "zod"
+import { courseSchema } from "@/lib/lms-schema"
 
 const google = createGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY,
@@ -23,73 +23,7 @@ Write the content using highly professional, neutral corporate language.
 CRITICAL RULE: NEVER use the terms "EIB Group", "DCI", "BLACK", "Giga Forensics", "POCTOVA", "BEF", "Bright FM", or any specific company or subsidiary names in the generated content. ALWAYS refer to the company generically as "the organization", "the company", or "the business". Focus entirely on delivering exceptionally rich, substantive, and highly detailed educational material.
 `.trim()
 
-const lessonSchema = z.object({
-  key: z.string().describe("A unique string key for the lesson, e.g. lesson-1-intro"),
-  title: z.string().describe("Lesson title"),
-  minutes: z.number().describe("Estimated minutes to complete"),
-  summary: z.string().describe("Brief summary of the lesson"),
-  sections: z.array(
-    z.object({
-      heading: z.string(),
-      body: z.array(z.string()).describe("Paragraphs of text. Can use markdown."),
-    })
-  ),
-  takeaways: z.array(z.string()),
-  labeledGraphic: z
-    .object({
-      imageUrl: z.string().describe("URL to the background image. Use https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&q=80&w=2000 as a placeholder."),
-      hotspots: z.array(
-        z.object({
-          id: z.string(),
-          x: z.number().describe("X coordinate percentage (0-100)"),
-          y: z.number().describe("Y coordinate percentage (0-100)"),
-          title: z.string(),
-          content: z.string(),
-        })
-      ),
-    })
-    .optional()
-    .describe("Optional interactive labeled graphic (image map). Only generate if highly relevant to the lesson."),
-  knowledgeCheck: z
-    .object({
-      type: z.literal("matching"),
-      id: z.string(),
-      prompt: z.string(),
-      pairs: z.array(
-        z.object({
-          left: z.string(),
-          right: z.string(),
-        })
-      ),
-      explanation: z.string(),
-    })
-    .optional()
-    .describe("Optional drag-and-drop matching exercise to test the user within the lesson. Include in at least 50% of lessons."),
-})
 
-const quizSchema = z.array(
-  z.object({
-    type: z.enum(["multiple_choice", "matching"]),
-    id: z.string(),
-    prompt: z.string(),
-    options: z.array(z.string()).optional(),
-    correctIndex: z.number().optional(),
-    pairs: z
-      .array(
-        z.object({
-          left: z.string(),
-          right: z.string(),
-        })
-      )
-      .optional(),
-    explanation: z.string(),
-  })
-).describe("A 10-question quiz. Include exactly ONE matching question and 9 multiple_choice questions.")
-
-const courseSchema = z.object({
-  lessons: z.array(lessonSchema),
-  quiz: quizSchema.optional(), // Quiz is optional because Append mode doesn't generate it
-})
 
 export async function POST(req: Request) {
   // Authentication Check
