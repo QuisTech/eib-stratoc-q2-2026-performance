@@ -328,6 +328,7 @@ export async function recomputeCourseProgress(userId: string, courseId: number) 
     completed: number
     certificates: number
     latestCertificateAt: Date | null
+    latestEnrollmentAt: Date | null
     avgProgress: number
     enrolledCourses: { courseId: number; title: string }[]
     joinedAt: Date
@@ -433,10 +434,16 @@ export async function getAdminReport(): Promise<AdminReport> {
   const allCerts = ids.length ? await db.select().from(certificates).where(inArray(certificates.userId, ids)) : []
 
   const enrByUser = new Map<string, Enrollment[]>()
+  const latestEnrollDateByUser = new Map<string, Date>()
   for (const e of allEnrollments) {
     const list = enrByUser.get(e.userId) ?? []
     list.push(e)
     enrByUser.set(e.userId, list)
+
+    const currentLatest = latestEnrollDateByUser.get(e.userId)
+    if (e.enrolledAt && (!currentLatest || e.enrolledAt > currentLatest)) {
+      latestEnrollDateByUser.set(e.userId, e.enrolledAt)
+    }
   }
   const certCountByUser = new Map<string, number>()
     const latestCertDateByUser = new Map<string, Date>()
@@ -471,6 +478,7 @@ export async function getAdminReport(): Promise<AdminReport> {
         completed,
         certificates: certCountByUser.get(u.id) ?? 0,
         latestCertificateAt: latestCertDateByUser.get(u.id) ?? null,
+        latestEnrollmentAt: latestEnrollDateByUser.get(u.id) ?? null,
         avgProgress,
         enrolledCourses,
         joinedAt: u.createdAt,

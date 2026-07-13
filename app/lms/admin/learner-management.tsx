@@ -64,6 +64,11 @@ export function LearnerManagement({
     if (sortBy === "enrolled") {
       return (b.enrolled || 0) - (a.enrolled || 0)
     }
+    if (sortBy === "recent_enrolled") {
+      const dateA = a.latestEnrollmentAt ? new Date(a.latestEnrollmentAt).getTime() : 0
+      const dateB = b.latestEnrollmentAt ? new Date(b.latestEnrollmentAt).getTime() : 0
+      return dateB - dateA
+    }
     if (sortBy === "recent_cert") {
       const dateA = a.latestCertificateAt ? new Date(a.latestCertificateAt).getTime() : 0
       const dateB = b.latestCertificateAt ? new Date(b.latestCertificateAt).getTime() : 0
@@ -111,6 +116,7 @@ export function LearnerManagement({
           >
             <option value="name">Name (A-Z)</option>
             <option value="joined">Recently Joined</option>
+            <option value="recent_enrolled">Recently Enrolled</option>
             <option value="enrolled">Highest Enrolled</option>
             <option value="recent_cert">Recent Certificate</option>
             <option value="most_certs">Most Certificates</option>
