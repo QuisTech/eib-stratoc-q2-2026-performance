@@ -173,7 +173,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
                               >
                                 {l.title}
                                 {!enrolled && isFreePreview && (
-                                  <Badge variant="outline" className="text-[10px] uppercase tracking-wider py-0 leading-none h-4">Preview</Badge>
+                                  <Badge variant="default" className="text-xs font-bold uppercase tracking-widest px-2 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white border-none shadow-sm shadow-emerald-500/20">Free Preview</Badge>
                                 )}
                               </Link>
                             ) : (
