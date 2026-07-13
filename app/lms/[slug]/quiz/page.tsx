@@ -78,12 +78,24 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
   // Check max attempts lockout
   const isLockedOutByAttempts = !alreadyPassed && attempts.length >= policy.maxAttempts
 
-  // Sanitize: never send correct answers to the client.
-  const clientQuestions = getQuiz(course).map((q) => ({
-    id: q.id,
-    prompt: q.prompt,
-    options: q.options,
-  }))
+  // Sanitize: never send correct answers to the client (for multiple choice).
+  // For matching, pairs are sent to client so it can shuffle them.
+  const clientQuestions = getQuiz(course).map((q) => {
+    if (q.type === "matching") {
+      return {
+        type: q.type,
+        id: q.id,
+        prompt: q.prompt,
+        pairs: q.pairs,
+      }
+    }
+    return {
+      type: q.type || "multiple_choice",
+      id: q.id,
+      prompt: q.prompt,
+      options: q.options,
+    }
+  })
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-8 md:px-6">
