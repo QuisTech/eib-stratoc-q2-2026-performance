@@ -317,20 +317,21 @@ export async function recomputeCourseProgress(userId: string, courseId: number) 
 
 // --- Admin / Lead reporting ------------------------------------------------
 
-export type LearnerReportRow = {
-  id: string
-  name: string
-  email: string
-  subsidiary: string | null
-  role: string
-  enrolled: number
-  inProgress: number
-  completed: number
-  certificates: number
-  avgProgress: number
-  enrolledCourses: { courseId: number; title: string }[]
-  joinedAt: Date
-}
+  export type LearnerReportRow = {
+    id: string
+    name: string
+    email: string
+    subsidiary: string | null
+    role: string
+    enrolled: number
+    inProgress: number
+    completed: number
+    certificates: number
+    latestCertificateAt: Date | null
+    avgProgress: number
+    enrolledCourses: { courseId: number; title: string }[]
+    joinedAt: Date
+  }
 
 export type AdminReport = {
   scope: "all" | string
@@ -438,9 +439,14 @@ export async function getAdminReport(): Promise<AdminReport> {
     enrByUser.set(e.userId, list)
   }
   const certCountByUser = new Map<string, number>()
-  for (const c of allCerts) {
-    certCountByUser.set(c.userId, (certCountByUser.get(c.userId) ?? 0) + 1)
-  }
+    const latestCertDateByUser = new Map<string, Date>()
+    for (const c of allCerts) {
+      certCountByUser.set(c.userId, (certCountByUser.get(c.userId) ?? 0) + 1)
+      const currentLatest = latestCertDateByUser.get(c.userId)
+      if (c.issuedAt && (!currentLatest || c.issuedAt > currentLatest)) {
+        latestCertDateByUser.set(c.userId, c.issuedAt)
+      }
+    }
 
   const learners: LearnerReportRow[] = learnerRows.map((u) => {
     const list = enrByUser.get(u.id) ?? []
@@ -454,20 +460,21 @@ export async function getAdminReport(): Promise<AdminReport> {
       title: courseTitle.get(e.courseId) ?? `Course #${e.courseId}`
     }))
 
-    return {
-      id: u.id,
-      name: u.name,
-      email: u.email,
-      subsidiary: u.subsidiary,
-      role: u.role,
-      enrolled: list.length,
-      inProgress,
-      completed,
-      certificates: certCountByUser.get(u.id) ?? 0,
-      avgProgress,
-      enrolledCourses,
-      joinedAt: u.createdAt,
-    }
+      return {
+        id: u.id,
+        name: u.name,
+        email: u.email,
+        subsidiary: u.subsidiary,
+        role: u.role,
+        enrolled: list.length,
+        inProgress,
+        completed,
+        certificates: certCountByUser.get(u.id) ?? 0,
+        latestCertificateAt: latestCertDateByUser.get(u.id) ?? null,
+        avgProgress,
+        enrolledCourses,
+        joinedAt: u.createdAt,
+      }
   })
 
   // Course popularity within scope.
