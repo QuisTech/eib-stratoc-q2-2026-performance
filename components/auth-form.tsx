@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2, ShieldCheck } from "lucide-react"
 import { autoEnrollOnboarding } from "@/app/actions/lms"
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth"
 import { auth } from "@/lib/firebase"
 import { createSessionCookie, createUserProfile } from "@/app/actions/auth"
 
@@ -43,12 +43,11 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
   const [name, setName] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  // Default learners to the first operating subsidiary, not the parent company.
   const [subsidiary, setSubsidiary] = useState("EIB Stratoc")
   const [role, setRole] = useState<"learner" | "lead" | "group_head_standard" | "group_head">("learner")
   const [accessCode, setAccessCode] = useState("")
+  const [resetSent, setResetSent] = useState(false)
 
-  // Group Heads belong to the parent company; keep their subsidiary aligned.
   function handleRoleChange(next: "learner" | "lead" | "group_head_standard" | "group_head") {
     setRole(next)
     if (next === "group_head" || next === "group_head_standard") setSubsidiary("EIB Group")
@@ -59,6 +58,7 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setError(null)
+    setResetSent(false)
     setLoading(true)
 
     try {
@@ -104,7 +104,14 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
       }
       window.location.href = "/lms"
     } catch (err: any) {
-      if (err.code === "auth/invalid-credential") {
+      if (err.code === "auth/invalid-password-hash" || (err.message && err.message.includes("auth/invalid-password-hash"))) {
+        try {
+          await sendPasswordResetEmail(auth, email)
+          setResetSent(true)
+        } catch (resetErr) {
+          setError("Failed to send the security update link. Please contact IT.")
+        }
+      } else if (err.code === "auth/invalid-credential") {
         setError("Invalid email or password.")
       } else if (err.code === "auth/email-already-in-use") {
         setError("An account with this email already exists.")
@@ -248,6 +255,13 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
               placeholder="At least 8 characters"
             />
           </div>
+
+          {resetSent && (
+            <div className="rounded-md border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm text-green-600 dark:text-green-400">
+              <p className="font-semibold mb-1">Security Upgrade Notice</p>
+              <p>We have recently upgraded our platform's security infrastructure! For your protection, we have just emailed you a secure link. Please click it to quickly update your password and continue to your dashboard.</p>
+            </div>
+          )}
 
           {error && (
             <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
