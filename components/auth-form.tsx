@@ -260,6 +260,7 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
             <div className="rounded-md border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm text-green-600 dark:text-green-400">
               <p className="font-semibold mb-1">Security Upgrade Notice</p>
               <p>We have recently upgraded our platform's security infrastructure! For your protection, we have just emailed you a secure link. Please click it to quickly update your password and continue to your dashboard.</p>
+              <p className="mt-2 font-medium">If you are using an internal email without an inbox, please sign in using the temporary password: <strong>Welcome2026!</strong></p>
             </div>
           )}
 
