@@ -1,6 +1,8 @@
 import { initializeApp, getApps, cert } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
+import type { Firestore } from 'firebase-admin/firestore';
+import type { Auth } from 'firebase-admin/auth';
 
 if (!getApps().length) {
   try {
@@ -53,5 +55,5 @@ try {
   console.error("Failed to initialize Firebase Admin services:", e);
 }
 
-export const adminDb = db;
-export const adminAuth = authAdmin;
+export const adminDb = db as Firestore;
+export const adminAuth = authAdmin as Auth;
