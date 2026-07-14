@@ -22,7 +22,8 @@ export default async function EditCoursePage({
   const role = session.user.role as string
   if (role !== "admin" && role !== "group_head" && role !== "lead") redirect("/lms")
 
-  const [course] = await db.select().from(courses).where(eq(courses.slug, slug))
+  const { getCourseBySlug } = await import("@/app/actions/lms")
+  const course = await getCourseBySlug(slug)
   if (!course) redirect("/lms/admin")
   if (role !== "admin" && course.authorId !== session.user.id) redirect("/lms/admin")
 

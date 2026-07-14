@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { authClient, useSession } from "@/lib/auth-client"
+import { useSession } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -12,7 +12,7 @@ import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 
 import { updateUserDoc } from "@/app/actions/auth"
 
 export function ForcePasswordChange() {
-  const { data: session, refetch } = useSession()
+  const { data: session } = useSession()
   const router = useRouter()
   const [currentPassword, setCurrentPassword] = useState("")
   const [newPassword, setNewPassword] = useState("")

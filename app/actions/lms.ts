@@ -629,6 +629,7 @@ export async function duplicateCourseAsLMS(slug: string) {
 
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
+  return { newSlug }
 }
 
 export async function getAdminUserDetail(userId: string) {
@@ -729,7 +730,7 @@ export async function getAdminUserDetail(userId: string) {
       type: "quiz",
       label: `Took quiz for ${course?.title || 'a course'}`,
       detail: `Scored ${qa.score}/${qa.total} ${qa.passed ? '(Passed)' : '(Failed)'}`,
-      timestamp: (qa.attemptedAt as any)?.toDate ? (qa.attemptedAt as any).toDate() : new Date(qa.attemptedAt)
+      timestamp: (qa.createdAt as any)?.toDate ? (qa.createdAt as any).toDate() : new Date(qa.createdAt)
     })
   }
   for (const c of certificates) {

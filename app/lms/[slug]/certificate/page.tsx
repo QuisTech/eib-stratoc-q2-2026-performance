@@ -46,9 +46,11 @@ export default async function CertificatePage({
 
   let certName = session?.user?.name || session?.user?.email || "Learner"
   if (targetUserId && targetUserId !== session?.user?.id) {
-    const targetUser = await db.select({ name: user.name, email: user.email }).from(user).where(eq(user.id, targetUserId)).limit(1)
-    if (targetUser[0]) {
-      certName = targetUser[0].name || targetUser[0].email
+    const { adminDb } = await import("@/lib/firebase-admin")
+    const doc = await adminDb.collection("users").doc(targetUserId).get()
+    if (doc.exists) {
+      const targetUser = doc.data() as { name: string, email: string }
+      certName = targetUser.name || targetUser.email || "Learner"
     }
   }
 

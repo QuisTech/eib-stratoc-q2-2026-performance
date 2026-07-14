@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { buttonVariants } from "@/components/ui/button"
 import { EnrollButton } from "@/components/lms/enroll-button"
-import type { Course } from "@/lib/db/schema"
+import type { Course } from "@/lib/types"
 import { formatNaira } from "@/lib/utils"
 import { Clock, Layers, Building2, ArrowRight } from "lucide-react"
 

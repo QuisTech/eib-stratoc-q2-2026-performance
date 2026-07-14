@@ -103,10 +103,10 @@ export default async function UserDetailPage({ params }: { params: Promise<Param
     }
 
     const stats = [
-      { label: "Enrolled", value: detail.totals.enrolled, icon: BookOpen },
-      { label: "In progress", value: detail.totals.inProgress, icon: Activity },
-      { label: "Completed", value: detail.totals.completed, icon: GraduationCap },
-      { label: "Certificates", value: detail.totals.certificates, icon: Award },
+      { label: "Enrolled", value: detail.totals?.enrolled ?? 0, icon: BookOpen },
+      { label: "In progress", value: detail.totals?.inProgress ?? 0, icon: Activity },
+      { label: "Completed", value: detail.totals?.completed ?? 0, icon: GraduationCap },
+      { label: "Certificates", value: detail.totals?.certificates ?? 0, icon: Award },
     ]
 
     return (
@@ -287,8 +287,8 @@ export default async function UserDetailPage({ params }: { params: Promise<Param
               ) : (
                 <div className="relative space-y-0">
                   {detail.activity.slice(0, 30).map((evt, i) => {
-                    const Icon = eventIcons[evt.type]
-                    const color = eventColors[evt.type]
+                    const Icon = eventIcons[evt.type as keyof typeof eventIcons]
+                    const color = eventColors[evt.type as keyof typeof eventColors]
                     return (
                       <div key={i} className="flex gap-4 py-3 border-b last:border-0">
                         <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${color}`}>
