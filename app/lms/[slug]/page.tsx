@@ -92,8 +92,8 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
   const bestPercent = attempts.reduce((m, a) => Math.max(m, Math.round((a.score / a.total) * 100)), 0)
 
   const firstIncomplete = lessons.find((l) => !completedKeys.has(l.key))
-  const continueHref = `/lms/${slug}/learn/${(firstIncomplete ?? lessons[0]).key}`
-  const allLessonsDone = completedKeys.size >= lessons.length
+  const continueHref = lessons.length > 0 ? `/lms/${slug}/learn/${(firstIncomplete ?? lessons[0]).key}` : "#"
+  const allLessonsDone = lessons.length > 0 && completedKeys.size >= lessons.length
 
   return (
     <main className="mx-auto max-w-5xl px-4 py-8 md:px-6">
@@ -298,7 +298,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
                     </div>
                   </div>
                   <Link 
-                    href={enrollment?.status === "completed" ? `/lms/${slug}/learn/${lessons[0].key}` : continueHref} 
+                    href={enrollment?.status === "completed" && lessons.length > 0 ? `/lms/${slug}/learn/${lessons[0].key}` : continueHref} 
                     className={buttonVariants({ size: "sm" })}
                   >
                     <PlayCircle className="mr-2 h-4 w-4" />

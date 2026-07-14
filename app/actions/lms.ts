@@ -649,12 +649,110 @@ export async function getAdminUserDetail(userId: string) {
   const certSnap = await adminDb.collection("certificates").where("userId", "==", userId).get()
   const certificates = certSnap.docs.map(d => d.data() as Certificate)
 
+  // Fetch all courses to get titles, categories, prices, lesson counts
+  const allCourses = await getCourses()
+  const courseMap = new Map(allCourses.map(c => [c.id, c]))
+
+  const enrollmentsList = enrollments.map(e => {
+    const course = courseMap.get(e.courseId)
+    const lessonsForCourse = lessonProgress.filter(lp => lp.courseId === e.courseId && lp.completed)
+    const quizzesForCourse = quizAttempts.filter(qa => qa.courseId === e.courseId)
+    
+    let bestQuizScore = null
+    let bestQuizTotal = null
+    let quizPassed = false
+    for (const qa of quizzesForCourse) {
+      if (bestQuizScore === null || qa.score > bestQuizScore) {
+        bestQuizScore = qa.score
+        bestQuizTotal = qa.total
+        quizPassed = qa.passed
+      }
+    }
+
+    const hasCert = certificates.some(c => c.courseId === e.courseId)
+
+    return {
+      courseId: e.courseId,
+      courseSlug: course?.slug || "",
+      courseTitle: course?.title || `Course #${e.courseId}`,
+      courseCategory: course?.category || "Uncategorized",
+      status: e.status,
+      progress: e.progress,
+      lessonsCompleted: lessonsForCourse.length,
+      lessonsTotal: course ? getLessons(course).length : 0,
+      bestQuizScore,
+      bestQuizTotal,
+      quizPassed,
+      hasCertificate: hasCert,
+      enrolledAt: (e.enrolledAt as any)?.toDate ? (e.enrolledAt as any).toDate() : new Date(e.enrolledAt)
+    }
+  })
+
+  // Calculate totals
+  let trainingValue = 0
+  for (const e of enrollments) {
+    const course = courseMap.get(e.courseId)
+    if (course) trainingValue += course.priceNaira
+  }
+
+  const totals = {
+    enrolled: enrollments.length,
+    inProgress: enrollments.filter(e => e.status === "in_progress").length,
+    completed: enrollments.filter(e => e.status === "completed").length,
+    certificates: certificates.length,
+    trainingValue,
+    avgProgress: enrollments.length > 0 ? Math.round(enrollments.reduce((s, e) => s + e.progress, 0) / enrollments.length) : 0
+  }
+
+  // Create activity feed
+  const activity = []
+  for (const e of enrollments) {
+    const course = courseMap.get(e.courseId)
+    activity.push({
+      type: "enrollment",
+      label: `Enrolled in ${course?.title || 'a course'}`,
+      detail: "Started a new course",
+      timestamp: (e.enrolledAt as any)?.toDate ? (e.enrolledAt as any).toDate() : new Date(e.enrolledAt)
+    })
+    if (e.status === "completed") {
+      activity.push({
+        type: "lesson",
+        label: `Completed ${course?.title || 'a course'}`,
+        detail: "Finished all lessons",
+        timestamp: (e.completedAt as any)?.toDate ? (e.completedAt as any).toDate() : new Date()
+      })
+    }
+  }
+  for (const qa of quizAttempts) {
+    const course = courseMap.get(qa.courseId)
+    activity.push({
+      type: "quiz",
+      label: `Took quiz for ${course?.title || 'a course'}`,
+      detail: `Scored ${qa.score}/${qa.total} ${qa.passed ? '(Passed)' : '(Failed)'}`,
+      timestamp: (qa.attemptedAt as any)?.toDate ? (qa.attemptedAt as any).toDate() : new Date(qa.attemptedAt)
+    })
+  }
+  for (const c of certificates) {
+    const course = courseMap.get(c.courseId)
+    activity.push({
+      type: "certificate",
+      label: `Earned Certificate`,
+      detail: `Completed ${course?.title || 'a course'}`,
+      timestamp: (c.issuedAt as any)?.toDate ? (c.issuedAt as any).toDate() : new Date(c.issuedAt)
+    })
+  }
+
+  activity.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+
   return {
-    user: userData,
-    enrollments,
-    lessonProgress,
-    quizAttempts,
-    certificates
+    name: userData.name,
+    email: userData.email,
+    role: userData.role,
+    subsidiary: userData.subsidiary,
+    createdAt: (userData.createdAt as any)?.toDate ? (userData.createdAt as any).toDate() : new Date(userData.createdAt),
+    totals,
+    enrollments: enrollmentsList,
+    activity
   }
 }
 
