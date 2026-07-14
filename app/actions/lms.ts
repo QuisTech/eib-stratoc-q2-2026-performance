@@ -643,16 +643,16 @@ export async function getAdminUserDetail(userId: string) {
   const userData = userDoc.data() as User
   
   const enrSnap = await adminDb.collection("enrollments").where("userId", "==", userId).get()
-  const enrollments = enrSnap.docs.map(d => d.data() as Enrollment)
+  const enrollments = enrSnap.docs.map((d: any) => d.data() as Enrollment)
   
   const lpSnap = await adminDb.collection("lessonProgress").where("userId", "==", userId).get()
-  const lessonProgress = lpSnap.docs.map(d => d.data())
+  const lessonProgress = lpSnap.docs.map((d: any) => d.data())
   
   const qaSnap = await adminDb.collection("quizAttempts").where("userId", "==", userId).get()
-  const quizAttempts = qaSnap.docs.map(d => d.data() as QuizAttempt)
+  const quizAttempts = qaSnap.docs.map((d: any) => d.data() as QuizAttempt)
   
   const certSnap = await adminDb.collection("certificates").where("userId", "==", userId).get()
-  const certificates = certSnap.docs.map(d => d.data() as Certificate)
+  const certificates = certSnap.docs.map((d: any) => d.data() as Certificate)
 
   // Fetch all courses to get titles, categories, prices, lesson counts
   const allCourses = await getCourses()
