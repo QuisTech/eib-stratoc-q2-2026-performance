@@ -314,9 +314,9 @@ export async function getAdminReport(): Promise<AdminReport> {
     if (role === "group_head") {
       const userSubLower = viewer.subsidiary?.toLowerCase() || ""
       const canSeeBlack = userSubLower.startsWith("dci -") || userSubLower === "directorate of clandestine & intelligence" || userSubLower === "black"
-      learnerRows = canSeeBlack ? allUsers : allUsers.filter(u => u.subsidiary !== "BLACK")
+      learnerRows = canSeeBlack ? allUsers! : allUsers!.filter(u => u.subsidiary !== "BLACK")
     } else {
-      learnerRows = allUsers
+      learnerRows = allUsers!
     }
   } else {
     // 1. Find all courses authored by the viewer
@@ -334,14 +334,14 @@ export async function getAdminReport(): Promise<AdminReport> {
     // 3. Find base users
     let baseUsers: User[] = []
     if (role === "lead") {
-      baseUsers = allUsers.filter(u => u.subsidiary === (viewer.subsidiary ?? "__none__"))
+      baseUsers = allUsers!.filter(u => u.subsidiary === (viewer.subsidiary ?? "__none__"))
     } else if (role === "group_head_standard") {
-      baseUsers = allUsers.filter(u => u.subsidiary?.startsWith("DCI - "))
+      baseUsers = allUsers!.filter(u => u.subsidiary?.startsWith("DCI - "))
     }
 
     const visibleUserIds = new Set(baseUsers.map((u) => u.id))
     enrolledUserIds.forEach((id) => visibleUserIds.add(id))
-    learnerRows = allUsers.filter(u => visibleUserIds.has(u.id))
+    learnerRows = allUsers!.filter(u => visibleUserIds.has(u.id))
   }
 
   let allDbCourses = await getCourses()
@@ -369,7 +369,7 @@ export async function getAdminReport(): Promise<AdminReport> {
     allEnrollmentsRaw = allEnrollmentsSnap.docs.map(d => d.data() as Enrollment)
     setCache("all_enrollments", allEnrollmentsRaw, 2 * 60 * 1000) // 2 min
   }
-  const allEnrollments = allEnrollmentsRaw.filter((e: Enrollment) => ids.includes(e.userId))
+  const allEnrollments = allEnrollmentsRaw!.filter((e: Enrollment) => ids.includes(e.userId))
   
   let allCertsRaw = getCached<Certificate[]>("all_certificates")
   if (!allCertsRaw) {
@@ -377,7 +377,7 @@ export async function getAdminReport(): Promise<AdminReport> {
     allCertsRaw = allCertsSnap.docs.map(d => d.data() as Certificate)
     setCache("all_certificates", allCertsRaw, 2 * 60 * 1000) // 2 min
   }
-  const allCerts = allCertsRaw.filter((c: Certificate) => ids.includes(c.userId))
+  const allCerts = allCertsRaw!.filter((c: Certificate) => ids.includes(c.userId))
 
   const enrByUser = new Map<string, Enrollment[]>()
   const latestEnrollDateByUser = new Map<string, Date>()
