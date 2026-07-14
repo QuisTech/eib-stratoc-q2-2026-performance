@@ -20,8 +20,8 @@ if (!getApps().length) {
       
       initializeApp({
         credential: cert({
-          projectId: process.env.FIREBASE_PROJECT_ID?.trim(),
-          clientEmail: process.env.FIREBASE_CLIENT_EMAIL?.trim(),
+          projectId: process.env.FIREBASE_PROJECT_ID?.replace(/[\r\n\s]+/g, '').replace(/\\n/g, ''),
+          clientEmail: process.env.FIREBASE_CLIENT_EMAIL?.replace(/[\r\n\s]+/g, '').replace(/\\n/g, ''),
           privateKey: pk,
         }),
       });
