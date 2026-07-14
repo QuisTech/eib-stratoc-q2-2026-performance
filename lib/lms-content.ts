@@ -148,6 +148,8 @@ export function getLessons(course: Course): Lesson[] {
       const parsed = JSON.parse(course.customContent)
       if (parsed.lessons && Array.isArray(parsed.lessons)) {
         return parsed.lessons
+      } else if (Array.isArray(parsed)) {
+        return parsed
       }
     } catch (e) {
       console.error("Failed to parse custom lessons for", course.slug, e)
