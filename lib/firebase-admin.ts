@@ -13,16 +13,21 @@ if (!getApps().length) {
         }),
       });
     } else {
-      // Fallback for build time
+      // Fallback for build time or missing env vars
       initializeApp({
         projectId: process.env.FIREBASE_PROJECT_ID || "demo-project",
+        credential: {
+          getAccessToken: () => Promise.resolve({ access_token: 'mock', expires_in: 3600 })
+        }
       });
     }
   } catch (error) {
     console.error("Firebase Admin Initialization Error:", error);
-    // Initialize without credentials so the app doesn't crash completely
     initializeApp({
       projectId: process.env.FIREBASE_PROJECT_ID || "demo-project",
+      credential: {
+        getAccessToken: () => Promise.resolve({ access_token: 'mock', expires_in: 3600 })
+      }
     });
   }
 }
