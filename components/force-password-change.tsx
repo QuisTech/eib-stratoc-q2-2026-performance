@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ShieldAlert, Loader2 } from "lucide-react"
+import { auth } from "@/lib/firebase"
+import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth"
+import { updateUserDoc } from "@/app/actions/auth"
 
 export function ForcePasswordChange() {
   const { data: session, refetch } = useSession()
@@ -41,31 +44,19 @@ export function ForcePasswordChange() {
     setLoading(true)
 
     try {
-      const { error: changeErr } = await authClient.changePassword({
-        newPassword,
-        currentPassword,
-        revokeOtherSessions: true,
-      })
+      const user = auth.currentUser
+      if (!user) throw new Error("Not logged in")
+      
+      const credential = EmailAuthProvider.credential(user.email!, currentPassword)
+      await reauthenticateWithCredential(user, credential)
 
-      if (changeErr) {
-        setError(changeErr.message || "Failed to change password. Make sure your current password is correct.")
-        setLoading(false)
-        return
-      }
+      await updatePassword(user, newPassword)
 
-      // Update the user's mustChangePassword flag
-      const { error: updateErr } = await authClient.updateUser({
-        mustChangePassword: false,
-      })
+      // Update the user's mustChangePassword flag in Firestore
+      await updateUserDoc(user.uid, { mustChangePassword: false })
 
-      if (updateErr) {
-        // Even if updating the flag fails, the password was changed.
-        // We log it, but we can optimistically proceed.
-        console.error("Failed to update mustChangePassword flag:", updateErr)
-      }
-
-      await refetch()
-      router.refresh()
+      // force a refresh so useSession can re-fetch
+      window.location.reload()
     } catch (err: any) {
       setError(err?.message || "An unexpected error occurred.")
     } finally {

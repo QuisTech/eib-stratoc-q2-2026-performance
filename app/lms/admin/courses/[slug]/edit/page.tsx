@@ -1,12 +1,13 @@
+import { getSessionUser } from "@/app/actions/auth"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
-import { auth } from "@/lib/auth"
+
 import { updateCourse } from "@/app/actions/lms"
-import { db } from "@/lib/db"
-import { courses } from "@/lib/db/schema"
-import { eq } from "drizzle-orm"
+
+
+
 
 export default async function EditCoursePage({
   params,
@@ -14,7 +15,8 @@ export default async function EditCoursePage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const session = await auth.api.getSession({ headers: await headers() })
+  const user = await getSessionUser();
+  const session = user ? { user } : null
   if (!session?.user) redirect("/sign-in")
 
   const role = session.user.role as string

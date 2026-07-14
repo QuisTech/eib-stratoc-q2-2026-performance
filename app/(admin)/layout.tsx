@@ -1,15 +1,14 @@
-import { auth } from "@/lib/auth"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
+import { getSessionUser } from "@/app/actions/auth"
 
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const session = await auth.api.getSession({
-    headers: await headers()
-  })
+  const user = await getSessionUser();
+  const session = user ? { user } : null
 
   const allowedEmails = [
     "michael.marquis@eibgroup.com",

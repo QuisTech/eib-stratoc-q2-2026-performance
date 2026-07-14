@@ -1,9 +1,10 @@
+import { getSessionUser } from "@/app/actions/auth"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
-import { auth } from "@/lib/auth"
-import { db } from "@/lib/db"
-import { courses } from "@/lib/db/schema"
-import { eq } from "drizzle-orm"
+
+
+
+
 import CourseBuilderClient from "./client"
 
 export const maxDuration = 60;
@@ -14,7 +15,8 @@ export default async function CourseBuilderPage({
   params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
-  const session = await auth.api.getSession({ headers: await headers() })
+  const user = await getSessionUser();
+  const session = user ? { user } : null
   if (!session?.user) redirect("/sign-in")
 
   const role = session.user.role as string

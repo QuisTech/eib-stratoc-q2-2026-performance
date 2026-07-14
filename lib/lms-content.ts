@@ -1,4 +1,4 @@
-import type { Course } from "@/lib/db/schema"
+import type { Course } from "@/lib/types"
 
 // ---------------------------------------------------------------------------
 // Curated LMS content lives in code (version-controlled, easy to author well).

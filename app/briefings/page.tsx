@@ -1,13 +1,14 @@
+import { getSessionUser } from "@/app/actions/auth"
 import { redirect } from "next/navigation"
 import { headers } from "next/headers"
-import { auth } from "@/lib/auth"
 import { getCourses } from "@/app/actions/lms"
 import { isCourseVisibleToUser } from "@/lib/utils"
 import { FileText, Download } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
 export default async function BriefingsPage() {
-  const session = await auth.api.getSession({ headers: await headers() })
+  const user = await getSessionUser();
+  const session = user ? { user } : null
   if (!session?.user) {
     redirect("/sign-in")
   }

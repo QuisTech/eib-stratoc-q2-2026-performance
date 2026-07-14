@@ -1,7 +1,8 @@
+import { getSessionUser } from "@/app/actions/auth"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { headers } from "next/headers"
-import { auth } from "@/lib/auth"
+
 import { getAdminReport } from "@/app/actions/lms"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -29,7 +30,8 @@ function initials(name: string) {
 
 export default async function AdminPage() {
   try {
-    const session = await auth.api.getSession({ headers: await headers() })
+    const user = await getSessionUser();
+  const session = user ? { user } : null
     if (!session?.user) redirect("/sign-in")
 
     const role = (session.user as { role?: string }).role ?? "learner"

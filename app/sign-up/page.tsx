@@ -1,7 +1,7 @@
+import { getSessionUser } from "@/app/actions/auth"
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { headers } from "next/headers"
-import { auth } from "@/lib/auth"
 import { AuthForm } from "@/components/auth-form"
 
 export const metadata: Metadata = {
@@ -10,7 +10,8 @@ export const metadata: Metadata = {
 }
 
 export default async function SignUpPage() {
-  const session = await auth.api.getSession({ headers: await headers() })
+  const user = await getSessionUser();
+  const session = user ? { user } : null
   if (session?.user) redirect("/lms")
 
   return (

@@ -7,7 +7,10 @@ import { authClient } from "@/lib/auth-client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Loader2, ShieldCheck } from "lucide-react"
-import { autoEnrollOnboarding, setInitialRole } from "@/app/actions/lms"
+import { autoEnrollOnboarding } from "@/app/actions/lms"
+import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth"
+import { auth } from "@/lib/firebase"
+import { createSessionCookie, createUserProfile } from "@/app/actions/auth"
 
 const SUBSIDIARY_GROUPS = {
   "Group Leadership": [
@@ -75,30 +78,39 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
           }
         }
 
-        const res = (await authClient.signUp.email({
-          email,
-          password,
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password)
+        const user = userCredential.user
+
+        const finalRole = role === "group_head_standard" ? "lead" : role;
+        await createUserProfile(user.uid, {
           name,
+          email,
+          role: finalRole,
           subsidiary,
-        } as Parameters<typeof authClient.signUp.email>[0])) as any
-        if (res?.error) throw new Error(`SignUp Error: ${res.error.status} - ${res.error.message}`)
+        })
+
+        const idToken = await user.getIdToken()
+        await createSessionCookie(idToken)
 
         try {
-          const finalRole = role === "group_head_standard" ? "lead" : role;
-          if (finalRole !== "learner") {
-            await setInitialRole(res.data.user.id, finalRole)
-          }
           await autoEnrollOnboarding(subsidiary)
         } catch (e) {
           console.error("Auto enroll onboarding failed:", e)
         }
       } else {
-        const res = (await authClient.signIn.email({ email, password })) as any
-        if (res?.error) throw new Error(`SignIn Error: ${res.error.status} - ${res.error.message}`)
+        const userCredential = await signInWithEmailAndPassword(auth, email, password)
+        const idToken = await userCredential.user.getIdToken()
+        await createSessionCookie(idToken)
       }
       window.location.href = "/lms"
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong")
+    } catch (err: any) {
+      if (err.code === "auth/invalid-credential") {
+        setError("Invalid email or password.")
+      } else if (err.code === "auth/email-already-in-use") {
+        setError("An account with this email already exists.")
+      } else {
+        setError(err instanceof Error ? err.message : "Something went wrong")
+      }
       setLoading(false)
     }
   }

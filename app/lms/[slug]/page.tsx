@@ -1,8 +1,8 @@
+import { getSessionUser } from "@/app/actions/auth"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { headers } from "next/headers"
-import { auth } from "@/lib/auth"
 import {
   getCourseBySlug,
   getMyEnrollmentForCourse,
@@ -64,7 +64,8 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
   const course = await getCourseBySlug(slug)
   if (!course) notFound()
 
-  const session = await auth.api.getSession({ headers: await headers() })
+  const user = await getSessionUser();
+  const session = user ? { user } : null
   const signedIn = Boolean(session?.user)
 
   // Enforce subsidiary visibility check if the user is signed in

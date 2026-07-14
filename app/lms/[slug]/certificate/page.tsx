@@ -1,12 +1,9 @@
+import { getSessionUser } from "@/app/actions/auth"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { headers } from "next/headers"
-import { auth } from "@/lib/auth"
 import { getCourseBySlug, getCertificateForCourse } from "@/app/actions/lms"
-import { db } from "@/lib/db"
-import { user } from "@/lib/db/schema"
-import { eq } from "drizzle-orm"
 import { INITIATIVE_NAMES } from "@/lib/lms-content"
 import { formatNaira } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
@@ -37,7 +34,8 @@ export default async function CertificatePage({
   const course = await getCourseBySlug(slug)
   if (!course) notFound()
 
-  const session = await auth.api.getSession({ headers: await headers() })
+  const user = await getSessionUser();
+  const session = user ? { user } : null
   
   if (!targetUserId && !session?.user) {
     redirect("/sign-in")

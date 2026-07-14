@@ -1,4 +1,4 @@
-import { auth } from "@/lib/auth"
+import { getSessionUser } from "@/app/actions/auth"
 import { headers } from "next/headers"
 import { streamObject } from "ai"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
@@ -27,7 +27,8 @@ CRITICAL RULE: NEVER use the terms "EIB Group", "DCI", "BLACK", "Giga Forensics"
 
 export async function POST(req: Request) {
   // Authentication Check
-  const session = await auth.api.getSession({ headers: await headers() })
+  const user = await getSessionUser();
+  const session = user ? { user } : null
   if (!session?.user || session.user.role !== "admin") {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 })
   }

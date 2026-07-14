@@ -1,7 +1,7 @@
+import { getSessionUser } from "@/app/actions/auth"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { headers } from "next/headers"
-import { auth } from "@/lib/auth"
 import { getCourses, getMyEnrollments } from "@/app/actions/lms"
 import { CourseCard } from "@/components/lms/course-card"
 import { CourseCatalog } from "@/components/lms/course-catalog"
@@ -39,7 +39,8 @@ export default async function LmsPage() {
   try {
   let session = null;
   try {
-    session = await auth.api.getSession({ headers: await headers() })
+    const user = await getSessionUser();
+    session = user ? { user } : null
   } catch (e) {
     console.error("LmsPage getSession error:", e)
   }

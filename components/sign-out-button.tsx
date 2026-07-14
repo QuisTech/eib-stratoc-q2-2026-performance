@@ -2,7 +2,7 @@
 
 import { useTransition } from "react"
 import { useRouter } from "next/navigation"
-import { authClient } from "@/lib/auth-client"
+import { signOut as authSignOut } from "@/lib/auth-client"
 import { LogOut, Loader2 } from "lucide-react"
 
 export function SignOutButton({ className }: { className?: string }) {
@@ -11,7 +11,7 @@ export function SignOutButton({ className }: { className?: string }) {
 
   function signOut() {
     startTransition(async () => {
-      await authClient.signOut()
+      await authSignOut()
       router.push("/sign-in")
       router.refresh()
     })

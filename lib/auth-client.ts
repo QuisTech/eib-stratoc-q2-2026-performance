@@ -1,10 +1,36 @@
 "use client"
 
-import { createAuthClient } from "better-auth/react"
-import { adminClient } from "better-auth/client/plugins"
+import { useState, useEffect } from "react"
+import { getSessionUser, clearSessionCookie } from "@/app/actions/auth"
+import { auth } from "@/lib/firebase"
 
-export const authClient = createAuthClient({
-  plugins: [adminClient()],
-})
+export function useSession() {
+  const [session, setSession] = useState<{ user: any } | null>(null)
+  const [isPending, setIsPending] = useState(true)
 
-export const { signIn, signUp, signOut, useSession } = authClient
+  useEffect(() => {
+    async function fetchSession() {
+      try {
+        const user = await getSessionUser()
+        if (user) {
+          setSession({ user })
+        } else {
+          setSession(null)
+        }
+      } catch (e) {
+        setSession(null)
+      } finally {
+        setIsPending(false)
+      }
+    }
+    fetchSession()
+  }, [])
+
+  return { data: session, isPending }
+}
+
+export const signOut = async () => {
+  await auth.signOut()
+  await clearSessionCookie()
+  window.location.href = "/sign-in"
+}

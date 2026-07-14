@@ -1,7 +1,7 @@
+import { getSessionUser } from "@/app/actions/auth"
 import Link from "next/link"
 import { redirect, notFound } from "next/navigation"
 import { headers } from "next/headers"
-import { auth } from "@/lib/auth"
 import { getAdminUserDetail } from "@/app/actions/lms"
 import { formatNaira } from "@/lib/utils"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -86,7 +86,8 @@ export default async function UserDetailPage({ params }: { params: Promise<Param
   const { userId } = await params
 
   try {
-    const session = await auth.api.getSession({ headers: await headers() })
+    const user = await getSessionUser();
+  const session = user ? { user } : null
     if (!session?.user) redirect("/sign-in")
 
     const role = (session.user as { role?: string }).role ?? "learner"

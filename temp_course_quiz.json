@@ -1,0 +1,143 @@
+[
+  {
+    "type": "multiple_choice",
+    "id": "q1",
+    "prompt": "Which of the following best describes the primary role of financial management within EIB Group's diversified structure?",
+    "explanation": "Financial management in a conglomerate like EIB Group is primarily about strategically allocating resources, mitigating risks, and ensuring compliance across all subsidiaries to achieve overall growth and profitability, rather than just tracking daily transactions or securing loans.",
+    "correctIndex": 2,
+    "options": [
+      "To solely track daily cash inflows and outflows for each subsidiary.",
+      "To secure the lowest interest rates on all loans for the group.",
+      "To strategically allocate resources, mitigate risks, and ensure compliance across all subsidiaries for sustainable growth.",
+      "To only focus on the profitability of the largest subsidiary, Briech Atlantic."
+    ]
+  },
+  {
+    "type": "multiple_choice",
+    "id": "q2",
+    "prompt": "Luftreiber Automobile is planning to acquire a new fleet of vehicles for its logistics services. What type of budget would primarily cover this significant expenditure?",
+    "explanation": "The acquisition of new vehicles is a long-term investment in fixed assets, which falls under a capital budget. Operating budgets cover day-to-day expenses, and cash flow budgets track cash movements, while project budgets are for specific, often temporary, initiatives.",
+    "correctIndex": 1,
+    "options": [
+      "Operating Budget",
+      "Capital Budget",
+      "Cash Flow Budget",
+      "Personnel Budget"
+    ]
+  },
+  {
+    "type": "multiple_choice",
+    "id": "q3",
+    "prompt": "For DCI-SAC operations, which of the following would most likely be considered a variable cost?",
+    "explanation": "Fuel costs for operational vehicles would directly vary with the number of missions or distance covered by DCI-SAC, making it a variable cost. Rent, salaries of permanent staff, and depreciation are typically fixed costs.",
+    "correctIndex": 0,
+    "options": [
+      "Fuel costs for operational vehicles during missions.",
+      "Monthly office rent for the DCI headquarters.",
+      "Salaries of permanent intelligence analysts.",
+      "Depreciation of specialized surveillance equipment."
+    ]
+  },
+  {
+    "type": "multiple_choice",
+    "id": "q4",
+    "prompt": "POCTOVA, EIB Group's fintech and logistics subsidiary, is experiencing delays in receiving payments from several large clients. This situation primarily impacts which financial aspect?",
+    "explanation": "Delays in client payments directly affect the cash coming into the business, impacting its ability to meet short-term obligations. This is a direct challenge to cash flow and liquidity, not necessarily profitability or long-term solvency immediately.",
+    "correctIndex": 2,
+    "options": [
+      "Net Profit Margin",
+      "Long-term Solvency",
+      "Cash Flow and Liquidity",
+      "Asset Turnover Ratio"
+    ]
+  },
+  {
+    "type": "multiple_choice",
+    "id": "q5",
+    "prompt": "Which financial statement provides a snapshot of EIB Group's assets, liabilities, and equity at a specific point in time?",
+    "explanation": "The Balance Sheet is designed to show a company's financial position (assets, liabilities, and equity) at a single point in time. The Income Statement shows performance over a period, and the Cash Flow Statement tracks cash movements over a period.",
+    "correctIndex": 1,
+    "options": [
+      "Income Statement",
+      "Balance Sheet",
+      "Cash Flow Statement",
+      "Statement of Retained Earnings"
+    ]
+  },
+  {
+    "type": "multiple_choice",
+    "id": "q6",
+    "prompt": "EIB Stratoc is evaluating a new consulting project that requires a significant upfront investment. They want to know how quickly the project will generate enough cash to cover its initial cost. Which capital budgeting technique is most suitable for this specific concern?",
+    "explanation": "The Payback Period specifically measures the time it takes for an investment to recoup its initial cost. While NPV and IRR are more comprehensive for long-term value, Payback Period directly addresses the speed of cost recovery.",
+    "correctIndex": 2,
+    "options": [
+      "Net Present Value (NPV)",
+      "Internal Rate of Return (IRR)",
+      "Payback Period",
+      "Accounting Rate of Return (ARR)"
+    ]
+  },
+  {
+    "type": "multiple_choice",
+    "id": "q7",
+    "prompt": "Bright FM's financial team notices that the actual advertising revenue for the last quarter was significantly lower than budgeted. This deviation is known as a:",
+    "explanation": "A deviation between actual financial results and budgeted figures is called a variance. In this case, lower actual revenue than budgeted would be an unfavorable variance.",
+    "correctIndex": 0,
+    "options": [
+      "Variance",
+      "Accrual",
+      "Depreciation",
+      "Amortization"
+    ]
+  },
+  {
+    "type": "multiple_choice",
+    "id": "q8",
+    "prompt": "To assess EIB Group's ability to meet its short-term obligations, which financial ratio would be most relevant to analyze?",
+    "explanation": "The Current Ratio (Current Assets / Current Liabilities) is a key liquidity ratio that measures a company's ability to cover its short-term debts with its short-term assets. Net Profit Margin is a profitability ratio, Debt-to-Equity is a solvency ratio, and Asset Turnover is an efficiency ratio.",
+    "correctIndex": 1,
+    "options": [
+      "Net Profit Margin",
+      "Current Ratio",
+      "Debt-to-Equity Ratio",
+      "Asset Turnover Ratio"
+    ]
+  },
+  {
+    "type": "multiple_choice",
+    "id": "q9",
+    "prompt": "Which of the following is a primary financial risk for Briech Atlantic, EIB Group's real estate company, operating in the Nigerian market?",
+    "explanation": "Fluctuations in property values and construction costs are direct market risks for a real estate company. While credit risk from tenants exists, market risk regarding asset values is more pervasive for real estate. Broadcast license fees are for Bright FM, and drone battery costs are for Briech UAS.",
+    "correctIndex": 0,
+    "options": [
+      "Fluctuations in property values and construction material costs.",
+      "High broadcast license fees for new radio stations.",
+      "Rising costs of drone batteries for aerial surveillance.",
+      "Difficulty in securing covert operation permits."
+    ]
+  },
+  {
+    "type": "matching",
+    "id": "q10",
+    "prompt": "Match the EIB Group subsidiary with its most prominent financial management challenge or focus.",
+    "explanation": "This question tests understanding of the diverse financial contexts of EIB Group's subsidiaries. DCI-RAW focuses on managing operational security costs. Briech UAS deals with capital-intensive drone technology. BEF prioritizes budget allocation for social impact. POCTOVA manages revenue from its fintech and logistics services.",
+    "pairs": [
+      {
+        "left": "DCI-RAW",
+        "right": "Managing operational security costs and compliance."
+      },
+      {
+        "left": "Briech UAS",
+        "right": "Capital expenditure planning for drone technology."
+      },
+      {
+        "left": "BEF (Bright Echefu Foundation)",
+        "right": "Budget allocation and impact assessment for social investments."
+      },
+      {
+        "left": "POCTOVA",
+        "right": "Optimizing cash flow from fintech and logistics services."
+      }
+    ]
+  }
+]

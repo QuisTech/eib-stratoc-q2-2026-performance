@@ -1,7 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import { authClient } from "@/lib/auth-client"
+import { auth } from "@/lib/firebase"
+import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "firebase/auth"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -34,22 +35,20 @@ export default function SettingsPage() {
     setLoading(true)
     
     try {
-      const res = await authClient.changePassword({
-        currentPassword,
-        newPassword,
-        revokeOtherSessions: true
-      })
+      const user = auth.currentUser
+      if (!user) throw new Error("Not logged in")
       
-      if (res.error) {
-        setError(res.error.message || "Failed to change password. Please check your current password.")
-      } else {
-        setSuccess(true)
-        setCurrentPassword("")
-        setNewPassword("")
-        setConfirmPassword("")
-      }
+      const credential = EmailAuthProvider.credential(user.email!, currentPassword)
+      await reauthenticateWithCredential(user, credential)
+
+      await updatePassword(user, newPassword)
+      
+      setSuccess(true)
+      setCurrentPassword("")
+      setNewPassword("")
+      setConfirmPassword("")
     } catch (err: any) {
-      setError("An unexpected error occurred.")
+      setError(err?.message || "Failed to change password. Please check your current password.")
     } finally {
       setLoading(false)
     }
