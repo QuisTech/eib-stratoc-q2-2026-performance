@@ -43,5 +43,15 @@ if (!getApps().length) {
   }
 }
 
-export const adminDb = getFirestore();
-export const adminAuth = getAuth();
+let db: any;
+let authAdmin: any;
+
+try {
+  db = getFirestore();
+  authAdmin = getAuth();
+} catch (e) {
+  console.error("Failed to initialize Firebase Admin services:", e);
+}
+
+export const adminDb = db;
+export const adminAuth = authAdmin;
