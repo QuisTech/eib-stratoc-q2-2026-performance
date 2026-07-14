@@ -328,10 +328,10 @@ export async function getAdminReport(): Promise<AdminReport> {
   
   // Client side filter since IDs could be > 10
   const allEnrollmentsSnap = await adminDb.collection("enrollments").get()
-  const allEnrollments = allEnrollmentsSnap.docs.map(d => d.data() as Enrollment).filter(e => ids.includes(e.userId))
+  const allEnrollments = allEnrollmentsSnap.docs.map(d => d.data() as Enrollment).filter((e: Enrollment) => ids.includes(e.userId))
   
   const allCertsSnap = await adminDb.collection("certificates").get()
-  const allCerts = allCertsSnap.docs.map(d => d.data() as Certificate).filter(c => ids.includes(c.userId))
+  const allCerts = allCertsSnap.docs.map(d => d.data() as Certificate).filter((c: Certificate) => ids.includes(c.userId))
 
   const enrByUser = new Map<string, Enrollment[]>()
   const latestEnrollDateByUser = new Map<string, Date>()
