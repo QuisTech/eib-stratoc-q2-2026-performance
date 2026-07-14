@@ -138,6 +138,12 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
         </p>
       </CardHeader>
       <CardContent>
+        {!isSignUp && (
+          <div className="mb-6 rounded-md border border-blue-500/20 bg-blue-500/10 px-4 py-3 text-sm text-blue-600 dark:text-blue-400">
+            <p className="font-semibold mb-1">Internal Staff Notice</p>
+            <p>If your account was generated using a company email, your temporary default password is <strong>Welcome2026!</strong>. You will be prompted to set a permanent password after signing in.</p>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           {isSignUp && (
             <div className="flex flex-col gap-1.5">
@@ -260,7 +266,6 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
             <div className="rounded-md border border-green-500/20 bg-green-500/10 px-4 py-3 text-sm text-green-600 dark:text-green-400">
               <p className="font-semibold mb-1">Security Upgrade Notice</p>
               <p>We have recently upgraded our platform's security infrastructure! For your protection, we have just emailed you a secure link. Please click it to quickly update your password and continue to your dashboard.</p>
-              <p className="mt-2 font-medium">If you are using an internal email without an inbox, please sign in using the temporary password: <strong>Welcome2026!</strong></p>
             </div>
           )}
 
