@@ -49,7 +49,7 @@ export async function getCourses(): Promise<Course[]> {
   const cached = getCached<Course[]>("courses")
   if (cached) return cached
   const snap = await adminDb.collection("courses").orderBy("category").orderBy("title").get()
-  const courses = snap.docs.map(d => d.data() as Course)
+  const courses = snap.docs.map((d: any) => d.data() as Course)
   setCache("courses", courses)
   return courses
 }
@@ -62,7 +62,7 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
 export async function getMyEnrollments(): Promise<Enrollment[]> {
   const userId = await getUserId()
   const snap = await adminDb.collection("enrollments").where("userId", "==", userId).orderBy("enrolledAt").get()
-  return snap.docs.map(d => d.data() as Enrollment)
+  return snap.docs.map((d: any) => d.data() as Enrollment)
 }
 
 export async function getMyEnrollmentForCourse(courseId: number): Promise<Enrollment | null> {
@@ -126,7 +126,7 @@ export async function getMyLessonProgress(courseId: number): Promise<string[]> {
     .where("userId", "==", userId)
     .where("courseId", "==", courseId)
     .get()
-  return snap.docs.map(d => d.data().lessonKey)
+  return snap.docs.map((d: any) => d.data().lessonKey)
 }
 
 export async function completeLesson(courseId: number, lessonKey: string) {
@@ -149,7 +149,7 @@ export async function getMyQuizAttempts(courseId: number): Promise<QuizAttempt[]
     .where("userId", "==", userId)
     .where("courseId", "==", courseId)
     .get()
-  const results = snap.docs.map(d => {
+  const results = snap.docs.map((d: any) => {
     const data = d.data()
     return { ...data, createdAt: data.createdAt?.toDate?.() || new Date(data.createdAt) } as QuizAttempt
   })
@@ -205,7 +205,7 @@ export async function getMyCertificates(): Promise<Certificate[]> {
     .where("userId", "==", userId)
     .orderBy("issuedAt", "desc")
     .get()
-  return snap.docs.map(d => d.data() as Certificate)
+  return snap.docs.map((d: any) => d.data() as Certificate)
 }
 
 export async function recomputeCourseProgress(userId: string, courseId: number) {
@@ -306,7 +306,7 @@ export async function getAdminReport(): Promise<AdminReport> {
   let allUsers = getCached<User[]>("all_users")
   if (!allUsers) {
     const allUsersSnap = await adminDb.collection("users").get()
-    allUsers = allUsersSnap.docs.map(d => d.data() as User)
+    allUsers = allUsersSnap.docs.map((d: any) => d.data() as User)
     setCache("all_users", allUsers, 2 * 60 * 1000) // 2 min
   }
 
@@ -321,7 +321,7 @@ export async function getAdminReport(): Promise<AdminReport> {
   } else {
     // 1. Find all courses authored by the viewer
     const myCoursesSnap = await adminDb.collection("courses").where("authorId", "==", viewer.id).get()
-    const myCourseIds = myCoursesSnap.docs.map(d => Number(d.id))
+    const myCourseIds = myCoursesSnap.docs.map((d: any) => Number(d.id))
 
     // 2. Find all users enrolled in those courses (reuse cached enrollments)
     let enrolledUserIds: string[] = []
@@ -329,7 +329,7 @@ export async function getAdminReport(): Promise<AdminReport> {
       let cachedEnrollments = getCached<Enrollment[]>("all_enrollments")
       if (!cachedEnrollments) {
         const enrsSnap = await adminDb.collection("enrollments").get()
-        cachedEnrollments = enrsSnap.docs.map(d => d.data() as Enrollment)
+        cachedEnrollments = enrsSnap.docs.map((d: any) => d.data() as Enrollment)
         setCache("all_enrollments", cachedEnrollments, 2 * 60 * 1000)
       }
       enrolledUserIds = cachedEnrollments!.filter(e => myCourseIds.includes(e.courseId)).map(e => e.userId)
@@ -370,7 +370,7 @@ export async function getAdminReport(): Promise<AdminReport> {
   let allEnrollmentsRaw = getCached<Enrollment[]>("all_enrollments")
   if (!allEnrollmentsRaw) {
     const allEnrollmentsSnap = await adminDb.collection("enrollments").get()
-    allEnrollmentsRaw = allEnrollmentsSnap.docs.map(d => d.data() as Enrollment)
+    allEnrollmentsRaw = allEnrollmentsSnap.docs.map((d: any) => d.data() as Enrollment)
     setCache("all_enrollments", allEnrollmentsRaw, 2 * 60 * 1000) // 2 min
   }
   const allEnrollments = allEnrollmentsRaw!.filter((e: Enrollment) => ids.includes(e.userId))
@@ -378,7 +378,7 @@ export async function getAdminReport(): Promise<AdminReport> {
   let allCertsRaw = getCached<Certificate[]>("all_certificates")
   if (!allCertsRaw) {
     const allCertsSnap = await adminDb.collection("certificates").get()
-    allCertsRaw = allCertsSnap.docs.map(d => d.data() as Certificate)
+    allCertsRaw = allCertsSnap.docs.map((d: any) => d.data() as Certificate)
     setCache("all_certificates", allCertsRaw, 2 * 60 * 1000) // 2 min
   }
   const allCerts = allCertsRaw!.filter((c: Certificate) => ids.includes(c.userId))
