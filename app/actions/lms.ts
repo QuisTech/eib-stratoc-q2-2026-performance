@@ -122,11 +122,15 @@ export async function getMyQuizAttempts(courseId: number): Promise<QuizAttempt[]
   const snap = await adminDb.collection("quizAttempts")
     .where("userId", "==", userId)
     .where("courseId", "==", courseId)
-    .orderBy("createdAt", "desc")
     .get()
-  return snap.docs.map(d => {
+  const results = snap.docs.map(d => {
     const data = d.data()
     return { ...data, createdAt: data.createdAt?.toDate?.() || new Date(data.createdAt) } as QuizAttempt
+  })
+  return results.sort((a, b) => {
+    const tA = a.createdAt.getTime()
+    const tB = b.createdAt.getTime()
+    return tB - tA // desc
   })
 }
 
