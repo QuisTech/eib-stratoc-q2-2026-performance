@@ -140,8 +140,11 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
       <CardContent>
         {!isSignUp && (
           <div className="mb-6 rounded-md border border-blue-500/20 bg-blue-500/10 px-4 py-3 text-sm text-blue-600 dark:text-blue-400">
-            <p className="font-semibold mb-1">Internal Staff Notice</p>
-            <p>If your account was generated using a company email, your temporary default password is <strong>Welcome2026!</strong>. You will be prompted to set a permanent password after signing in.</p>
+            <p className="font-semibold mb-1">Platform Security Upgrade</p>
+            <ul className="list-disc pl-5 space-y-1 mt-2">
+              <li><strong>Company emails:</strong> Your temporary password is <strong>Welcome2026!</strong>. You will be prompted to set a permanent password after signing in.</li>
+              <li><strong>Personal emails (Gmail, Yahoo, etc):</strong> Log in with your usual password. The system will automatically email you a secure link to upgrade your account security.</li>
+            </ul>
           </div>
         )}
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
