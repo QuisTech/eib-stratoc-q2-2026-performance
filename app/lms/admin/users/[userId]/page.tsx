@@ -95,10 +95,8 @@ export default async function UserDetailPage({ params }: { params: Promise<Param
       redirect("/lms")
     }
 
-    let detail
-    try {
-      detail = await getAdminUserDetail(userId)
-    } catch {
+    const detail = await getAdminUserDetail(userId).catch(() => null)
+    if (!detail) {
       notFound()
     }
 
