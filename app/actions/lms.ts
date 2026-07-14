@@ -332,7 +332,7 @@ export async function getAdminReport(): Promise<AdminReport> {
         cachedEnrollments = enrsSnap.docs.map(d => d.data() as Enrollment)
         setCache("all_enrollments", cachedEnrollments, 2 * 60 * 1000)
       }
-      enrolledUserIds = cachedEnrollments.filter(e => myCourseIds.includes(e.courseId)).map(e => e.userId)
+      enrolledUserIds = cachedEnrollments!.filter(e => myCourseIds.includes(e.courseId)).map(e => e.userId)
     }
 
     // 3. Find base users
