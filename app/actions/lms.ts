@@ -323,12 +323,16 @@ export async function getAdminReport(): Promise<AdminReport> {
     const myCoursesSnap = await adminDb.collection("courses").where("authorId", "==", viewer.id).get()
     const myCourseIds = myCoursesSnap.docs.map(d => Number(d.id))
 
-    // 2. Find all users enrolled in those courses
+    // 2. Find all users enrolled in those courses (reuse cached enrollments)
     let enrolledUserIds: string[] = []
     if (myCourseIds.length > 0) {
-      // Note: Firestore 'in' queries are limited to 10 items, doing client-side filter
-      const enrsSnap = await adminDb.collection("enrollments").get()
-      enrolledUserIds = enrsSnap.docs.filter(d => myCourseIds.includes(d.data().courseId)).map(d => d.data().userId)
+      let cachedEnrollments = getCached<Enrollment[]>("all_enrollments")
+      if (!cachedEnrollments) {
+        const enrsSnap = await adminDb.collection("enrollments").get()
+        cachedEnrollments = enrsSnap.docs.map(d => d.data() as Enrollment)
+        setCache("all_enrollments", cachedEnrollments, 2 * 60 * 1000)
+      }
+      enrolledUserIds = cachedEnrollments.filter(e => myCourseIds.includes(e.courseId)).map(e => e.userId)
     }
 
     // 3. Find base users
