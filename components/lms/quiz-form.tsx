@@ -205,6 +205,9 @@ export function QuizForm({
   const [isMounted, setIsMounted] = useState(false)
   const [shuffled, setShuffled] = useState<ShuffledQuestion[]>([])
 
+  const [tabSwitchCount, setTabSwitchCount] = useState(0)
+  const [showWarningModal, setShowWarningModal] = useState(false)
+
   const buildShuffled = () => {
     const randomized = questions.map((q, qi) => {
       if (q.type === "matching" && q.pairs) {
@@ -241,6 +244,37 @@ export function QuizForm({
     setIsMounted(true)
   }, [questions])
 
+  useEffect(() => {
+    // Only enforce anti-cheating when mounted, actively taking the quiz, and no pending submission
+    if (!isMounted || result || pending) return
+
+    const handleFocusLoss = () => {
+      setTabSwitchCount((prev) => {
+        const newCount = prev + 1
+        if (newCount === 1) {
+          setShowWarningModal(true)
+        } else if (newCount >= 2) {
+          submit(true) // Force auto-submit
+        }
+        return newCount
+      })
+    }
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'hidden') {
+        handleFocusLoss()
+      }
+    }
+
+    window.addEventListener('blur', handleFocusLoss)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      window.removeEventListener('blur', handleFocusLoss)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [isMounted, result, pending])
+
   const allAnswered = questions.every((q, i) => {
     if (q.type === "matching") {
       const ans = answers[i] as { left: string; right: string }[] | undefined
@@ -249,17 +283,19 @@ export function QuizForm({
     return answers[i] !== undefined
   })
 
-  function submit() {
+  function submit(forced = false) {
     setError(null)
-    if (!allAnswered) {
+    if (!forced && !allAnswered) {
       setError("Please answer every question before submitting.")
       return
     }
-    const ordered = questions.map((_, i) => answers[i])
+    // If forced, unanswered questions will be passed as undefined to the server and marked incorrect.
+    const ordered = questions.map((_, i) => answers[i] || null)
     startTransition(async () => {
       try {
         const r = await submitQuiz(courseId, ordered)
         setResult(r as Result)
+        setShowWarningModal(false)
         router.refresh()
       } catch {
         setError("Could not submit your quiz. Please try again.")
@@ -431,7 +467,7 @@ export function QuizForm({
           )}
 
           <div className="flex items-center gap-3">
-            <Button onClick={submit} disabled={pending} size="lg">
+            <Button onClick={() => submit()} disabled={pending} size="lg">
               {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Submit assessment
             </Button>
@@ -440,6 +476,28 @@ export function QuizForm({
             </span>
           </div>
         </>
+      )}
+
+      {showWarningModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm">
+          <Card className="w-full max-w-lg border-destructive bg-background shadow-lg">
+            <CardContent className="flex flex-col items-center gap-4 p-8 text-center">
+              <AlertTriangle className="h-16 w-16 text-destructive" />
+              <h2 className="font-heading text-2xl font-bold text-destructive">
+                Anti-Cheating Warning
+              </h2>
+              <p className="text-muted-foreground text-balance">
+                You navigated away from the assessment window. Tab switching, opening other applications, or minimizing the browser is strictly prohibited during this assessment.
+              </p>
+              <div className="mt-2 w-full rounded-md bg-destructive/10 p-3 text-sm font-medium text-destructive">
+                If you leave the window again, your quiz will be automatically submitted and locked.
+              </div>
+              <Button size="lg" className="mt-4 w-full" onClick={() => setShowWarningModal(false)}>
+                I understand, return to assessment
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       )}
     </div>
   )
