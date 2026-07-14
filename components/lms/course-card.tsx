@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress"
 import { buttonVariants } from "@/components/ui/button"
 import { EnrollButton } from "@/components/lms/enroll-button"
 import type { Course } from "@/lib/types"
-import { formatNaira } from "@/lib/utils"
+import { formatNaira, formatCourseSubsidiaries } from "@/lib/utils"
 import { Clock, Layers, Building2, ArrowRight } from "lucide-react"
 
 const levelClass: Record<string, string> = {
@@ -87,12 +87,10 @@ export function CourseCard({
           <li className="flex items-center gap-2">
             <Clock className="h-3.5 w-3.5 text-accent" /> {course.durationHours} hours
           </li>
-          {course.subsidiaries && (
-            <li className="flex items-center gap-2">
-              <Building2 className="h-3.5 w-3.5 text-accent" />
-              <span className="line-clamp-1">{course.subsidiaries.split(",").join(" · ")}</span>
-            </li>
-          )}
+          <li className="flex items-center gap-2">
+            <Building2 className="h-3.5 w-3.5 text-accent" />
+            <span className="line-clamp-1">{formatCourseSubsidiaries(course.subsidiaries)}</span>
+          </li>
         </ul>
 
         {enrolled && typeof progress === "number" && (

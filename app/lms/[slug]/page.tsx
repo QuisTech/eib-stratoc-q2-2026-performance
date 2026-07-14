@@ -11,7 +11,7 @@ import {
   getMyCertificateForCourse,
 } from "@/app/actions/lms"
 import { getLessons } from "@/lib/lms-content"
-import { formatNaira, isCourseVisibleToUser } from "@/lib/utils"
+import { formatNaira, isCourseVisibleToUser, formatCourseSubsidiaries } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -134,12 +134,10 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
             <span className="flex items-center gap-2">
               <BookOpen className="h-4 w-4 text-accent" /> {lessons.length} lessons + assessment
             </span>
-            {course.subsidiaries && (
-              <span className="flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-accent" />
-                {course.subsidiaries.split(",").join(" · ")}
-              </span>
-            )}
+            <span className="flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-accent" />
+              {formatCourseSubsidiaries(course.subsidiaries)}
+            </span>
           </div>
 
           {/* Curriculum */}
