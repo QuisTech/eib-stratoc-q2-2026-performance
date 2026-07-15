@@ -50,7 +50,7 @@ export default async function LmsPage() {
   // Signed-out: marketing / vision view with sign-up CTA.
   if (!session?.user) {
     const catalogValue = courses.reduce((s, c) => s + c.priceNaira, 0)
-    return <SignedOutView courseCount={courses.length} catalogValue={catalogValue} />
+    return <SignedOutView courseCount={courses.length} catalogValue={catalogValue} catalogUnavailable={courses.length === 0} />
   }
 
   const userRole = session.user.role || "learner"
@@ -166,12 +166,31 @@ export default async function LmsPage() {
     </main>
   )
   } catch (err: any) {
+    console.error("LMS page failed:", err)
     return (
-      <div className="p-8 font-mono text-red-500 whitespace-pre-wrap">
-        <h1 className="text-xl font-bold">Server Error in LMS Dashboard:</h1>
-        <p className="mt-4">{err.message}</p>
-        <p className="mt-4 text-xs">{err.stack}</p>
-      </div>
+      <main className="mx-auto max-w-4xl px-4 py-10 md:px-6">
+        <Card>
+          <CardContent className="p-6">
+            <p className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.18em] text-muted-foreground">
+              <GraduationCap className="h-4 w-4 text-accent" /> Learning Portal
+            </p>
+            <h1 className="mt-3 font-heading text-2xl font-bold">LMS data is temporarily unavailable</h1>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              The learning portal is online, but the database quota is currently exhausted. Please try
+              again after the quota resets, or contact the administrator to enable billing on the
+              Firebase project.
+            </p>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Link href="/sign-in" className={buttonVariants({ size: "sm" })}>
+                Try signing in again
+              </Link>
+              <Link href="/" className={buttonVariants({ variant: "outline", size: "sm" })}>
+                Back to overview
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </main>
     )
   }
 }
@@ -203,9 +222,11 @@ function StatCard({
 function SignedOutView({
   courseCount,
   catalogValue,
+  catalogUnavailable = false,
 }: {
   courseCount: number
   catalogValue: number
+  catalogUnavailable?: boolean
 }) {
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 md:px-6">
@@ -228,10 +249,17 @@ function SignedOutView({
               Sign in
             </Link>
           </div>
-          <p className="mt-3 text-sm text-muted-foreground">
-            {courseCount} live courses worth {formatNaira(catalogValue)} in training value are ready
-            — sign in to enroll and track progress.
-          </p>
+          {catalogUnavailable ? (
+            <p className="mt-3 text-sm text-muted-foreground">
+              The LMS is online, but the course catalog is temporarily unavailable while the
+              database quota recovers.
+            </p>
+          ) : (
+            <p className="mt-3 text-sm text-muted-foreground">
+              {courseCount} live courses worth {formatNaira(catalogValue)} in training value are ready
+              — sign in to enroll and track progress.
+            </p>
+          )}
         </div>
         <PrintActions label="LMS vision" />
       </div>

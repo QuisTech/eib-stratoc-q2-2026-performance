@@ -218,12 +218,28 @@ export default async function AdminPage() {
     </main>
   )
   } catch (err: any) {
+    console.error("LMS admin page failed:", err)
     return (
-      <div className="p-8 font-mono text-red-500 whitespace-pre-wrap">
-        <h1 className="text-xl font-bold">Server Error in Admin Dashboard:</h1>
-        <p className="mt-4">{err.message}</p>
-        <p className="mt-4 text-xs">{err.stack}</p>
-      </div>
+      <main className="mx-auto max-w-4xl px-4 py-10 md:px-6">
+        <Card>
+          <CardContent className="p-6">
+            <h1 className="font-heading text-2xl font-bold">Admin dashboard temporarily unavailable</h1>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+              The dashboard is online, but Firestore is currently rejecting database reads because
+              its quota has been exhausted. Please try again after the quota resets, or enable
+              billing on the Firebase project.
+            </p>
+            <div className="mt-5">
+              <Link
+                href="/lms"
+                className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <ArrowLeft className="h-4 w-4" /> Back to LMS
+              </Link>
+            </div>
+          </CardContent>
+        </Card>
+      </main>
     )
   }
 }

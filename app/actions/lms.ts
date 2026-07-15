@@ -15,8 +15,10 @@ import {
 import { getSessionUser } from "@/app/actions/auth"
 import type { Course, Enrollment, QuizAttempt, Certificate, User } from "@/lib/types"
 import { getLessons, gradeQuiz } from "@/lib/lms-content"
-import { revalidatePath } from "next/cache"
+import { revalidatePath, revalidateTag, unstable_cache } from "next/cache"
 import { isCourseVisibleToUser } from "@/lib/utils"
+
+const COURSE_CACHE_TAG = "lms-courses"
 
 async function getUserId() {
   const user = await getSessionUser()
@@ -56,13 +58,40 @@ function invalidateCache(key?: string) {
   else cache.clear()
 }
 
+function isFirestoreQuotaError(error: unknown) {
+  const err = error as { code?: string | number; message?: string; details?: string }
+  const text = `${err?.message ?? ""} ${err?.details ?? ""}`
+  return (
+    err?.code === 8 ||
+    err?.code === "resource-exhausted" ||
+    text.includes("RESOURCE_EXHAUSTED") ||
+    text.includes("Quota exceeded")
+  )
+}
+
+const getCachedCoursesFromFirestore = unstable_cache(
+  async () => {
+    const snap = await adminDb.collection("courses").orderBy("category").orderBy("title").get()
+    return snap.docs.map((d: any) => d.data() as Course)
+  },
+  ["lms-courses-v1"],
+  { tags: [COURSE_CACHE_TAG], revalidate: 60 * 60 }
+)
+
 export async function getCourses(): Promise<Course[]> {
   const cached = getCached<Course[]>("courses")
   if (cached) return cached
-  const snap = await adminDb.collection("courses").orderBy("category").orderBy("title").get()
-  const courses = snap.docs.map((d: any) => d.data() as Course)
-  setCache("courses", courses)
-  return courses
+  try {
+    const courses = await getCachedCoursesFromFirestore()
+    setCache("courses", courses)
+    return courses
+  } catch (error) {
+    if (isFirestoreQuotaError(error)) {
+      console.error("Firestore quota exhausted while loading LMS courses; serving empty catalog fallback.", error)
+      return []
+    }
+    throw error
+  }
 }
 
 export async function getCourseBySlug(slug: string): Promise<Course | null> {
@@ -72,7 +101,16 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
 
 export async function getMyEnrollments(): Promise<Enrollment[]> {
   const userId = await getUserId()
-  const enrollments = await getEnrollmentsByUser(userId)
+  let enrollments: Enrollment[] | null = null
+  try {
+    enrollments = await getEnrollmentsByUser(userId)
+  } catch (error) {
+    if (isFirestoreQuotaError(error)) {
+      console.error("Firestore quota exhausted while loading user enrollments; serving empty enrollment fallback.", error)
+      return []
+    }
+    throw error
+  }
   return (enrollments || []).sort((a: any, b: any) => {
     const aTime = (a.enrolledAt as any)?.getTime?.() || new Date(a.enrolledAt).getTime()
     const bTime = (b.enrolledAt as any)?.getTime?.() || new Date(b.enrolledAt).getTime()
@@ -488,6 +526,7 @@ export async function createCourse(data: any) {
   })
 
   invalidateCache("courses")
+  revalidateTag(COURSE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
 }
@@ -509,6 +548,7 @@ export async function updateCourse(slug: string, data: any) {
   })
 
   invalidateCache("courses")
+  revalidateTag(COURSE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
 }
@@ -523,6 +563,7 @@ export async function saveCustomCourseContent(slug: string, content: string) {
 
   await adminDb.collection("courses").doc(String(existing.id)).update({ customContent: content })
   invalidateCache("courses")
+  revalidateTag(COURSE_CACHE_TAG)
   revalidatePath(`/lms/admin`)
   revalidatePath(`/lms/courses/${slug}`)
 }
@@ -657,6 +698,8 @@ export async function deleteCourse(slug: string) {
   if (!course) return
   
   await adminDb.collection("courses").doc(String(course.id)).delete()
+  invalidateCache("courses")
+  revalidateTag(COURSE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
 }
@@ -680,6 +723,8 @@ export async function duplicateCourseAsLMS(slug: string) {
     updatedAt: new Date()
   })
 
+  invalidateCache("courses")
+  revalidateTag(COURSE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
   return { newSlug }
