@@ -1,6 +1,17 @@
 "use server"
 
 import { adminDb } from "@/lib/firebase-admin"
+import {
+  getEnrollmentsByUser,
+  getQuizAttemptsByUser,
+  getLessonProgressByUser,
+  getCertificatesByUser,
+  getUserById,
+  getAllUsers,
+  getAllEnrollments,
+  getAllCertificates,
+  getCoursesByAuthor,
+} from "@/lib/firebase-admin"
 import { getSessionUser } from "@/app/actions/auth"
 import type { Course, Enrollment, QuizAttempt, Certificate, User } from "@/lib/types"
 import { getLessons, gradeQuiz } from "@/lib/lms-content"
@@ -61,17 +72,18 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
 
 export async function getMyEnrollments(): Promise<Enrollment[]> {
   const userId = await getUserId()
-  const snap = await adminDb.collection("enrollments").where("userId", "==", userId).orderBy("enrolledAt").get()
-  return snap.docs.map((d: any) => d.data() as Enrollment)
+  const enrollments = await getEnrollmentsByUser(userId)
+  return (enrollments || []).sort((a: any, b: any) => {
+    const aTime = (a.enrolledAt as any)?.getTime?.() || new Date(a.enrolledAt).getTime()
+    const bTime = (b.enrolledAt as any)?.getTime?.() || new Date(b.enrolledAt).getTime()
+    return aTime - bTime
+  })
 }
 
 export async function getMyEnrollmentForCourse(courseId: number): Promise<Enrollment | null> {
   const userId = await getUserId()
-  const snap = await adminDb.collection("enrollments")
-    .where("userId", "==", userId)
-    .where("courseId", "==", courseId)
-    .limit(1).get()
-  return snap.empty ? null : (snap.docs[0].data() as Enrollment)
+  const enrollments = await getEnrollmentsByUser(userId)
+  return (enrollments || []).find((e: any) => e.courseId === courseId) || null
 }
 
 export async function enrollInCourse(courseId: number) {
@@ -122,11 +134,8 @@ export async function unenrollFromCourse(courseId: number) {
 
 export async function getMyLessonProgress(courseId: number): Promise<string[]> {
   const userId = await getUserId()
-  const snap = await adminDb.collection("lessonProgress")
-    .where("userId", "==", userId)
-    .where("courseId", "==", courseId)
-    .get()
-  return snap.docs.map((d: any) => d.data().lessonKey)
+  const progress = await getLessonProgressByUser(userId, courseId)
+  return (progress || []).map((p: any) => p.lessonKey)
 }
 
 export async function completeLesson(courseId: number, lessonKey: string) {
@@ -145,19 +154,12 @@ export async function completeLesson(courseId: number, lessonKey: string) {
 
 export async function getMyQuizAttempts(courseId: number): Promise<QuizAttempt[]> {
   const userId = await getUserId()
-  const snap = await adminDb.collection("quizAttempts")
-    .where("userId", "==", userId)
-    .where("courseId", "==", courseId)
-    .get()
-  const results = snap.docs.map((d: any) => {
-    const data = d.data()
-    return { ...data, createdAt: data.createdAt?.toDate?.() || new Date(data.createdAt) } as QuizAttempt
-  })
-  return results.sort((a, b) => {
-    const tA = a.createdAt.getTime()
-    const tB = b.createdAt.getTime()
-    return tB - tA // desc
-  })
+  const attempts = await getQuizAttemptsByUser(userId, courseId)
+  const results = (attempts || []).map((d: any) => ({
+    ...d,
+    createdAt: (d.createdAt as any)?.toDate?.() || new Date(d.createdAt)
+  })) as QuizAttempt[]
+  return results.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
 }
 
 export async function submitQuiz(courseId: number, answers: any[]) {
@@ -192,20 +194,19 @@ export async function getMyCertificateForCourse(courseId: number): Promise<Certi
 
 export async function getCertificateForCourse(courseId: number, targetUserId?: string): Promise<Certificate | null> {
   const uid = targetUserId || await getUserId()
-  const snap = await adminDb.collection("certificates")
-    .where("userId", "==", uid)
-    .where("courseId", "==", courseId)
-    .limit(1).get()
-  return snap.empty ? null : (snap.docs[0].data() as Certificate)
+  const certificates = await getCertificatesByUser(uid, courseId)
+  return (certificates || []).length > 0 ? (certificates[0] as Certificate) : null
 }
 
 export async function getMyCertificates(): Promise<Certificate[]> {
   const userId = await getUserId()
-  const snap = await adminDb.collection("certificates")
-    .where("userId", "==", userId)
-    .orderBy("issuedAt", "desc")
-    .get()
-  return snap.docs.map((d: any) => d.data() as Certificate)
+  const certificates = await getCertificatesByUser(userId)
+  return (certificates || [])
+    .map((c: any) => ({
+      ...c,
+      issuedAt: (c.issuedAt as any)?.toDate?.() || new Date(c.issuedAt)
+    }))
+    .sort((a: any, b: any) => b.issuedAt.getTime() - a.issuedAt.getTime())
 }
 
 export async function recomputeCourseProgress(userId: string, courseId: number) {
@@ -216,18 +217,15 @@ export async function recomputeCourseProgress(userId: string, courseId: number) 
   const lessons = getLessons(course)
   const totalSteps = lessons.length + 1
 
-  const doneLessonRows = await getMyLessonProgress(courseId)
+  const lessonProgress = await getLessonProgressByUser(userId, courseId)
+  const doneLessonRows = (lessonProgress || []).map((p: any) => p.lessonKey)
   const validKeys = new Set(lessons.map((l) => l.key))
   const currentKeyMatches = doneLessonRows.filter((k) => validKeys.has(k)).length
   const totalLegacyLessons = new Set(doneLessonRows).size
   const doneLessons = Math.max(currentKeyMatches, Math.min(totalLegacyLessons, lessons.length))
 
-  const passedSnap = await adminDb.collection("quizAttempts")
-    .where("userId", "==", userId)
-    .where("courseId", "==", courseId)
-    .where("passed", "==", true)
-    .limit(1).get()
-  const quizPassed = !passedSnap.empty
+  const quizAttempts = await getQuizAttemptsByUser(userId, courseId)
+  const quizPassed = (quizAttempts || []).some((qa: any) => qa.passed === true)
 
   const completedSteps = doneLessons + (quizPassed ? 1 : 0)
   
@@ -305,8 +303,8 @@ export async function getAdminReport(): Promise<AdminReport> {
   let learnerRows: User[] = []
   let allUsers = getCached<User[]>("all_users")
   if (!allUsers) {
-    const allUsersSnap = await adminDb.collection("users").get()
-    allUsers = allUsersSnap.docs.map((d: any) => d.data() as User)
+    const usersList = await getAllUsers()
+    allUsers = usersList as User[]
     setCache("all_users", allUsers, 2 * 60 * 1000) // 2 min
   }
 
@@ -320,16 +318,16 @@ export async function getAdminReport(): Promise<AdminReport> {
     }
   } else {
     // 1. Find all courses authored by the viewer
-    const myCoursesSnap = await adminDb.collection("courses").where("authorId", "==", viewer.id).get()
-    const myCourseIds = myCoursesSnap.docs.map((d: any) => Number(d.id))
+    const myCourses = await getCoursesByAuthor(viewer.id)
+    const myCourseIds = (myCourses || []).map((c: any) => Number(c.id))
 
-    // 2. Find all users enrolled in those courses (reuse cached enrollments)
+    // 2. Find all users enrolled in those courses (use cached enrollments)
     let enrolledUserIds: string[] = []
     if (myCourseIds.length > 0) {
       let cachedEnrollments = getCached<Enrollment[]>("all_enrollments")
       if (!cachedEnrollments) {
-        const enrsSnap = await adminDb.collection("enrollments").get()
-        cachedEnrollments = enrsSnap.docs.map((d: any) => d.data() as Enrollment)
+        const enrollmentsList = await getAllEnrollments()
+        cachedEnrollments = enrollmentsList as Enrollment[]
         setCache("all_enrollments", cachedEnrollments, 2 * 60 * 1000)
       }
       enrolledUserIds = cachedEnrollments!.filter(e => myCourseIds.includes(e.courseId)).map(e => e.userId)
@@ -366,19 +364,19 @@ export async function getAdminReport(): Promise<AdminReport> {
   
   const ids = learnerRows.map((u) => u.id)
   
-  // Client side filter since IDs could be > 10 — cached to prevent quota exhaustion
+  // Use cached enrollments to prevent quota exhaustion
   let allEnrollmentsRaw = getCached<Enrollment[]>("all_enrollments")
   if (!allEnrollmentsRaw) {
-    const allEnrollmentsSnap = await adminDb.collection("enrollments").get()
-    allEnrollmentsRaw = allEnrollmentsSnap.docs.map((d: any) => d.data() as Enrollment)
+    const enrollmentsList = await getAllEnrollments()
+    allEnrollmentsRaw = enrollmentsList as Enrollment[]
     setCache("all_enrollments", allEnrollmentsRaw, 2 * 60 * 1000) // 2 min
   }
   const allEnrollments = allEnrollmentsRaw!.filter((e: Enrollment) => ids.includes(e.userId))
   
   let allCertsRaw = getCached<Certificate[]>("all_certificates")
   if (!allCertsRaw) {
-    const allCertsSnap = await adminDb.collection("certificates").get()
-    allCertsRaw = allCertsSnap.docs.map((d: any) => d.data() as Certificate)
+    const certificatesList = await getAllCertificates()
+    allCertsRaw = certificatesList as Certificate[]
     setCache("all_certificates", allCertsRaw, 2 * 60 * 1000) // 2 min
   }
   const allCerts = allCertsRaw!.filter((c: Certificate) => ids.includes(c.userId))
@@ -639,11 +637,11 @@ export async function exportAdminCSV(): Promise<string> {
 
   for (const learner of report.learners) {
     if (learner.enrolledCourses.length === 0) {
-      csv += `"${learner.name}","${learner.email}","${learner.subsidiary ?? ""}","(No enrollments)","N/A","0",""\n`
+      csv += `"${learner.name}","${learner.email}","${learner.subsidiary ?? "}","(No enrollments)","N/A","0",""\n`
     } else {
       // In a real app we'd fetch individual status. We just mock it here to save code space.
       for (const course of learner.enrolledCourses) {
-        csv += `"${learner.name}","${learner.email}","${learner.subsidiary ?? ""}","${course.title}","Unknown","${learner.avgProgress}",""\n`
+        csv += `"${learner.name}","${learner.email}","${learner.subsidiary ?? "}","${course.title}","Unknown","${learner.avgProgress}",""\n`
       }
     }
   }
@@ -687,31 +685,23 @@ export async function duplicateCourseAsLMS(slug: string) {
 }
 
 export async function getAdminUserDetail(userId: string) {
-  const userDoc = await adminDb.collection("users").doc(userId).get()
-  if (!userDoc.exists) throw new Error("User not found")
+  const userData = await getUserById(userId)
+  if (!userData) throw new Error("User not found")
   
-  const userData = userDoc.data() as User
-  
-  const enrSnap = await adminDb.collection("enrollments").where("userId", "==", userId).get()
-  const enrollments = enrSnap.docs.map((d: any) => d.data() as Enrollment)
-  
-  const lpSnap = await adminDb.collection("lessonProgress").where("userId", "==", userId).get()
-  const lessonProgress = lpSnap.docs.map((d: any) => d.data())
-  
-  const qaSnap = await adminDb.collection("quizAttempts").where("userId", "==", userId).get()
-  const quizAttempts = qaSnap.docs.map((d: any) => d.data() as QuizAttempt)
-  
-  const certSnap = await adminDb.collection("certificates").where("userId", "==", userId).get()
-  const certificates = certSnap.docs.map((d: any) => d.data() as Certificate)
+  // Use cached queries to prevent quota exhaustion
+  const enrollments = await getEnrollmentsByUser(userId)
+  const lessonProgress = await getLessonProgressByUser(userId)
+  const quizAttempts = await getQuizAttemptsByUser(userId)
+  const certificates = await getCertificatesByUser(userId)
 
   // Fetch all courses to get titles, categories, prices, lesson counts
   const allCourses = await getCourses()
   const courseMap = new Map(allCourses.map(c => [c.id, c]))
 
-  const enrollmentsList = enrollments.map((e: Enrollment) => {
+  const enrollmentsList = (enrollments || []).map((e: any) => {
     const course = courseMap.get(e.courseId)
-    const lessonsForCourse = lessonProgress.filter(lp => lp.courseId === e.courseId && lp.completed)
-    const quizzesForCourse = quizAttempts.filter(qa => qa.courseId === e.courseId)
+    const lessonsForCourse = (lessonProgress || []).filter((lp: any) => lp.courseId === e.courseId && lp.completed)
+    const quizzesForCourse = (quizAttempts || []).filter((qa: any) => qa.courseId === e.courseId)
     
     let bestQuizScore = null
     let bestQuizTotal = null
@@ -724,7 +714,7 @@ export async function getAdminUserDetail(userId: string) {
       }
     }
 
-    const hasCert = certificates.some(c => c.courseId === e.courseId)
+    const hasCert = (certificates || []).some((c: any) => c.courseId === e.courseId)
 
     return {
       courseId: e.courseId,
@@ -745,23 +735,23 @@ export async function getAdminUserDetail(userId: string) {
 
   // Calculate totals
   let trainingValue = 0
-  for (const e of enrollments) {
+  for (const e of (enrollments || [])) {
     const course = courseMap.get(e.courseId)
     if (course) trainingValue += course.priceNaira
   }
 
   const totals = {
-    enrolled: enrollments.length,
-    inProgress: enrollments.filter(e => e.status === "in_progress").length,
-    completed: enrollments.filter(e => e.status === "completed").length,
-    certificates: certificates.length,
+    enrolled: (enrollments || []).length,
+    inProgress: (enrollments || []).filter((e: any) => e.status === "in_progress").length,
+    completed: (enrollments || []).filter((e: any) => e.status === "completed").length,
+    certificates: (certificates || []).length,
     trainingValue,
-    avgProgress: enrollments.length > 0 ? Math.round(enrollments.reduce((s, e) => s + e.progress, 0) / enrollments.length) : 0
+    avgProgress: (enrollments || []).length > 0 ? Math.round((enrollments || []).reduce((s: number, e: any) => s + e.progress, 0) / (enrollments || []).length) : 0
   }
 
   // Create activity feed
   const activity = []
-  for (const e of enrollments) {
+  for (const e of (enrollments || [])) {
     const course = courseMap.get(e.courseId)
     activity.push({
       type: "enrollment",
@@ -778,7 +768,7 @@ export async function getAdminUserDetail(userId: string) {
       })
     }
   }
-  for (const qa of quizAttempts) {
+  for (const qa of (quizAttempts || [])) {
     const course = courseMap.get(qa.courseId)
     activity.push({
       type: "quiz",
@@ -787,7 +777,7 @@ export async function getAdminUserDetail(userId: string) {
       timestamp: (qa.createdAt as any)?.toDate ? (qa.createdAt as any).toDate() : new Date(qa.createdAt)
     })
   }
-  for (const c of certificates) {
+  for (const c of (certificates || [])) {
     const course = courseMap.get(c.courseId)
     activity.push({
       type: "certificate",
@@ -810,4 +800,3 @@ export async function getAdminUserDetail(userId: string) {
     activity
   }
 }
-

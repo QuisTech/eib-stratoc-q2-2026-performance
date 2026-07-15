@@ -8,8 +8,8 @@ if (!getApps().length) {
   try {
     if (process.env.FIREBASE_PRIVATE_KEY) {
       let pk = process.env.FIREBASE_PRIVATE_KEY;
-      pk = pk.replace(/^"|"$/g, ''); // Remove wrapping quotes if any
-      pk = pk.replace(/\\n/g, '\n'); // Replace literal \n with actual newlines
+      pk = pk.replace(/^\"|\"/g, ''); // Remove wrapping quotes if any
+      pk = pk.replace(/\\\\n/g, '\n'); // Replace literal \n with actual newlines
       
       // If Vercel stripped the newlines and replaced them with spaces
       if (!pk.includes('\n') && pk.includes('-----BEGIN PRIVATE KEY-----')) {
@@ -59,116 +59,244 @@ export const adminDb = db as Firestore;
 export const adminAuth = authAdmin as Auth;
 
 // ============================================================================
-// Firestore Query Deduplication & Caching
+// Firestore Query Deduplication & Caching Layer
 // ============================================================================
-// Prevents N+1 query patterns by caching identical concurrent requests.
-// This is the root cause fix for RESOURCE_EXHAUSTED quota errors.
-// When multiple requests fetch the same document within a short window,
-// only the first triggers a Firestore read; subsequent requests get the cached result.
+// Prevents N+1 query patterns and quota exhaustion by:
+// 1. Deduplicating concurrent identical requests (Promise-based)
+// 2. Caching query results with per-query TTL
+// 3. Batching common patterns (e.g., user-scoped queries)
 
-type CacheEntry = {
-  data: any;
+type CacheEntry<T> = {
+  data: T | null;
   expires: number;
 };
 
-const queryCache = new Map<string, CacheEntry>();
-const CACHE_TTL_MS = 5000; // 5-second TTL for concurrent request deduplication
+type PendingRequest<T> = {
+  promise: Promise<T>;
+  startTime: number;
+};
+
+const resultCache = new Map<string, CacheEntry<any>>();
+const pendingRequests = new Map<string, PendingRequest<any>>();
+
+const DEFAULT_CACHE_TTL_MS = 60000; // 1 minute default
+const USER_QUERY_TTL_MS = 30000; // 30 seconds for user-scoped queries (fresher)
+const COLLECTION_QUERY_TTL_MS = 120000; // 2 minutes for full collection queries
+
+// Cache statistics for debugging
+const cacheStats = {
+  hits: 0,
+  misses: 0,
+  pending: 0,
+  errors: 0,
+};
 
 /**
- * Fetch a document from Firestore with deduplication caching.
- * Concurrent identical requests within 5 seconds share a single Firestore read.
- * @param collection - Firestore collection name
- * @param docId - Document ID
- * @returns Document data or null if not found
+ * Get current cache statistics
  */
-export async function getDocWithCache(
-  collection: string,
-  docId: string
-): Promise<any | null> {
-  const cacheKey = `${collection}:${docId}`;
+export function getCacheStats() {
+  return { ...cacheStats };
+}
+
+/**
+ * Clear cache and stats for testing
+ */
+export function clearAllCaches() {
+  resultCache.clear();
+  pendingRequests.clear();
+  cacheStats.hits = 0;
+  cacheStats.misses = 0;
+  cacheStats.pending = 0;
+  cacheStats.errors = 0;
+  console.debug('[Cache] All caches cleared');
+}
+
+/**
+ * Deduplicate concurrent requests: if 100 requests ask for the same thing,
+ * only 1 Firestore read happens. The other 99 await the same Promise.
+ */
+async function deduplicatedQuery<T>(
+  key: string,
+  fetcher: () => Promise<T>,
+  ttlMs: number = DEFAULT_CACHE_TTL_MS
+): Promise<T | null> {
   const now = Date.now();
-  
-  // Check if cache hit and not expired
-  const cached = queryCache.get(cacheKey);
+
+  // 1. Check if result is cached and not expired
+  const cached = resultCache.get(key);
   if (cached && cached.expires > now) {
-    console.debug(`[Cache HIT] ${cacheKey}`);
+    cacheStats.hits++;
+    console.debug(`[Cache HIT] ${key}`);
     return cached.data;
   }
 
-  console.debug(`[Cache MISS] ${cacheKey} - Fetching from Firestore`);
-  
+  // 2. Check if request is already pending
+  const pending = pendingRequests.get(key);
+  if (pending) {
+    cacheStats.pending++;
+    console.debug(`[Cache PENDING] ${key} - awaiting in-flight request`);
+    try {
+      const result = await pending.promise;
+      return result;
+    } catch (error) {
+      console.error(`[Cache ERROR] ${key}:`, error);
+      cacheStats.errors++;
+      throw error;
+    }
+  }
+
+  // 3. No cache, no pending request: fetch and cache
+  cacheStats.misses++;
+  console.debug(`[Cache MISS] ${key} - fetching from Firestore`);
+
+  const promise = (async () => {
+    try {
+      const data = await fetcher();
+      // Cache the result
+      resultCache.set(key, {
+        data,
+        expires: now + ttlMs,
+      });
+      return data;
+    } finally {
+      // Remove from pending
+      pendingRequests.delete(key);
+    }
+  })();
+
+  // Register as pending
+  pendingRequests.set(key, { promise, startTime: now });
+
   try {
-    const doc = await adminDb.collection(collection).doc(docId).get();
-    const data = doc.exists ? doc.data() : null;
-    
-    // Store in cache with TTL
-    queryCache.set(cacheKey, {
-      data,
-      expires: now + CACHE_TTL_MS,
-    });
-    
-    return data;
+    return await promise;
   } catch (error) {
-    console.error(`[Cache ERROR] Failed to fetch ${cacheKey}:`, error);
+    cacheStats.errors++;
     throw error;
   }
 }
 
-/**
- * Convenience wrapper for fetching courses with deduplication.
- * @param courseId - Course document ID
- * @returns Course document data or null
- */
-export async function getCourseWithCache(courseId: string): Promise<any | null> {
-  return getDocWithCache('courses', courseId);
+// ============================================================================
+// User-scoped query caching helpers
+// ============================================================================
+
+export async function getEnrollmentsByUser(userId: string): Promise<any[]> {
+  return deduplicatedQuery(
+    `enrollments:${userId}`,
+    async () => {
+      const snap = await adminDb.collection('enrollments').where('userId', '==', userId).get();
+      return snap.docs.map((d: any) => d.data());
+    },
+    USER_QUERY_TTL_MS
+  );
 }
 
-/**
- * Convenience wrapper for fetching user data with deduplication.
- * @param userId - User document ID
- * @returns User document data or null
- */
-export async function getUserWithCache(userId: string): Promise<any | null> {
-  return getDocWithCache('users', userId);
+export async function getQuizAttemptsByUser(userId: string, courseId?: number): Promise<any[]> {
+  const key = courseId ? `quizAttempts:${userId}:${courseId}` : `quizAttempts:${userId}`;
+  return deduplicatedQuery(
+    key,
+    async () => {
+      let query: any = adminDb.collection('quizAttempts').where('userId', '==', userId);
+      if (courseId) query = query.where('courseId', '==', courseId);
+      const snap = await query.get();
+      return snap.docs.map((d: any) => d.data());
+    },
+    USER_QUERY_TTL_MS
+  );
 }
 
-/**
- * Clear expired cache entries.
- * Runs automatically every 60 seconds.
- * Manual call available for testing or emergency cleanup.
- */
-function cleanExpiredCache(): void {
-  const now = Date.now();
-  let cleared = 0;
-  
-  for (const [key, value] of queryCache.entries()) {
-    if (value.expires <= now) {
-      queryCache.delete(key);
-      cleared++;
-    }
-  }
-  
-  if (cleared > 0) {
-    console.debug(`[Cache CLEANUP] Removed ${cleared} expired entries`);
-  }
+export async function getLessonProgressByUser(userId: string, courseId?: number): Promise<any[]> {
+  const key = courseId ? `lessonProgress:${userId}:${courseId}` : `lessonProgress:${userId}`;
+  return deduplicatedQuery(
+    key,
+    async () => {
+      let query: any = adminDb.collection('lessonProgress').where('userId', '==', userId);
+      if (courseId) query = query.where('courseId', '==', courseId);
+      const snap = await query.get();
+      return snap.docs.map((d: any) => d.data());
+    },
+    USER_QUERY_TTL_MS
+  );
 }
 
-/**
- * Force clear all cache entries.
- * Use only in testing or when you need to purge state.
- */
-export function clearAllCache(): void {
-  queryCache.clear();
-  console.debug(`[Cache PURGE] All cache entries cleared`);
+export async function getCertificatesByUser(userId: string, courseId?: number): Promise<any[]> {
+  const key = courseId ? `certificates:${userId}:${courseId}` : `certificates:${userId}`;
+  return deduplicatedQuery(
+    key,
+    async () => {
+      let query: any = adminDb.collection('certificates').where('userId', '==', userId);
+      if (courseId) query = query.where('courseId', '==', courseId);
+      const snap = await query.get();
+      return snap.docs.map((d: any) => d.data());
+    },
+    USER_QUERY_TTL_MS
+  );
 }
 
-// Start automatic cleanup interval
-const cleanupInterval = setInterval(() => {
-  cleanExpiredCache();
-}, 60000); // Every 60 seconds
+export async function getUserById(userId: string): Promise<any | null> {
+  return deduplicatedQuery(
+    `user:${userId}`,
+    async () => {
+      const doc = await adminDb.collection('users').doc(userId).get();
+      return doc.exists ? doc.data() : null;
+    },
+    USER_QUERY_TTL_MS
+  );
+}
 
-// Graceful shutdown (important for serverless)
+export async function getAllUsers(): Promise<any[]> {
+  return deduplicatedQuery(
+    'users:all',
+    async () => {
+      const snap = await adminDb.collection('users').get();
+      return snap.docs.map((d: any) => d.data());
+    },
+    COLLECTION_QUERY_TTL_MS
+  );
+}
+
+export async function getAllEnrollments(): Promise<any[]> {
+  return deduplicatedQuery(
+    'enrollments:all',
+    async () => {
+      const snap = await adminDb.collection('enrollments').get();
+      return snap.docs.map((d: any) => d.data());
+    },
+    COLLECTION_QUERY_TTL_MS
+  );
+}
+
+export async function getAllCertificates(): Promise<any[]> {
+  return deduplicatedQuery(
+    'certificates:all',
+    async () => {
+      const snap = await adminDb.collection('certificates').get();
+      return snap.docs.map((d: any) => d.data());
+    },
+    COLLECTION_QUERY_TTL_MS
+  );
+}
+
+export async function getCoursesByAuthor(authorId: string): Promise<any[]> {
+  return deduplicatedQuery(
+    `courses:author:${authorId}`,
+    async () => {
+      const snap = await adminDb.collection('courses').where('authorId', '==', authorId).get();
+      return snap.docs.map((d: any) => d.data());
+    },
+    USER_QUERY_TTL_MS
+  );
+}
+
+// ============================================================================
+// Cleanup on process exit
+// ============================================================================
+
 process.on('SIGTERM', () => {
-  clearInterval(cleanupInterval);
-  queryCache.clear();
+  console.log('[Cache] SIGTERM received, cleaning up...');
+  clearAllCaches();
+});
+
+process.on('SIGINT', () => {
+  console.log('[Cache] SIGINT received, cleaning up...');
+  clearAllCaches();
 });
