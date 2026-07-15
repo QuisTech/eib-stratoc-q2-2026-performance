@@ -636,12 +636,13 @@ export async function exportAdminCSV(): Promise<string> {
   const baseUrl = `https://${await host}`
 
   for (const learner of report.learners) {
+    const sub = learner.subsidiary || ""
     if (learner.enrolledCourses.length === 0) {
-      csv += `"${learner.name}","${learner.email}","${learner.subsidiary ?? "}","(No enrollments)","N/A","0",""\n`
+      csv += `"${learner.name}","${learner.email}","${sub}","(No enrollments)","N/A","0",""\n`
     } else {
       // In a real app we'd fetch individual status. We just mock it here to save code space.
       for (const course of learner.enrolledCourses) {
-        csv += `"${learner.name}","${learner.email}","${learner.subsidiary ?? "}","${course.title}","Unknown","${learner.avgProgress}",""\n`
+        csv += `"${learner.name}","${learner.email}","${sub}","${course.title}","Unknown","${learner.avgProgress}",""\n`
       }
     }
   }
