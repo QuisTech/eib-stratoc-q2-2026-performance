@@ -1,6 +1,7 @@
 "use server"
 
 import { adminAuth, adminDb } from "@/lib/firebase-admin"
+import { isSuperAdminEmail } from "@/lib/access-control"
 import { cookies } from "next/headers"
 import { revalidateTag, unstable_cache } from "next/cache"
 
@@ -14,6 +15,31 @@ const getCachedSessionUserProfile = unstable_cache(
   ["session-user-profile-v1"],
   { tags: [SESSION_USER_PROFILE_CACHE_TAG], revalidate: 5 * 60 }
 )
+
+function isFirestoreQuotaError(error: unknown) {
+  const err = error as { code?: string | number; message?: string; details?: string }
+  const text = `${err?.message ?? ""} ${err?.details ?? ""}`
+  return (
+    err?.code === 8 ||
+    err?.code === "resource-exhausted" ||
+    text.includes("RESOURCE_EXHAUSTED") ||
+    text.includes("Quota exceeded")
+  )
+}
+
+function sessionUserFromClaims(decodedClaims: { uid: string; email?: string; name?: string }) {
+  const email = decodedClaims.email ?? ""
+  const fallbackName = decodedClaims.name || email.split("@")[0] || "Learner"
+
+  return {
+    id: decodedClaims.uid,
+    name: fallbackName,
+    email,
+    role: isSuperAdminEmail(email) ? "admin" : "learner",
+    subsidiary: null,
+    isProfileFallback: true,
+  }
+}
 
 export async function createSessionCookie(idToken: string) {
   const expiresIn = 60 * 60 * 24 * 7 * 1000 // 1 week
@@ -42,9 +68,19 @@ export async function getSessionUser() {
 
   try {
     const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true)
-    
-    const userData = await getCachedSessionUserProfile(decodedClaims.uid)
-    if (!userData) return null
+
+    let userData = null
+    try {
+      userData = await getCachedSessionUserProfile(decodedClaims.uid)
+    } catch (error) {
+      if (isFirestoreQuotaError(error)) {
+        console.error("Firestore quota exhausted while loading session profile; using auth claims fallback.", error)
+        return sessionUserFromClaims(decodedClaims)
+      }
+      throw error
+    }
+
+    if (!userData) return sessionUserFromClaims(decodedClaims)
 
     return {
       id: decodedClaims.uid,
