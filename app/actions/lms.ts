@@ -10,7 +10,6 @@ import {
   getAllUsers,
   getAllEnrollments,
   getAllCertificates,
-  getCoursesByAuthor,
 } from "@/lib/firebase-admin"
 import { getSessionUser } from "@/app/actions/auth"
 import type { Course, Enrollment, QuizAttempt, Certificate, User } from "@/lib/types"
@@ -19,6 +18,7 @@ import { revalidatePath, revalidateTag, unstable_cache } from "next/cache"
 import { isCourseVisibleToUser } from "@/lib/utils"
 
 const COURSE_CACHE_TAG = "lms-courses"
+const ADMIN_SOURCE_CACHE_TAG = "lms-admin-source"
 
 async function getUserId() {
   const user = await getSessionUser()
@@ -69,14 +69,50 @@ function isFirestoreQuotaError(error: unknown) {
   )
 }
 
+function toCacheSafeValue(value: any): any {
+  if (value == null) return value
+  if (typeof value?.toDate === "function") return value.toDate().toISOString()
+  if (value instanceof Date) return value.toISOString()
+  if (Array.isArray(value)) return value.map(toCacheSafeValue)
+  if (typeof value === "object") {
+    return Object.fromEntries(Object.entries(value).map(([key, val]) => [key, toCacheSafeValue(val)]))
+  }
+  return value
+}
+
 const getCachedCoursesFromFirestore = unstable_cache(
   async () => {
     const snap = await adminDb.collection("courses").orderBy("category").orderBy("title").get()
-    return snap.docs.map((d: any) => d.data() as Course)
+    return snap.docs.map((d: any) => toCacheSafeValue(d.data()) as Course)
   },
   ["lms-courses-v1"],
   { tags: [COURSE_CACHE_TAG], revalidate: 60 * 60 }
 )
+
+const getCachedAdminSourceData = unstable_cache(
+  async () => {
+    const [usersList, enrollmentsList, certificatesList] = await Promise.all([
+      getAllUsers(),
+      getAllEnrollments(),
+      getAllCertificates(),
+    ])
+
+    return {
+      users: (Array.isArray(usersList) ? usersList : []).map(toCacheSafeValue) as User[],
+      enrollments: (Array.isArray(enrollmentsList) ? enrollmentsList : []).map(toCacheSafeValue) as Enrollment[],
+      certificates: (Array.isArray(certificatesList) ? certificatesList : []).map(toCacheSafeValue) as Certificate[],
+    }
+  },
+  ["lms-admin-source-v1"],
+  { tags: [ADMIN_SOURCE_CACHE_TAG], revalidate: 10 * 60 }
+)
+
+function invalidateAdminCaches() {
+  invalidateCache("all_users")
+  invalidateCache("all_enrollments")
+  invalidateCache("all_certificates")
+  revalidateTag(ADMIN_SOURCE_CACHE_TAG)
+}
 
 export async function getCourses(): Promise<Course[]> {
   const cached = getCached<Course[]>("courses")
@@ -153,7 +189,7 @@ export async function enrollInCourse(courseId: number) {
     })
     await recomputeCourseProgress(userId, courseId)
   }
-  invalidateCache("all_enrollments")
+  invalidateAdminCaches()
   revalidatePath("/lms")
   revalidatePath("/lms/[slug]", "page")
 }
@@ -165,7 +201,7 @@ export async function unenrollFromCourse(courseId: number) {
   if (existing.status === "completed") throw new Error("Cannot drop a course that has already been completed.")
 
   await adminDb.collection("enrollments").doc(`${userId}_${courseId}`).delete()
-  invalidateCache("all_enrollments")
+  invalidateAdminCaches()
   revalidatePath("/lms")
   revalidatePath("/lms/[slug]", "page")
 }
@@ -186,6 +222,7 @@ export async function completeLesson(courseId: number, lessonKey: string) {
     completedAt: new Date()
   }, { merge: true })
   await recomputeCourseProgress(userId, courseId)
+  invalidateAdminCaches()
   revalidatePath("/lms")
   revalidatePath("/lms/[slug]", "page")
 }
@@ -218,8 +255,7 @@ export async function submitQuiz(courseId: number, answers: any[]) {
   })
 
   await recomputeCourseProgress(userId, courseId)
-  invalidateCache("all_enrollments")
-  invalidateCache("all_certificates")
+  invalidateAdminCaches()
   revalidatePath("/lms")
   revalidatePath("/lms/[slug]", "page")
   return result
@@ -339,52 +375,48 @@ export async function getAdminReport(): Promise<AdminReport> {
   if (!orgWide && role !== "lead" && role !== "group_head_standard") throw new Error("Forbidden")
 
   let learnerRows: User[] = []
-  let allUsers = getCached<User[]>("all_users")
-  if (!allUsers) {
-    const usersList = await getAllUsers()
-    allUsers = usersList as User[]
-    setCache("all_users", allUsers, 2 * 60 * 1000) // 2 min
-  }
+  const [adminSource, allAvailableCourses] = await Promise.all([
+    getCachedAdminSourceData(),
+    getCourses(),
+  ])
+  const allUsers = adminSource.users
+  const allEnrollmentsRaw = adminSource.enrollments
+  const allCertsRaw = adminSource.certificates
 
   if (orgWide) {
     if (role === "group_head") {
       const userSubLower = viewer.subsidiary?.toLowerCase() || ""
       const canSeeBlack = userSubLower.startsWith("dci -") || userSubLower === "directorate of clandestine & intelligence" || userSubLower === "black"
-      learnerRows = canSeeBlack ? allUsers! : allUsers!.filter(u => u.subsidiary !== "BLACK")
+      learnerRows = canSeeBlack ? allUsers : allUsers.filter(u => u.subsidiary !== "BLACK")
     } else {
-      learnerRows = allUsers!
+      learnerRows = allUsers
     }
   } else {
-    // 1. Find all courses authored by the viewer
-    const myCourses = await getCoursesByAuthor(viewer.id)
-    const myCourseIds = (myCourses || []).map((c: any) => Number(c.id))
+    // 1. Find all courses authored by the viewer from the cached course list.
+    const myCourseIds = allAvailableCourses
+      .filter((c) => c.authorId === viewer.id)
+      .map((c) => Number(c.id))
 
     // 2. Find all users enrolled in those courses (use cached enrollments)
     let enrolledUserIds: string[] = []
     if (myCourseIds.length > 0) {
-      let cachedEnrollments = getCached<Enrollment[]>("all_enrollments")
-      if (!cachedEnrollments) {
-        const enrollmentsList = await getAllEnrollments()
-        cachedEnrollments = enrollmentsList as Enrollment[]
-        setCache("all_enrollments", cachedEnrollments, 2 * 60 * 1000)
-      }
-      enrolledUserIds = cachedEnrollments!.filter(e => myCourseIds.includes(e.courseId)).map(e => e.userId)
+      enrolledUserIds = allEnrollmentsRaw.filter(e => myCourseIds.includes(e.courseId)).map(e => e.userId)
     }
 
     // 3. Find base users
     let baseUsers: User[] = []
     if (role === "lead") {
-      baseUsers = allUsers!.filter(u => u.subsidiary === (viewer.subsidiary ?? "__none__"))
+      baseUsers = allUsers.filter(u => u.subsidiary === (viewer.subsidiary ?? "__none__"))
     } else if (role === "group_head_standard") {
-      baseUsers = allUsers!.filter(u => u.subsidiary?.startsWith("DCI - "))
+      baseUsers = allUsers.filter(u => u.subsidiary?.startsWith("DCI - "))
     }
 
     const visibleUserIds = new Set(baseUsers.map((u) => u.id))
     enrolledUserIds.forEach((id) => visibleUserIds.add(id))
-    learnerRows = allUsers!.filter(u => visibleUserIds.has(u.id))
+    learnerRows = allUsers.filter(u => visibleUserIds.has(u.id))
   }
 
-  let allDbCourses = await getCourses()
+  let allDbCourses = allAvailableCourses
   if (role === "group_head") {
     const userSubLower = viewer.subsidiary?.toLowerCase() || ""
     const canSeeBlack = userSubLower.startsWith("dci -") || userSubLower === "directorate of clandestine & intelligence" || userSubLower === "black"
@@ -402,22 +434,10 @@ export async function getAdminReport(): Promise<AdminReport> {
   
   const ids = learnerRows.map((u) => u.id)
   
-  // Use cached enrollments to prevent quota exhaustion
-  let allEnrollmentsRaw = getCached<Enrollment[]>("all_enrollments")
-  if (!allEnrollmentsRaw) {
-    const enrollmentsList = await getAllEnrollments()
-    allEnrollmentsRaw = enrollmentsList as Enrollment[]
-    setCache("all_enrollments", allEnrollmentsRaw, 2 * 60 * 1000) // 2 min
-  }
-  const allEnrollments = allEnrollmentsRaw!.filter((e: Enrollment) => ids.includes(e.userId))
+  const visibleUserIdSet = new Set(ids)
+  const allEnrollments = allEnrollmentsRaw.filter((e: Enrollment) => visibleUserIdSet.has(e.userId))
   
-  let allCertsRaw = getCached<Certificate[]>("all_certificates")
-  if (!allCertsRaw) {
-    const certificatesList = await getAllCertificates()
-    allCertsRaw = certificatesList as Certificate[]
-    setCache("all_certificates", allCertsRaw, 2 * 60 * 1000) // 2 min
-  }
-  const allCerts = allCertsRaw!.filter((c: Certificate) => ids.includes(c.userId))
+  const allCerts = allCertsRaw.filter((c: Certificate) => visibleUserIdSet.has(c.userId))
 
   const enrByUser = new Map<string, Enrollment[]>()
   const latestEnrollDateByUser = new Map<string, Date>()
@@ -527,6 +547,7 @@ export async function createCourse(data: any) {
 
   invalidateCache("courses")
   revalidateTag(COURSE_CACHE_TAG)
+  revalidateTag(ADMIN_SOURCE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
 }
@@ -549,6 +570,7 @@ export async function updateCourse(slug: string, data: any) {
 
   invalidateCache("courses")
   revalidateTag(COURSE_CACHE_TAG)
+  revalidateTag(ADMIN_SOURCE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
 }
@@ -564,6 +586,7 @@ export async function saveCustomCourseContent(slug: string, content: string) {
   await adminDb.collection("courses").doc(String(existing.id)).update({ customContent: content })
   invalidateCache("courses")
   revalidateTag(COURSE_CACHE_TAG)
+  revalidateTag(ADMIN_SOURCE_CACHE_TAG)
   revalidatePath(`/lms/admin`)
   revalidatePath(`/lms/courses/${slug}`)
 }
@@ -572,7 +595,7 @@ export async function setInitialRole(userId: string, requestedRole: string) {
   const validRoles = ["learner", "lead", "group_head"]
   if (!validRoles.includes(requestedRole)) return
   await adminDb.collection("users").doc(userId).update({ role: requestedRole })
-  invalidateCache("all_users")
+  invalidateAdminCaches()
   revalidatePath("/lms/admin")
 }
 
@@ -610,6 +633,7 @@ export async function autoEnrollOnboarding(subsidiary: string) {
         })
       }
     }
+    invalidateAdminCaches()
   } catch (e) {
     console.error("Auto enroll failed", e)
   }
@@ -628,6 +652,7 @@ export async function adminUpdateUserName(userId: string, newName: string) {
   const user = await getSessionUser()
   if (user?.role !== "admin") throw new Error("Forbidden")
   await adminDb.collection("users").doc(userId).update({ name: newName.trim() })
+  invalidateAdminCaches()
   revalidatePath("/lms/admin")
 }
 
@@ -652,6 +677,7 @@ export async function adminDeleteUser(userId: string) {
   await deleteQuery("quizAttempts", "userId")
   await deleteQuery("certificates", "userId")
 
+  invalidateAdminCaches()
   revalidatePath("/lms/admin")
 }
 
@@ -666,6 +692,7 @@ export async function adminResetQuizAttempts(userId: string, courseId: number) {
   snap.docs.forEach(d => batch.delete(d.ref))
   await batch.commit()
 
+  invalidateAdminCaches()
   revalidatePath("/lms/admin")
   revalidatePath(`/lms`)
 }
@@ -700,6 +727,7 @@ export async function deleteCourse(slug: string) {
   await adminDb.collection("courses").doc(String(course.id)).delete()
   invalidateCache("courses")
   revalidateTag(COURSE_CACHE_TAG)
+  revalidateTag(ADMIN_SOURCE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
 }
@@ -725,6 +753,7 @@ export async function duplicateCourseAsLMS(slug: string) {
 
   invalidateCache("courses")
   revalidateTag(COURSE_CACHE_TAG)
+  revalidateTag(ADMIN_SOURCE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
   return { newSlug }
