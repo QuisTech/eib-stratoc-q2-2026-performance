@@ -108,7 +108,6 @@ export function clearAllCaches() {
   cacheStats.misses = 0;
   cacheStats.pending = 0;
   cacheStats.errors = 0;
-  console.debug('[Cache] All caches cleared');
 }
 
 function deleteCacheKey(key: string) {
@@ -310,11 +309,9 @@ export async function getCoursesByAuthor(authorId: string): Promise<any[]> {
 // ============================================================================
 
 process.on('SIGTERM', () => {
-  console.log('[Cache] SIGTERM received, cleaning up...');
   clearAllCaches();
 });
 
 process.on('SIGINT', () => {
-  console.log('[Cache] SIGINT received, cleaning up...');
   clearAllCaches();
 });

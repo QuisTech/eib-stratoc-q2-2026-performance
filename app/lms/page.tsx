@@ -1,7 +1,6 @@
 import { getSessionUser } from "@/app/actions/auth"
 import type { Metadata } from "next"
 import Link from "next/link"
-import { headers } from "next/headers"
 import { getCourses, getMyEnrollments } from "@/app/actions/lms"
 import { CourseCard } from "@/components/lms/course-card"
 import { CourseCatalog } from "@/components/lms/course-catalog"
@@ -28,6 +27,8 @@ export const metadata: Metadata = {
     "Enroll in role-based training mapped to the EIB Group skill-gap analysis and track your learning progress.",
 }
 
+export const dynamic = "force-dynamic"
+
 const statusMeta: Record<LmsPhaseStatus, { cls: string; dot: string; Icon: typeof CheckCircle2 }> = {
   "Live now": { cls: "bg-[var(--chart-1)] text-background", dot: "var(--chart-1)", Icon: CheckCircle2 },
   Next: { cls: "bg-accent text-accent-foreground", dot: "var(--accent)", Icon: Clock },
@@ -37,13 +38,8 @@ const statusMeta: Record<LmsPhaseStatus, { cls: string; dot: string; Icon: typeo
 
 export default async function LmsPage() {
   try {
-  let session = null;
-  try {
-    const user = await getSessionUser();
-    session = user ? { user } : null
-  } catch (e) {
-    console.error("LmsPage getSession error:", e)
-  }
+  const user = await getSessionUser();
+  const session = user ? { user } : null
 
   const courses = await getCourses()
 
