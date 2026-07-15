@@ -5,9 +5,7 @@ import { notFound, redirect } from "next/navigation"
 import { headers } from "next/headers"
 import {
   getCourseBySlug,
-  getMyEnrollmentForCourse,
-  getMyLessonProgress,
-  getMyQuizAttempts,
+  getMyCourseLearningState,
 } from "@/app/actions/lms"
 import { getLessons, getQuiz, getQuizPolicy } from "@/lib/lms-content"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
@@ -48,13 +46,14 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
     notFound()
   }
 
-  const enrollment = await getMyEnrollmentForCourse(course.id)
+  const learningState = await getMyCourseLearningState(course.id)
+  const enrollment = learningState.enrollment
   if (!enrollment) redirect(`/lms/${slug}`)
 
   const lessons = getLessons(course)
-  const completed = new Set(await getMyLessonProgress(course.id))
+  const completed = new Set(learningState.completedLessonKeys)
   const remaining = lessons.filter((l) => !completed.has(l.key))
-  const attempts = await getMyQuizAttempts(course.id)
+  const attempts = learningState.quizAttempts
   const alreadyPassed = attempts.some((a) => a.passed)
   
   const policy = getQuizPolicy(course)

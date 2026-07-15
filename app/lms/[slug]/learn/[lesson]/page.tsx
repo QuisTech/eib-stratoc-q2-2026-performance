@@ -1,12 +1,12 @@
 import { getSessionUser } from "@/app/actions/auth"
 import type { Metadata } from "next"
+import type { Enrollment } from "@/lib/types"
 import Link from "next/link"
 import { notFound, redirect } from "next/navigation"
 import { headers } from "next/headers"
 import {
   getCourseBySlug,
-  getMyEnrollmentForCourse,
-  getMyLessonProgress,
+  getMyCourseLearningState,
 } from "@/app/actions/lms"
 import { getLessons } from "@/lib/lms-content"
 import { Card, CardContent } from "@/components/ui/card"
@@ -57,7 +57,8 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
   const lesson = lessons[index]
   
   const isFreePreview = index < 2 || !!lesson.isPreview
-  let enrollment = null
+  let enrollment: Enrollment | null = null
+  let completedKeys = new Set<string>()
 
   if (session?.user) {
     const isVisible = isCourseVisibleToUser(
@@ -67,7 +68,9 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
       session.user.email || null
     )
     if (!isVisible) notFound()
-    enrollment = await getMyEnrollmentForCourse(course.id)
+    const learningState = await getMyCourseLearningState(course.id)
+    enrollment = learningState.enrollment
+    completedKeys = new Set(learningState.completedLessonKeys)
   }
 
   const canAccess = isFreePreview || !!enrollment
@@ -76,7 +79,6 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
     else redirect(`/lms/${slug}`)
   }
 
-  const completedKeys = session?.user && enrollment ? new Set(await getMyLessonProgress(course.id)) : new Set<string>()
   const isLast = index === lessons.length - 1
   const nextHref = isLast ? `/lms/${slug}/quiz` : `/lms/${slug}/learn/${lessons[index + 1].key}`
 

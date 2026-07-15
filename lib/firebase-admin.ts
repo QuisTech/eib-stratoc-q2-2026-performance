@@ -80,7 +80,7 @@ const resultCache = new Map<string, CacheEntry<any>>();
 const pendingRequests = new Map<string, PendingRequest<any>>();
 
 const DEFAULT_CACHE_TTL_MS = 60000; // 1 minute default
-const USER_QUERY_TTL_MS = 30000; // 30 seconds for user-scoped queries (fresher)
+const USER_QUERY_TTL_MS = 5 * 60 * 1000; // 5 minutes for user-scoped queries
 const COLLECTION_QUERY_TTL_MS = 120000; // 2 minutes for full collection queries
 
 // Cache statistics for debugging
@@ -109,6 +109,24 @@ export function clearAllCaches() {
   cacheStats.pending = 0;
   cacheStats.errors = 0;
   console.debug('[Cache] All caches cleared');
+}
+
+function deleteCacheKey(key: string) {
+  resultCache.delete(key);
+  pendingRequests.delete(key);
+}
+
+export function invalidateUserCourseCaches(userId: string, courseId?: number) {
+  deleteCacheKey(`enrollments:${userId}`);
+  deleteCacheKey(`quizAttempts:${userId}`);
+  deleteCacheKey(`lessonProgress:${userId}`);
+  deleteCacheKey(`certificates:${userId}`);
+
+  if (courseId != null) {
+    deleteCacheKey(`quizAttempts:${userId}:${courseId}`);
+    deleteCacheKey(`lessonProgress:${userId}:${courseId}`);
+    deleteCacheKey(`certificates:${userId}:${courseId}`);
+  }
 }
 
 /**

@@ -10,6 +10,7 @@ import {
   getAllUsers,
   getAllEnrollments,
   getAllCertificates,
+  invalidateUserCourseCaches,
 } from "@/lib/firebase-admin"
 import { getSessionUser } from "@/app/actions/auth"
 import type { Course, Enrollment, QuizAttempt, Certificate, User } from "@/lib/types"
@@ -244,6 +245,7 @@ export async function enrollInCourse(courseId: number) {
       enrolledAt: new Date(),
       completedAt: null
     })
+    invalidateUserCourseCaches(userId, courseId)
     await recomputeCourseProgress(userId, courseId)
   }
   invalidateAdminCaches()
@@ -258,6 +260,7 @@ export async function unenrollFromCourse(courseId: number) {
   if (existing.status === "completed") throw new Error("Cannot drop a course that has already been completed.")
 
   await adminDb.collection("enrollments").doc(`${userId}_${courseId}`).delete()
+  invalidateUserCourseCaches(userId, courseId)
   invalidateAdminCaches()
   revalidatePath("/lms")
   revalidatePath("/lms/[slug]", "page")
@@ -278,6 +281,7 @@ export async function completeLesson(courseId: number, lessonKey: string) {
     lessonKey,
     completedAt: new Date()
   }, { merge: true })
+  invalidateUserCourseCaches(userId, courseId)
   await recomputeCourseProgress(userId, courseId)
   invalidateAdminCaches()
   revalidatePath("/lms")
@@ -311,6 +315,7 @@ export async function submitQuiz(courseId: number, answers: any[]) {
     createdAt: new Date(),
   })
 
+  invalidateUserCourseCaches(userId, courseId)
   await recomputeCourseProgress(userId, courseId)
   invalidateAdminCaches()
   revalidatePath("/lms")
@@ -327,6 +332,53 @@ export async function getCertificateForCourse(courseId: number, targetUserId?: s
   const uid = targetUserId || await getUserId()
   const certificates = await getCertificatesByUser(uid, courseId)
   return (certificates || []).length > 0 ? (certificates[0] as Certificate) : null
+}
+
+export type MyCourseLearningState = {
+  enrollment: Enrollment | null
+  completedLessonKeys: string[]
+  quizAttempts: QuizAttempt[]
+  certificate: Certificate | null
+}
+
+export async function getMyCourseLearningState(courseId: number): Promise<MyCourseLearningState> {
+  const userId = await getUserId()
+  const enrollments = await getEnrollmentsByUser(userId)
+  const enrollment = ((enrollments || []).find((e: any) => e.courseId === courseId) || null) as Enrollment | null
+
+  if (!enrollment) {
+    return {
+      enrollment: null,
+      completedLessonKeys: [],
+      quizAttempts: [],
+      certificate: null,
+    }
+  }
+
+  const [progress, attempts, certificates] = await Promise.all([
+    getLessonProgressByUser(userId, courseId),
+    getQuizAttemptsByUser(userId, courseId),
+    getCertificatesByUser(userId, courseId),
+  ])
+
+  const quizAttempts = ((attempts || []).map((d: any) => ({
+    ...d,
+    createdAt: (d.createdAt as any)?.toDate?.() || new Date(d.createdAt),
+  })) as QuizAttempt[]).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+
+  const certificate = certificates?.[0]
+    ? ({
+        ...certificates[0],
+        issuedAt: (certificates[0].issuedAt as any)?.toDate?.() || new Date(certificates[0].issuedAt),
+      } as Certificate)
+    : null
+
+  return {
+    enrollment,
+    completedLessonKeys: (progress || []).map((p: any) => p.lessonKey),
+    quizAttempts,
+    certificate,
+  }
 }
 
 export async function getMyCertificates(): Promise<Certificate[]> {
@@ -384,6 +436,7 @@ export async function recomputeCourseProgress(userId: string, courseId: number) 
       issuedAt: new Date()
     })
   }
+  invalidateUserCourseCaches(userId, courseId)
 }
 
 export type LearnerReportRow = {
@@ -683,6 +736,7 @@ export async function autoEnrollOnboarding(subsidiary: string) {
           enrolledAt: new Date(),
           completedAt: null
         })
+        invalidateUserCourseCaches(userId, courseId)
       }
     }
     invalidateAdminCaches()

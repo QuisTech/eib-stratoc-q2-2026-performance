@@ -5,10 +5,7 @@ import { notFound } from "next/navigation"
 import { headers } from "next/headers"
 import {
   getCourseBySlug,
-  getMyEnrollmentForCourse,
-  getMyLessonProgress,
-  getMyQuizAttempts,
-  getMyCertificateForCourse,
+  getMyCourseLearningState,
 } from "@/app/actions/lms"
 import { getLessons } from "@/lib/lms-content"
 import { formatNaira, isCourseVisibleToUser, formatCourseSubsidiaries } from "@/lib/utils"
@@ -81,13 +78,14 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
     }
   }
 
-  const enrollment = signedIn ? await getMyEnrollmentForCourse(course.id) : null
+  const learningState = signedIn ? await getMyCourseLearningState(course.id) : null
+  const enrollment = learningState?.enrollment ?? null
   const enrolled = Boolean(enrollment)
 
   const lessons = getLessons(course)
-  const completedKeys = enrolled ? new Set(await getMyLessonProgress(course.id)) : new Set<string>()
-  const attempts = enrolled ? await getMyQuizAttempts(course.id) : []
-  const certificate = enrolled ? await getMyCertificateForCourse(course.id) : null
+  const completedKeys = new Set(learningState?.completedLessonKeys ?? [])
+  const attempts = learningState?.quizAttempts ?? []
+  const certificate = learningState?.certificate ?? null
   const quizPassed = attempts.some((a) => a.passed)
   const bestPercent = attempts.reduce((m, a) => Math.max(m, Math.round((a.score / a.total) * 100)), 0)
 
