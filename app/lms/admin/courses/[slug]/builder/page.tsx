@@ -1,6 +1,7 @@
 import { getSessionUser } from "@/app/actions/auth"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
+import { isSuperAdminEmail } from "@/lib/access-control"
 
 
 
@@ -20,12 +21,13 @@ export default async function CourseBuilderPage({
   if (!session?.user) redirect("/sign-in")
 
   const role = session.user.role as string
-  if (role !== "admin" && role !== "group_head" && role !== "lead") redirect("/lms")
+  const isSuperAdmin = isSuperAdminEmail(session.user.email)
+  if (!isSuperAdmin && role !== "group_head" && role !== "lead") redirect("/lms")
 
   const { getCourseBySlug } = await import("@/app/actions/lms")
   const course = await getCourseBySlug(slug)
   if (!course) redirect("/lms/admin")
-  if (role !== "admin" && course.authorId !== session.user.id) redirect("/lms/admin")
+  if (!isSuperAdmin && course.authorId !== session.user.id) redirect("/lms/admin")
 
-  return <CourseBuilderClient course={course} userRole={role} />
+  return <CourseBuilderClient course={course} userRole={isSuperAdmin ? "admin" : role} />
 }

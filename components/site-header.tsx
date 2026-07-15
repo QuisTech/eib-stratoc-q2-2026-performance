@@ -6,6 +6,7 @@ import { LayoutDashboard, Compass, CalendarRange, BarChart3, Users, GraduationCa
 import { cn } from "@/lib/utils"
 import { useSession } from "@/lib/auth-client"
 import { SignOutButton } from "@/components/sign-out-button"
+import { isSuperAdminEmail } from "@/lib/access-control"
 
 const nav = [
   { href: "/", label: "Overview", icon: LayoutDashboard },
@@ -20,7 +21,8 @@ export function SiteHeader() {
   const pathname = usePathname()
   const { data: session, isPending } = useSession()
   const role = (session?.user as { role?: string } | undefined)?.role
-  const isManager = role === "lead" || role === "admin" || role === "group_head" || role === "executive"
+  const email = (session?.user as { email?: string } | undefined)?.email
+  const isManager = isSuperAdminEmail(email) || role === "lead" || role === "group_head" || role === "group_head_standard"
 
   return (
     <header className="no-print sticky top-0 z-40 border-b border-sidebar-border bg-sidebar text-sidebar-foreground">

@@ -162,6 +162,7 @@ export default async function LmsPage() {
         enrollments={enrollments}
         userRole={userRole}
         userSubsidiary={userSubsidiary}
+        userEmail={userEmail}
       />
     </main>
   )

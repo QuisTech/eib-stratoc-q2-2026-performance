@@ -15,6 +15,7 @@ import { ExportCsvButton } from "./export-csv-button"
 import { ResetQuizAttemptsButton } from "./reset-quiz-attempts-button"
 import { LearnerManagement } from "./learner-management"
 import { CourseManagement } from "./course-management"
+import { isSuperAdminEmail } from "@/lib/access-control"
 
 export const dynamic = "force-dynamic"
 
@@ -35,10 +36,11 @@ export default async function AdminPage() {
     if (!session?.user) redirect("/sign-in")
 
     const role = (session.user as { role?: string }).role ?? "learner"
-    const orgWide = role === "admin" || role === "group_head" || role === "executive"
-    const canManageCourses = role === "admin" || role === "group_head" || role === "lead"
+    const isSuperAdmin = isSuperAdminEmail(session.user.email)
+    const orgWide = isSuperAdmin
+    const canManageCourses = isSuperAdmin || role === "group_head" || role === "lead"
 
-    if (!orgWide && role !== "lead") {
+    if (!isSuperAdmin && role !== "lead" && role !== "group_head" && role !== "group_head_standard") {
       // Learners don't have a team view — send them to their own portal.
       redirect("/lms")
     }
@@ -124,7 +126,7 @@ export default async function AdminPage() {
         })}
       </section>
 
-      {role === "admin" && (
+      {isSuperAdmin && (
         <section className="mb-8">
           <Link href="/lms/admin/sync" className="block">
             <Card className="border-[var(--chart-2)] bg-[var(--chart-2)]/5 hover:bg-[var(--chart-2)]/10 transition-colors cursor-pointer">
@@ -182,7 +184,7 @@ export default async function AdminPage() {
                 {completionRate}% completion rate
               </span>
             </div>
-            <ExportCsvButton />
+            {isSuperAdmin && <ExportCsvButton />}
           </CardHeader>
           <CardContent>
             {report.learners.length === 0 ? (
@@ -193,7 +195,7 @@ export default async function AdminPage() {
               <LearnerManagement 
                 learners={report.learners} 
                 orgWide={orgWide} 
-                role={role} 
+                role={isSuperAdmin ? "admin" : role}
                 currentUserId={session.user.id} 
               />
             )}

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { Edit, BookOpen, Filter, Copy, Loader2, Trash2 } from "lucide-react"
 import { formatNaira } from "@/lib/utils"
 import { duplicateCourseAsLMS, deleteCourse } from "@/app/actions/lms"
+import { isSuperAdminEmail } from "@/lib/access-control"
 
 export function CourseManagement({ courses, userRole, userEmail }: { courses: any[]; userRole: string; userEmail?: string }) {
   const [filter, setFilter] = useState("All")
@@ -13,6 +14,7 @@ export function CourseManagement({ courses, userRole, userEmail }: { courses: an
   const [duplicateError, setDuplicateError] = useState<string | null>(null)
   const [duplicateSuccess, setDuplicateSuccess] = useState<string | null>(null)
   const router = useRouter()
+  const isSuperAdmin = isSuperAdminEmail(userEmail)
 
   // Extract unique subsidiaries
   const subsidiariesSet = new Set<string>()
@@ -143,7 +145,7 @@ export function CourseManagement({ courses, userRole, userEmail }: { courses: an
                     >
                       <BookOpen className="h-3.5 w-3.5" /> Build Content
                     </Link>
-                    {c.isBriefing && userRole === "admin" && (
+                    {c.isBriefing && isSuperAdmin && (
                       <button
                         onClick={() => handleDuplicate(c.slug, c.title)}
                         disabled={duplicatingSlug === c.slug}
@@ -157,7 +159,7 @@ export function CourseManagement({ courses, userRole, userEmail }: { courses: an
                         Duplicate as LMS Course
                       </button>
                     )}
-                    {userRole === "admin" && userEmail === "michael.marquis@eibgroup.com" && (
+                    {isSuperAdmin && (
                       <button
                         onClick={() => handleDelete(c.slug, c.title)}
                         className="inline-flex items-center gap-1.5 rounded-md border border-red-500 bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-500 hover:text-white dark:text-red-400"

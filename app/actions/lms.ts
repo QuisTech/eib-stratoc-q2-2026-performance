@@ -16,6 +16,7 @@ import type { Course, Enrollment, QuizAttempt, Certificate, User } from "@/lib/t
 import { getLessons, gradeQuiz } from "@/lib/lms-content"
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache"
 import { isCourseVisibleToUser } from "@/lib/utils"
+import { isSuperAdminEmail } from "@/lib/access-control"
 
 const COURSE_CACHE_TAG = "lms-courses"
 const ADMIN_SOURCE_CACHE_TAG = "lms-admin-source"
@@ -28,7 +29,7 @@ async function getUserId() {
 
 export async function promoteMeToAdmin() {
   const user = await getSessionUser()
-  if (user?.email === "michael.marquis@eibgroup.com") {
+  if (isSuperAdminEmail(user?.email)) {
     await adminDb.collection("users").doc(user.id).update({ role: "admin" })
   }
 }
@@ -112,6 +113,42 @@ function invalidateAdminCaches() {
   invalidateCache("all_enrollments")
   invalidateCache("all_certificates")
   revalidateTag(ADMIN_SOURCE_CACHE_TAG)
+}
+
+function courseIsInManagerScope(course: Course, viewer: { id: string; role?: string; subsidiary?: string | null }) {
+  if (course.authorId === viewer.id) return true
+  const courseSubsidiaries = (course.subsidiaries || "")
+    .split(",")
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean)
+
+  if (viewer.role === "group_head_standard") {
+    return courseSubsidiaries.some((sub) => sub.startsWith("dci -"))
+  }
+
+  if (!viewer.subsidiary) return false
+  return courseSubsidiaries.includes(viewer.subsidiary.toLowerCase())
+}
+
+async function assertCanManageTargetUser(
+  viewer: { id: string; email: string; role?: string; subsidiary?: string | null },
+  targetUserId: string
+) {
+  if (isSuperAdminEmail(viewer.email)) return
+
+  const target = await getUserById(targetUserId)
+  if (!target) throw new Error("User not found")
+
+  if (viewer.role === "group_head_standard") {
+    if (target.subsidiary?.startsWith("DCI - ")) return
+    throw new Error("Forbidden")
+  }
+
+  if ((viewer.role === "lead" || viewer.role === "group_head") && target.subsidiary === viewer.subsidiary) {
+    return
+  }
+
+  throw new Error("Forbidden")
 }
 
 export async function getCourses(): Promise<Course[]> {
@@ -371,8 +408,9 @@ export async function getAdminReport(): Promise<AdminReport> {
   const viewer = await getSessionUser()
   if (!viewer) throw new Error("Unauthorized")
   const role = viewer.role ?? "learner"
-  const orgWide = role === "admin" || role === "group_head" || role === "executive"
-  if (!orgWide && role !== "lead" && role !== "group_head_standard") throw new Error("Forbidden")
+  const isSuperAdmin = isSuperAdminEmail(viewer.email)
+  const orgWide = isSuperAdmin
+  if (!isSuperAdmin && role !== "lead" && role !== "group_head" && role !== "group_head_standard") throw new Error("Forbidden")
 
   let learnerRows: User[] = []
   const [adminSource, allAvailableCourses] = await Promise.all([
@@ -383,14 +421,8 @@ export async function getAdminReport(): Promise<AdminReport> {
   const allEnrollmentsRaw = adminSource.enrollments
   const allCertsRaw = adminSource.certificates
 
-  if (orgWide) {
-    if (role === "group_head") {
-      const userSubLower = viewer.subsidiary?.toLowerCase() || ""
-      const canSeeBlack = userSubLower.startsWith("dci -") || userSubLower === "directorate of clandestine & intelligence" || userSubLower === "black"
-      learnerRows = canSeeBlack ? allUsers : allUsers.filter(u => u.subsidiary !== "BLACK")
-    } else {
-      learnerRows = allUsers
-    }
+  if (isSuperAdmin) {
+    learnerRows = allUsers
   } else {
     // 1. Find all courses authored by the viewer from the cached course list.
     const myCourseIds = allAvailableCourses
@@ -405,7 +437,7 @@ export async function getAdminReport(): Promise<AdminReport> {
 
     // 3. Find base users
     let baseUsers: User[] = []
-    if (role === "lead") {
+    if (role === "lead" || role === "group_head") {
       baseUsers = allUsers.filter(u => u.subsidiary === (viewer.subsidiary ?? "__none__"))
     } else if (role === "group_head_standard") {
       baseUsers = allUsers.filter(u => u.subsidiary?.startsWith("DCI - "))
@@ -416,21 +448,13 @@ export async function getAdminReport(): Promise<AdminReport> {
     learnerRows = allUsers.filter(u => visibleUserIds.has(u.id))
   }
 
-  let allDbCourses = allAvailableCourses
-  if (role === "group_head") {
-    const userSubLower = viewer.subsidiary?.toLowerCase() || ""
-    const canSeeBlack = userSubLower.startsWith("dci -") || userSubLower === "directorate of clandestine & intelligence" || userSubLower === "black"
-    if (!canSeeBlack) {
-      allDbCourses = allDbCourses.filter(c => {
-        if (!c.subsidiaries) return true
-        const subs = c.subsidiaries.split(',').map(s => s.trim().toUpperCase())
-        return !subs.includes("BLACK")
-      })
-    }
+  let manageableCourses = allAvailableCourses
+  if (!isSuperAdmin) {
+    manageableCourses = allAvailableCourses.filter((course) => courseIsInManagerScope(course, viewer))
   }
 
-  const courseTitle = new Map(allDbCourses.map((c) => [c.id, c.title]))
-  const coursePrice = new Map(allDbCourses.map((c) => [c.id, c.priceNaira]))
+  const courseTitle = new Map(allAvailableCourses.map((c) => [c.id, c.title]))
+  const coursePrice = new Map(allAvailableCourses.map((c) => [c.id, c.priceNaira]))
   
   const ids = learnerRows.map((u) => u.id)
   
@@ -521,14 +545,14 @@ export async function getAdminReport(): Promise<AdminReport> {
     },
     learners,
     topCourses,
-    allCourses: allDbCourses,
+    allCourses: manageableCourses,
   }
 }
 
 export async function createCourse(data: any) {
   const user = await getSessionUser()
   if (!user) throw new Error("Unauthorized")
-  if (user.role !== "admin" && user.role !== "group_head" && user.role !== "lead") throw new Error("Forbidden")
+  if (!isSuperAdminEmail(user.email) && user.role !== "group_head" && user.role !== "lead") throw new Error("Forbidden")
 
   const slug = data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
   const existing = await getCourseBySlug(slug)
@@ -558,7 +582,7 @@ export async function updateCourse(slug: string, data: any) {
 
   const existing = await getCourseBySlug(slug)
   if (!existing) throw new Error("Course not found")
-  if (user.role !== "admin" && existing.authorId !== user.id) throw new Error("Forbidden")
+  if (!isSuperAdminEmail(user.email) && existing.authorId !== user.id) throw new Error("Forbidden")
 
   const newSlug = data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
   await adminDb.collection("courses").doc(String(existing.id)).update({
@@ -581,7 +605,7 @@ export async function saveCustomCourseContent(slug: string, content: string) {
 
   const existing = await getCourseBySlug(slug)
   if (!existing) throw new Error("Course not found")
-  if (user.role !== "admin" && existing.authorId !== user.id) throw new Error("Forbidden")
+  if (!isSuperAdminEmail(user.email) && existing.authorId !== user.id) throw new Error("Forbidden")
 
   await adminDb.collection("courses").doc(String(existing.id)).update({ customContent: content })
   invalidateCache("courses")
@@ -592,6 +616,11 @@ export async function saveCustomCourseContent(slug: string, content: string) {
 }
 
 export async function setInitialRole(userId: string, requestedRole: string) {
+  const user = await getSessionUser()
+  if (!user) throw new Error("Unauthorized")
+  if (!isSuperAdminEmail(user.email) && user.id !== userId) throw new Error("Forbidden")
+  if (!isSuperAdminEmail(user.email) && requestedRole !== "learner") throw new Error("Forbidden")
+
   const validRoles = ["learner", "lead", "group_head"]
   if (!validRoles.includes(requestedRole)) return
   await adminDb.collection("users").doc(userId).update({ role: requestedRole })
@@ -640,6 +669,9 @@ export async function autoEnrollOnboarding(subsidiary: string) {
 }
 
 export async function adminResetUserPassword(userId: string) {
+  const user = await getSessionUser()
+  if (!isSuperAdminEmail(user?.email)) throw new Error("Forbidden")
+
   // Passwords are now managed by Firebase Auth
   const defaultPass = process.env.DEFAULT_RESET_PASSWORD || "ChangeMeImmediately123!"
   const { adminAuth } = await import("@/lib/firebase-admin")
@@ -650,7 +682,7 @@ export async function adminResetUserPassword(userId: string) {
 
 export async function adminUpdateUserName(userId: string, newName: string) {
   const user = await getSessionUser()
-  if (user?.role !== "admin") throw new Error("Forbidden")
+  if (!isSuperAdminEmail(user?.email)) throw new Error("Forbidden")
   await adminDb.collection("users").doc(userId).update({ name: newName.trim() })
   invalidateAdminCaches()
   revalidatePath("/lms/admin")
@@ -658,7 +690,7 @@ export async function adminUpdateUserName(userId: string, newName: string) {
 
 export async function adminDeleteUser(userId: string) {
   const user = await getSessionUser()
-  if (user?.role !== "admin") throw new Error("Forbidden")
+  if (!isSuperAdminEmail(user?.email)) throw new Error("Forbidden")
   if (user.id === userId) throw new Error("Cannot delete yourself")
 
   const { adminAuth } = await import("@/lib/firebase-admin")
@@ -683,7 +715,8 @@ export async function adminDeleteUser(userId: string) {
 
 export async function adminResetQuizAttempts(userId: string, courseId: number) {
   const user = await getSessionUser()
-  if (user?.role !== "admin" && user?.role !== "group_head" && user?.role !== "lead") throw new Error("Forbidden")
+  if (!isSuperAdminEmail(user?.email) && user?.role !== "group_head" && user?.role !== "lead") throw new Error("Forbidden")
+  await assertCanManageTargetUser(user, userId)
   
   const snap = await adminDb.collection("quizAttempts")
     .where("userId", "==", userId)
@@ -698,6 +731,9 @@ export async function adminResetQuizAttempts(userId: string, courseId: number) {
 }
 
 export async function exportAdminCSV(): Promise<string> {
+  const user = await getSessionUser()
+  if (!isSuperAdminEmail(user?.email)) throw new Error("Forbidden")
+
   const report = await getAdminReport()
   let csv = "Name,Email,Subsidiary,Course,Status,Progress (%),Certificate Link\n"
   const host = (await import("next/headers")).headers().then(h => h.get("host") || "localhost:3000")
@@ -719,7 +755,7 @@ export async function exportAdminCSV(): Promise<string> {
 
 export async function deleteCourse(slug: string) {
   const user = await getSessionUser()
-  if (user?.role !== "admin") throw new Error("Forbidden")
+  if (!isSuperAdminEmail(user?.email)) throw new Error("Forbidden")
 
   const course = await getCourseBySlug(slug)
   if (!course) return
@@ -734,7 +770,7 @@ export async function deleteCourse(slug: string) {
 
 export async function duplicateCourseAsLMS(slug: string) {
   const user = await getSessionUser()
-  if (user?.role !== "admin" && user?.role !== "group_head" && user?.role !== "lead") throw new Error("Forbidden")
+  if (!isSuperAdminEmail(user?.email)) throw new Error("Forbidden")
 
   const course = await getCourseBySlug(slug)
   if (!course) throw new Error("Course not found")
@@ -760,8 +796,21 @@ export async function duplicateCourseAsLMS(slug: string) {
 }
 
 export async function getAdminUserDetail(userId: string) {
+  const viewer = await getSessionUser()
+  if (!viewer) throw new Error("Unauthorized")
+
   const userData = await getUserById(userId)
   if (!userData) throw new Error("User not found")
+  if (!isSuperAdminEmail(viewer.email)) {
+    const role = viewer.role ?? "learner"
+    if (role !== "lead" && role !== "group_head" && role !== "group_head_standard") throw new Error("Forbidden")
+
+    if (role === "group_head_standard") {
+      if (!userData.subsidiary?.startsWith("DCI - ")) throw new Error("Forbidden")
+    } else if (userData.subsidiary !== viewer.subsidiary) {
+      throw new Error("Forbidden")
+    }
+  }
   
   // Use cached queries to prevent quota exhaustion
   const enrollments = await getEnrollmentsByUser(userId)

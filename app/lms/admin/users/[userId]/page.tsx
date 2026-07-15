@@ -4,6 +4,7 @@ import { redirect, notFound } from "next/navigation"
 import { headers } from "next/headers"
 import { getAdminUserDetail } from "@/app/actions/lms"
 import { formatNaira } from "@/lib/utils"
+import { isSuperAdminEmail } from "@/lib/access-control"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
@@ -91,7 +92,8 @@ export default async function UserDetailPage({ params }: { params: Promise<Param
     if (!session?.user) redirect("/sign-in")
 
     const role = (session.user as { role?: string }).role ?? "learner"
-    if (role !== "admin" && role !== "group_head" && role !== "lead") {
+    const isSuperAdmin = isSuperAdminEmail(session.user.email)
+    if (!isSuperAdmin && role !== "group_head" && role !== "lead" && role !== "group_head_standard") {
       redirect("/lms")
     }
 

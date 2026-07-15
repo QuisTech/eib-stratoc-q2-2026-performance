@@ -4,12 +4,14 @@ import { useState, useMemo } from "react"
 import type { Course, Enrollment } from "@/lib/db/schema"
 import { CourseCard } from "@/components/lms/course-card"
 import { formatNaira } from "@/lib/utils"
+import { isSuperAdminEmail } from "@/lib/access-control"
 
 type CourseCatalogProps = {
   courses: Course[]
   enrollments: Enrollment[]
   userRole?: string
   userSubsidiary?: string | null
+  userEmail?: string | null
 }
 
 export function CourseCatalog({
@@ -17,10 +19,12 @@ export function CourseCatalog({
   enrollments,
   userRole = "learner",
   userSubsidiary = null,
+  userEmail = null,
 }: CourseCatalogProps) {
   const [filterSubsidiary, setFilterSubsidiary] = useState<string>("All")
   const [filterCategory, setFilterCategory] = useState<string>("All")
   const [groupingMode, setGroupingMode] = useState<"subsidiary" | "category">("subsidiary")
+  const canUseGlobalCatalogControls = isSuperAdminEmail(userEmail)
 
   const enrollMap = useMemo(() => {
     const map = new Map<number, Enrollment>()
@@ -89,8 +93,8 @@ export function CourseCatalog({
         // If the user is filtering by a specific subsidiary, we only want to show that group and the Global group
         if (filterSubsidiary !== "All") {
           keys = keys.filter(k => k === filterSubsidiary || k === "EIB Group")
-        } else if (userRole !== "admin" && userRole !== "group_head") {
-          // If not a global admin/group_head, restrict keys to their own subsidiary and global/general
+        } else if (!canUseGlobalCatalogControls) {
+          // Non-super-admin users only see their own subsidiary grouping and global/general groups.
           keys = keys.filter(
             (k) =>
               k.toLowerCase() === userSubsidiary?.toLowerCase() ||
@@ -107,7 +111,7 @@ export function CourseCatalog({
       }
     }
     return groups
-  }, [filteredCourses, groupingMode, filterSubsidiary])
+  }, [filteredCourses, groupingMode, filterSubsidiary, canUseGlobalCatalogControls, userSubsidiary])
 
   const catalogValue = courses.reduce((s, c) => s + c.priceNaira, 0)
 
@@ -139,7 +143,7 @@ export function CourseCatalog({
             </button>
           </div>
           
-          {(userRole === "admin" || userRole === "group_head") && (
+          {canUseGlobalCatalogControls && (
             <>
               <div className="h-6 w-px bg-border hidden sm:block"></div>
 

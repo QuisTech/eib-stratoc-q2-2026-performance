@@ -3,6 +3,7 @@ import { redirect } from "next/navigation"
 import { headers } from "next/headers"
 import { getCourses } from "@/app/actions/lms"
 import { isCourseVisibleToUser } from "@/lib/utils"
+import { isSuperAdminEmail } from "@/lib/access-control"
 import { FileText, Download } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
@@ -15,7 +16,8 @@ export default async function BriefingsPage() {
 
   const userRole = session.user.role || "learner"
   const userSubsidiary = session.user.subsidiary || null
-  const isManager = userRole === "lead" || userRole === "admin" || userRole === "group_head" || userRole === "executive"
+  const isSuperAdmin = isSuperAdminEmail(session.user.email)
+  const isManager = isSuperAdmin || userRole === "lead" || userRole === "group_head" || userRole === "group_head_standard"
 
   if (!isManager) {
     redirect("/")
@@ -33,7 +35,7 @@ export default async function BriefingsPage() {
     if (courseSubsList.includes("black")) {
       const userSubLower = userSubsidiary?.toLowerCase() || ""
       return (
-        userRole === "admin" ||
+        isSuperAdmin ||
         userSubLower.startsWith("dci -") ||
         userSubLower === "directorate of clandestine & intelligence" ||
         userSubLower === "black"
