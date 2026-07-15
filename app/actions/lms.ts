@@ -17,6 +17,7 @@ import { getLessons, gradeQuiz } from "@/lib/lms-content"
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache"
 import { isCourseVisibleToUser } from "@/lib/utils"
 import { isSuperAdminEmail } from "@/lib/access-control"
+import { getStaticLmsCourseById, getStaticLmsCourseBySlug, getStaticLmsCourses } from "@/lib/static-lms-courses"
 
 const COURSE_CACHE_TAG = "lms-courses"
 const ADMIN_SOURCE_CACHE_TAG = "lms-admin-source"
@@ -35,6 +36,9 @@ export async function promoteMeToAdmin() {
 }
 
 async function getCourseById(courseId: number): Promise<Course | null> {
+  const staticCourse = getStaticLmsCourseById(courseId)
+  if (staticCourse) return staticCourse
+
   const doc = await adminDb.collection("courses").doc(String(courseId)).get()
   return doc.exists ? (doc.data() as Course) : null
 }
@@ -152,6 +156,9 @@ async function assertCanManageTargetUser(
 }
 
 export async function getCourses(): Promise<Course[]> {
+  const staticCourses = getStaticLmsCourses()
+  if (staticCourses.length > 0) return staticCourses
+
   const cached = getCached<Course[]>("courses")
   if (cached) return cached
   try {
@@ -168,6 +175,9 @@ export async function getCourses(): Promise<Course[]> {
 }
 
 export async function getCourseBySlug(slug: string): Promise<Course | null> {
+  const staticCourse = getStaticLmsCourseBySlug(slug)
+  if (staticCourse) return staticCourse
+
   const snap = await adminDb.collection("courses").where("slug", "==", slug).limit(1).get()
   return snap.empty ? null : (snap.docs[0].data() as Course)
 }

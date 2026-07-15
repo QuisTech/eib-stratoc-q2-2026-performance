@@ -7,6 +7,7 @@
     "build": "next build && node scripts/postbuild.js",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
+    "lms:export-courses": "node scripts/export_lms_courses.js",
     "start": "next start",
     "lint": "eslint ."
   },
