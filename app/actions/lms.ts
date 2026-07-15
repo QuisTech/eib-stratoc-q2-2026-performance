@@ -21,6 +21,7 @@ import { getStaticLmsCourseById, getStaticLmsCourseBySlug, getStaticLmsCourses }
 
 const COURSE_CACHE_TAG = "lms-courses"
 const ADMIN_SOURCE_CACHE_TAG = "lms-admin-source"
+const SESSION_USER_PROFILE_CACHE_TAG = "session-user-profile"
 
 async function getUserId() {
   const user = await getSessionUser()
@@ -32,6 +33,7 @@ export async function promoteMeToAdmin() {
   const user = await getSessionUser()
   if (isSuperAdminEmail(user?.email)) {
     await adminDb.collection("users").doc(user.id).update({ role: "admin" })
+    revalidateTag(SESSION_USER_PROFILE_CACHE_TAG)
   }
 }
 
@@ -634,6 +636,7 @@ export async function setInitialRole(userId: string, requestedRole: string) {
   const validRoles = ["learner", "lead", "group_head"]
   if (!validRoles.includes(requestedRole)) return
   await adminDb.collection("users").doc(userId).update({ role: requestedRole })
+  revalidateTag(SESSION_USER_PROFILE_CACHE_TAG)
   invalidateAdminCaches()
   revalidatePath("/lms/admin")
 }
@@ -641,7 +644,7 @@ export async function setInitialRole(userId: string, requestedRole: string) {
 export async function autoEnrollOnboarding(subsidiary: string) {
   try {
     const userId = await getUserId()
-    const globalSnap = await adminDb.collection("courses").where("title", "==", "EIB Group Global Orientation").limit(1).get()
+    const availableCourses = await getCourses()
     
     let subCourseTitle: string | null = null
     if (subsidiary === "DCI - SAC") subCourseTitle = "Special Operations Brief"
@@ -650,17 +653,19 @@ export async function autoEnrollOnboarding(subsidiary: string) {
     else if (subsidiary === "DCI - Intel") subCourseTitle = "Intelligence Report Writing & MS Word Essentials"
     
     const toEnroll = []
-    if (!globalSnap.empty) toEnroll.push(globalSnap.docs[0].id)
+    const globalCourse = availableCourses.find((course) => course.title === "EIB Group Global Orientation")
+    if (globalCourse) toEnroll.push(globalCourse.id)
 
     if (subCourseTitle) {
-      const subSnap = await adminDb.collection("courses").where("title", "==", subCourseTitle).limit(1).get()
-      if (!subSnap.empty) toEnroll.push(subSnap.docs[0].id)
+      const subCourse = availableCourses.find((course) => course.title === subCourseTitle)
+      if (subCourse) toEnroll.push(subCourse.id)
     }
 
-    for (const courseIdStr of toEnroll) {
-      const courseId = Number(courseIdStr)
-      const existing = await getMyEnrollmentForCourse(courseId)
-      if (!existing) {
+    const existingEnrollments = await getEnrollmentsByUser(userId)
+    const existingCourseIds = new Set((existingEnrollments || []).map((enrollment: any) => enrollment.courseId))
+
+    for (const courseId of toEnroll) {
+      if (!existingCourseIds.has(courseId)) {
         await adminDb.collection("enrollments").doc(`${userId}_${courseId}`).set({
           id: Date.now() + Math.random(),
           userId,
@@ -687,6 +692,7 @@ export async function adminResetUserPassword(userId: string) {
   const { adminAuth } = await import("@/lib/firebase-admin")
   await adminAuth.updateUser(userId, { password: defaultPass })
   await adminDb.collection("users").doc(userId).update({ mustChangePassword: true })
+  revalidateTag(SESSION_USER_PROFILE_CACHE_TAG)
   revalidatePath("/lms/admin")
 }
 
@@ -694,6 +700,7 @@ export async function adminUpdateUserName(userId: string, newName: string) {
   const user = await getSessionUser()
   if (!isSuperAdminEmail(user?.email)) throw new Error("Forbidden")
   await adminDb.collection("users").doc(userId).update({ name: newName.trim() })
+  revalidateTag(SESSION_USER_PROFILE_CACHE_TAG)
   invalidateAdminCaches()
   revalidatePath("/lms/admin")
 }

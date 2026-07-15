@@ -2,6 +2,18 @@
 
 import { adminAuth, adminDb } from "@/lib/firebase-admin"
 import { cookies } from "next/headers"
+import { revalidateTag, unstable_cache } from "next/cache"
+
+const SESSION_USER_PROFILE_CACHE_TAG = "session-user-profile"
+
+const getCachedSessionUserProfile = unstable_cache(
+  async (uid: string) => {
+    const userDoc = await adminDb.collection("users").doc(uid).get()
+    return userDoc.exists ? userDoc.data() : null
+  },
+  ["session-user-profile-v1"],
+  { tags: [SESSION_USER_PROFILE_CACHE_TAG], revalidate: 5 * 60 }
+)
 
 export async function createSessionCookie(idToken: string) {
   const expiresIn = 60 * 60 * 24 * 7 * 1000 // 1 week
@@ -31,11 +43,9 @@ export async function getSessionUser() {
   try {
     const decodedClaims = await adminAuth.verifySessionCookie(sessionCookie, true)
     
-    // Fetch custom user profile from Firestore
-    const userDoc = await adminDb.collection("users").doc(decodedClaims.uid).get()
-    if (!userDoc.exists) return null
+    const userData = await getCachedSessionUserProfile(decodedClaims.uid)
+    if (!userData) return null
 
-    const userData = userDoc.data()!
     return {
       id: decodedClaims.uid,
       name: userData.name,
@@ -57,8 +67,10 @@ export async function createUserProfile(uid: string, data: { name: string, email
     subsidiary: data.subsidiary,
     createdAt: new Date(),
   })
+  revalidateTag(SESSION_USER_PROFILE_CACHE_TAG)
 }
 
 export async function updateUserDoc(uid: string, data: Partial<{ name: string, role: string, subsidiary: string, mustChangePassword: boolean }>) {
   await adminDb.collection("users").doc(uid).update(data)
+  revalidateTag(SESSION_USER_PROFILE_CACHE_TAG)
 }
