@@ -17,11 +17,17 @@ import { getLessons, gradeQuiz } from "@/lib/lms-content"
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache"
 import { isCourseVisibleToUser } from "@/lib/utils"
 import { isSuperAdminEmail } from "@/lib/access-control"
-import { getStaticLmsCourseById, getStaticLmsCourseBySlug, getStaticLmsCourses } from "@/lib/static-lms-courses"
+import {
+  getStaticLmsCourseById,
+  getStaticLmsCourseBySlug,
+  getStaticLmsCourses,
+  hasStaticLmsCourses,
+} from "@/lib/static-lms-courses"
 
 const COURSE_CACHE_TAG = "lms-courses"
 const ADMIN_SOURCE_CACHE_TAG = "lms-admin-source"
 const SESSION_USER_PROFILE_CACHE_TAG = "session-user-profile"
+const ALLOW_FIRESTORE_COURSE_FALLBACK = process.env.LMS_ALLOW_FIRESTORE_COURSE_FALLBACK === "true"
 
 async function getUserId() {
   const user = await getSessionUser()
@@ -40,6 +46,7 @@ export async function promoteMeToAdmin() {
 async function getCourseById(courseId: number): Promise<Course | null> {
   const staticCourse = getStaticLmsCourseById(courseId)
   if (staticCourse) return staticCourse
+  if (hasStaticLmsCourses() && !ALLOW_FIRESTORE_COURSE_FALLBACK) return null
 
   const doc = await adminDb.collection("courses").doc(String(courseId)).get()
   return doc.exists ? (doc.data() as Course) : null
@@ -179,6 +186,7 @@ export async function getCourses(): Promise<Course[]> {
 export async function getCourseBySlug(slug: string): Promise<Course | null> {
   const staticCourse = getStaticLmsCourseBySlug(slug)
   if (staticCourse) return staticCourse
+  if (hasStaticLmsCourses() && !ALLOW_FIRESTORE_COURSE_FALLBACK) return null
 
   const snap = await adminDb.collection("courses").where("slug", "==", slug).limit(1).get()
   return snap.empty ? null : (snap.docs[0].data() as Course)

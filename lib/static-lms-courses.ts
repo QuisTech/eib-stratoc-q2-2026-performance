@@ -82,6 +82,10 @@ export function getStaticLmsCourses(): Course[] {
   })
 }
 
+export function hasStaticLmsCourses(): boolean {
+  return STATIC_LMS_COURSE_DATA.length > 0
+}
+
 export function getStaticLmsCourseBySlug(slug: string): Course | null {
   const course = STATIC_LMS_COURSE_DATA.find((item) => item.slug === slug)
   return course ? hydrateCourse(course) : null
