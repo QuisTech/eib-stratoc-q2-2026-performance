@@ -383,42 +383,56 @@ export type MyCourseLearningState = {
 
 export async function getMyCourseLearningState(courseId: number): Promise<MyCourseLearningState> {
   const userId = await getUserId()
-  const enrollments = await getEnrollmentsByUser(userId)
-  const rawEnrollment = (enrollments || []).find((e: any) => e.courseId === courseId)
-  const enrollment = rawEnrollment ? (toCacheSafeValue(rawEnrollment) as Enrollment) : null
+  
+  try {
+    const enrollments = await getEnrollmentsByUser(userId)
+    const rawEnrollment = (enrollments || []).find((e: any) => e.courseId === courseId)
+    const enrollment = rawEnrollment ? (toCacheSafeValue(rawEnrollment) as Enrollment) : null
 
-  if (!enrollment) {
-    return {
-      enrollment: null,
-      completedLessonKeys: [],
-      quizAttempts: [],
-      certificate: null,
+    if (!enrollment) {
+      return {
+        enrollment: null,
+        completedLessonKeys: [],
+        quizAttempts: [],
+        certificate: null,
+      }
     }
-  }
 
-  const [progress, attempts, certificates] = await Promise.all([
-    getLessonProgressByUser(userId, courseId),
-    getQuizAttemptsByUser(userId, courseId),
-    getCertificatesByUser(userId, courseId),
-  ])
+    const [progress, attempts, certificates] = await Promise.all([
+      getLessonProgressByUser(userId, courseId),
+      getQuizAttemptsByUser(userId, courseId),
+      getCertificatesByUser(userId, courseId),
+    ])
 
-  const quizAttempts = ((attempts || []).map((d: any) => ({
-    ...d,
-    createdAt: (d.createdAt as any)?.toDate?.() || new Date(d.createdAt),
-  })) as QuizAttempt[]).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    const quizAttempts = ((attempts || []).map((d: any) => ({
+      ...d,
+      createdAt: (d.createdAt as any)?.toDate?.() || new Date(d.createdAt),
+    })) as QuizAttempt[]).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
 
-  const certificate = certificates?.[0]
-    ? ({
-        ...certificates[0],
-        issuedAt: (certificates[0].issuedAt as any)?.toDate?.() || new Date(certificates[0].issuedAt),
-      } as Certificate)
-    : null
+    const certificate = certificates?.[0]
+      ? ({
+          ...certificates[0],
+          issuedAt: (certificates[0].issuedAt as any)?.toDate?.() || new Date(certificates[0].issuedAt),
+        } as Certificate)
+      : null
 
-  return {
-    enrollment,
-    completedLessonKeys: (progress || []).map((p: any) => p.lessonKey),
-    quizAttempts,
-    certificate,
+    return {
+      enrollment,
+      completedLessonKeys: (progress || []).map((p: any) => p.lessonKey),
+      quizAttempts,
+      certificate,
+    }
+  } catch (error) {
+    if (isFirestoreQuotaError(error)) {
+      console.error("Firestore quota exhausted while loading course learning state; serving empty fallback.", error)
+      return {
+        enrollment: null,
+        completedLessonKeys: [],
+        quizAttempts: [],
+        certificate: null,
+      }
+    }
+    throw error
   }
 }
 
