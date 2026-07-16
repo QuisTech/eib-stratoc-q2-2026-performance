@@ -25,7 +25,11 @@ function formatTime(value: string) {
   }).format(new Date(value))
 }
 
-export default async function AdminPage() {
+export default async function AdminPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ full?: string }> | { full?: string }
+} = {}) {
   try {
     const user = await getSessionUser();
   const session = user ? { user } : null
@@ -39,6 +43,139 @@ export default async function AdminPage() {
     if (!isSuperAdmin && role !== "lead" && role !== "group_head" && role !== "group_head_standard") {
       // Learners don't have a team view — send them to their own portal.
       redirect("/lms")
+    }
+
+    const params = await Promise.resolve(searchParams)
+    if (isSuperAdmin && params?.full !== "1") {
+      const firestoreUsage = await getFirestoreUsageSummary()
+      const cacheStats = getCacheStats()
+
+      return (
+        <main className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-10">
+          <Link
+            href="/lms"
+            className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" /> Back to LMS
+          </Link>
+
+          <header className="mb-8 flex flex-col gap-2">
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="font-heading text-2xl font-bold tracking-tight md:text-3xl">
+                Team Learning Admin
+              </h1>
+              <Badge>Quota-safe view</Badge>
+              <Link
+                href="/lms/admin?full=1"
+                className="ml-auto inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              >
+                Load full learner report
+              </Link>
+            </div>
+            <p className="max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground">
+              This view avoids the expensive group-wide learner scan. Open the full report only
+              when you need learner tables, course popularity, or CSV export.
+            </p>
+          </header>
+
+          <section className="mb-8 grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(260px,1fr)]">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Firestore usage today</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {firestoreUsage.available ? (
+                  <div className="grid gap-4 md:grid-cols-3">
+                    {[
+                      { label: "Reads", metric: firestoreUsage.reads },
+                      { label: "Writes", metric: firestoreUsage.writes },
+                      { label: "Deletes", metric: firestoreUsage.deletes },
+                    ].map(({ label, metric }) => (
+                      <div key={label} className="rounded-md border p-4">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-sm font-medium">{label}</span>
+                          <span className="text-xs text-muted-foreground">{metric.percent}%</span>
+                        </div>
+                        <p className="mt-2 text-2xl font-bold tabular-nums">
+                          {metric.count.toLocaleString()}
+                        </p>
+                        <Progress value={Math.min(metric.percent, 100)} className="mt-3 h-1.5" />
+                        <p className="mt-2 text-xs text-muted-foreground">
+                          of {metric.quota.toLocaleString()} free daily quota
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-md border border-destructive/30 bg-destructive/5 p-4 text-sm">
+                    <p className="font-medium text-destructive">Usage metrics unavailable</p>
+                    <p className="mt-2 text-muted-foreground">
+                      {firestoreUsage.error ||
+                        "Google Monitoring API requires billing for in-app usage metrics. Use the server command for now."}
+                    </p>
+                  </div>
+                )}
+                <p className="mt-4 text-xs text-muted-foreground">
+                  Lagos reset window: {formatTime(firestoreUsage.resetAt)} to{" "}
+                  {formatTime(firestoreUsage.measuredAt)}.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Firestore cache</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-3 text-sm">
+                  {[
+                    { label: "Hits", value: cacheStats.hits },
+                    { label: "Misses", value: cacheStats.misses },
+                    { label: "Pending", value: cacheStats.pending },
+                    { label: "Errors", value: cacheStats.errors },
+                  ].map((item) => (
+                    <div key={item.label} className="rounded-md border p-3">
+                      <p className="text-xs text-muted-foreground">{item.label}</p>
+                      <p className="mt-1 text-xl font-semibold tabular-nums">
+                        {item.value.toLocaleString()}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
+                  These counters reset when the server process restarts.
+                </p>
+              </CardContent>
+            </Card>
+          </section>
+
+          <section className="grid gap-4 md:grid-cols-2">
+            <Link href="/lms/admin/courses/new" className="block">
+              <Card className="transition-colors hover:bg-muted/40">
+                <CardHeader>
+                  <CardTitle className="text-base">Create New Course</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Build a course without loading the full learner report.
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+            <Link href="/lms/admin/sync" className="block">
+              <Card className="transition-colors hover:bg-muted/40">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                  <CardTitle className="text-base">Hybrid Sync</CardTitle>
+                  <Server className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">Push/Pull to Cloud.</p>
+                </CardContent>
+              </Card>
+            </Link>
+          </section>
+        </main>
+      )
     }
 
     const [report, firestoreUsage] = await Promise.all([
