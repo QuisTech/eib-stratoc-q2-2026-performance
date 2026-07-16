@@ -6,7 +6,7 @@ import Link from "next/link"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { submitQuiz } from "@/app/actions/lms"
-import { Loader2, CheckCircle2, XCircle, Award, RotateCcw } from "lucide-react"
+import { Loader2, CheckCircle2, XCircle, Award, RotateCcw, AlertTriangle } from "lucide-react"
 
 type ClientQuestion = { 
   type?: "multiple_choice" | "matching"
