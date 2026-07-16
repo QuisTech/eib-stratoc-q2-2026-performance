@@ -191,13 +191,47 @@ export async function getCourses(): Promise<Course[]> {
   }
 }
 
+async function getAdminCourses(): Promise<Course[]> {
+  const staticCourses = getStaticLmsCourses()
+  let liveCourses: Course[] = []
+
+  try {
+    liveCourses = await getCachedCoursesFromFirestore()
+  } catch (error) {
+    if (isFirestoreQuotaError(error)) {
+      console.error("Firestore quota exhausted while loading admin LMS courses; serving static catalog only.", error)
+      return staticCourses
+    }
+    throw error
+  }
+
+  if (staticCourses.length === 0) return liveCourses
+
+  const merged = new Map<string, Course>()
+  for (const course of staticCourses) {
+    merged.set(course.slug || String(course.id), course)
+  }
+  for (const course of liveCourses) {
+    const key = course.slug || String(course.id)
+    if (!merged.has(key)) merged.set(key, toCacheSafeValue(course) as Course)
+  }
+  return [...merged.values()]
+}
+
 export async function getCourseBySlug(slug: string): Promise<Course | null> {
   const staticCourse = getStaticLmsCourseBySlug(slug)
   if (staticCourse) return staticCourse
-  if (hasStaticLmsCourses() && !ALLOW_FIRESTORE_COURSE_FALLBACK) return null
 
-  const snap = await adminDb.collection("courses").where("slug", "==", slug).limit(1).get()
-  return snap.empty ? null : (snap.docs[0].data() as Course)
+  try {
+    const snap = await adminDb.collection("courses").where("slug", "==", slug).limit(1).get()
+    return snap.empty ? null : (toCacheSafeValue(snap.docs[0].data()) as Course)
+  } catch (error) {
+    if (isFirestoreQuotaError(error)) {
+      console.error(`Firestore quota exhausted while loading LMS course slug "${slug}".`, error)
+      return null
+    }
+    throw error
+  }
 }
 
 export async function getMyEnrollments(): Promise<Enrollment[]> {
@@ -512,7 +546,7 @@ export async function getAdminReport(): Promise<AdminReport> {
   let learnerRows: User[] = []
   const [adminSource, allAvailableCourses] = await Promise.all([
     getCachedAdminSourceData(),
-    getCourses(),
+    getAdminCourses(),
   ])
   const allUsers = adminSource.users
   const allEnrollmentsRaw = adminSource.enrollments
