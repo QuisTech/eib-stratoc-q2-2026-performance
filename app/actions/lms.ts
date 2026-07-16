@@ -866,7 +866,7 @@ export async function adminDeleteUser(userId: string) {
 
 export async function adminResetQuizAttempts(userId: string, courseId: number) {
   const user = await getSessionUser()
-  if (!isSuperAdminEmail(user?.email) && user?.role !== "group_head" && user?.role !== "lead") throw new Error("Forbidden")
+  if (!user || (!isSuperAdminEmail(user.email) && user.role !== "group_head" && user.role !== "lead")) throw new Error("Forbidden")
   await assertCanManageTargetUser(user, userId)
   
   const snap = await adminDb.collection("quizAttempts")
@@ -883,7 +883,7 @@ export async function adminResetQuizAttempts(userId: string, courseId: number) {
 
 export async function exportAdminCSV(): Promise<string> {
   const user = await getSessionUser()
-  if (!isSuperAdminEmail(user?.email)) throw new Error("Forbidden")
+  if (!user || !isSuperAdminEmail(user.email)) throw new Error("Forbidden")
 
   const report = await getAdminReport()
   let csv = "Name,Email,Subsidiary,Course,Status,Progress (%),Certificate Link\n"
