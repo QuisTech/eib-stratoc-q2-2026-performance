@@ -126,7 +126,7 @@ const getCachedAdminSourceData = unstable_cache(
     }
   },
   ["lms-admin-source-v1"],
-  { tags: [ADMIN_SOURCE_CACHE_TAG], revalidate: 10 * 60 }
+  { tags: [ADMIN_SOURCE_CACHE_TAG], revalidate: 30 * 60 }
 )
 
 function invalidateAdminCaches() {
@@ -291,7 +291,6 @@ export async function completeLesson(courseId: number, lessonKey: string) {
   }, { merge: true })
   invalidateUserCourseCaches(userId, courseId)
   await recomputeCourseProgress(userId, courseId)
-  invalidateAdminCaches()
   revalidatePath("/lms")
   revalidatePath("/lms/[slug]", "page")
 }
@@ -325,7 +324,6 @@ export async function submitQuiz(courseId: number, answers: any[]) {
 
   invalidateUserCourseCaches(userId, courseId)
   await recomputeCourseProgress(userId, courseId)
-  invalidateAdminCaches()
   revalidatePath("/lms")
   revalidatePath("/lms/[slug]", "page")
   return result
