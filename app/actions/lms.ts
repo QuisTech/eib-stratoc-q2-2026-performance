@@ -832,7 +832,7 @@ export async function adminResetUserPassword(userId: string) {
 
 export async function adminUpdateUserName(userId: string, newName: string) {
   const user = await getSessionUser()
-  if (!isSuperAdminEmail(user?.email)) throw new Error("Forbidden")
+  if (!user || !isSuperAdminEmail(user.email)) throw new Error("Forbidden")
   await adminDb.collection("users").doc(userId).update({ name: newName.trim() })
   revalidateCacheTag(SESSION_USER_PROFILE_CACHE_TAG)
   invalidateAdminCaches()
@@ -841,7 +841,7 @@ export async function adminUpdateUserName(userId: string, newName: string) {
 
 export async function adminDeleteUser(userId: string) {
   const user = await getSessionUser()
-  if (!isSuperAdminEmail(user?.email)) throw new Error("Forbidden")
+  if (!user || !isSuperAdminEmail(user.email)) throw new Error("Forbidden")
   if (user.id === userId) throw new Error("Cannot delete yourself")
 
   const { adminAuth } = await import("@/lib/firebase-admin")
