@@ -921,7 +921,7 @@ export async function deleteCourse(slug: string) {
 
 export async function duplicateCourseAsLMS(slug: string) {
   const user = await getSessionUser()
-  if (!isSuperAdminEmail(user?.email)) throw new Error("Forbidden")
+  if (!user || !isSuperAdminEmail(user.email)) throw new Error("Forbidden")
 
   const course = await getCourseBySlug(slug)
   if (!course) throw new Error("Course not found")
