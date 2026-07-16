@@ -431,9 +431,26 @@ export async function recomputeCourseProgress(userId: string, courseId: number) 
     status = "completed"
   }
 
-  await adminDb.collection("enrollments").doc(`${userId}_${courseId}`).update({
-    progress, status, completedAt: isComplete ? new Date() : null
-  })
+  const enrollmentRef = adminDb.collection("enrollments").doc(`${userId}_${courseId}`)
+  try {
+    await enrollmentRef.update({
+      progress,
+      status,
+      completedAt: isComplete ? new Date() : null,
+    })
+  } catch (error: any) {
+    if (error?.code !== 5) throw error
+
+    await enrollmentRef.set({
+      id: Date.now(),
+      userId,
+      courseId,
+      status,
+      progress,
+      enrolledAt: new Date(),
+      completedAt: isComplete ? new Date() : null,
+    })
+  }
 
   if (isComplete && !hasCertificate) {
     const serial = `EIB-${String(courseId).padStart(3, "0")}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`
