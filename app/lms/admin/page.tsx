@@ -149,6 +149,25 @@ export default async function AdminPage({
             </Card>
           </section>
 
+          <section className="mb-8">
+            <Card className="border-primary/30 bg-primary/5">
+              <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="font-heading text-base font-semibold">Need the full learner report?</h2>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    This loads learner tables, course popularity, training value, and CSV export.
+                  </p>
+                </div>
+                <Link
+                  href="/lms/admin?full=1"
+                  className="inline-flex shrink-0 items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                >
+                  Open full learner report
+                </Link>
+              </CardContent>
+            </Card>
+          </section>
+
           <section className="grid gap-4 md:grid-cols-2">
             <Link href="/lms/admin/courses/new" className="block">
               <Card className="transition-colors hover:bg-muted/40">
