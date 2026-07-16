@@ -1,32 +1,28 @@
 import { getSessionUser } from "@/app/actions/auth"
 import Link from "next/link"
 import { redirect } from "next/navigation"
-import { headers } from "next/headers"
 
 import { getAdminReport } from "@/app/actions/lms"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { formatNaira } from "@/lib/utils"
-import { ArrowLeft, Users, BookOpen, GraduationCap, Award, Edit, Server } from "lucide-react"
-import { ResetPasswordButton } from "./reset-password-button"
-import { DeleteUserButton } from "./delete-user-button"
+import { ArrowLeft, Users, BookOpen, GraduationCap, Award, Server } from "lucide-react"
 import { ExportCsvButton } from "./export-csv-button"
-import { ResetQuizAttemptsButton } from "./reset-quiz-attempts-button"
 import { LearnerManagement } from "./learner-management"
 import { CourseManagement } from "./course-management"
 import { isSuperAdminEmail } from "@/lib/access-control"
+import { getCacheStats } from "@/lib/firebase-admin"
+import { getFirestoreUsageSummary } from "@/lib/firestore-usage"
 
 export const dynamic = "force-dynamic"
 
-function initials(name: string) {
-  return name
-    .split(" ")
-    .map((p) => p[0])
-    .filter(Boolean)
-    .slice(0, 2)
-    .join("")
-    .toUpperCase()
+function formatTime(value: string) {
+  return new Intl.DateTimeFormat("en-NG", {
+    hour: "2-digit",
+    minute: "2-digit",
+    timeZone: "Africa/Lagos",
+  }).format(new Date(value))
 }
 
 export default async function AdminPage() {
@@ -45,8 +41,12 @@ export default async function AdminPage() {
       redirect("/lms")
     }
 
-    const report = await getAdminReport()
+    const [report, firestoreUsage] = await Promise.all([
+      getAdminReport(),
+      isSuperAdmin ? getFirestoreUsageSummary() : Promise.resolve(null),
+    ])
     const { totals } = report
+    const cacheStats = isSuperAdmin ? getCacheStats() : null
     const completionRate =
       totals.enrollments > 0 ? Math.round((totals.completions / totals.enrollments) * 100) : 0
 
@@ -127,7 +127,78 @@ export default async function AdminPage() {
       </section>
 
       {isSuperAdmin && (
-        <section className="mb-8">
+        <section className="mb-8 grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(260px,1fr)]">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Firestore usage today</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {firestoreUsage?.available ? (
+                <div className="grid gap-4 md:grid-cols-3">
+                  {[
+                    { label: "Reads", metric: firestoreUsage.reads },
+                    { label: "Writes", metric: firestoreUsage.writes },
+                    { label: "Deletes", metric: firestoreUsage.deletes },
+                  ].map(({ label, metric }) => (
+                    <div key={label} className="rounded-md border p-4">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm font-medium">{label}</span>
+                        <span className="text-xs text-muted-foreground">{metric.percent}%</span>
+                      </div>
+                      <p className="mt-2 text-2xl font-bold tabular-nums">
+                        {metric.count.toLocaleString()}
+                      </p>
+                      <Progress value={Math.min(metric.percent, 100)} className="mt-3 h-1.5" />
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        of {metric.quota.toLocaleString()} free daily quota
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-md border border-destructive/30 bg-destructive/5 p-4 text-sm">
+                  <p className="font-medium text-destructive">Usage metrics unavailable</p>
+                  <p className="mt-2 text-muted-foreground">
+                    {firestoreUsage?.error ||
+                      "Grant the Firebase service account Monitoring Viewer access on the eib-lms project."}
+                  </p>
+                </div>
+              )}
+              {firestoreUsage && (
+                <p className="mt-4 text-xs text-muted-foreground">
+                  Lagos reset window: {formatTime(firestoreUsage.resetAt)} to{" "}
+                  {formatTime(firestoreUsage.measuredAt)}.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Firestore cache</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                {[
+                  { label: "Hits", value: cacheStats?.hits ?? 0 },
+                  { label: "Misses", value: cacheStats?.misses ?? 0 },
+                  { label: "Pending", value: cacheStats?.pending ?? 0 },
+                  { label: "Errors", value: cacheStats?.errors ?? 0 },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-md border p-3">
+                    <p className="text-xs text-muted-foreground">{item.label}</p>
+                    <p className="mt-1 text-xl font-semibold tabular-nums">
+                      {item.value.toLocaleString()}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
+                These counters reset when the server process restarts.
+              </p>
+            </CardContent>
+          </Card>
+
           <Link href="/lms/admin/sync" className="block">
             <Card className="border-[var(--chart-2)] bg-[var(--chart-2)]/5 hover:bg-[var(--chart-2)]/10 transition-colors cursor-pointer">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
