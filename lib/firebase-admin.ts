@@ -82,6 +82,7 @@ const pendingRequests = new Map<string, PendingRequest<any>>();
 const DEFAULT_CACHE_TTL_MS = 60000; // 1 minute default
 const USER_QUERY_TTL_MS = 5 * 60 * 1000; // 5 minutes for user-scoped queries
 const COLLECTION_QUERY_TTL_MS = 120000; // 2 minutes for full collection queries
+const DEBUG_FIRESTORE_CACHE = process.env.FIRESTORE_CACHE_DEBUG === "true";
 
 // Cache statistics for debugging
 const cacheStats = {
@@ -128,6 +129,10 @@ export function invalidateUserCourseCaches(userId: string, courseId?: number) {
   }
 }
 
+function logCacheDebug(message: string) {
+  if (DEBUG_FIRESTORE_CACHE) console.debug(message);
+}
+
 /**
  * Deduplicate concurrent requests: if 100 requests ask for the same thing,
  * only 1 Firestore read happens. The other 99 await the same Promise.
@@ -143,7 +148,7 @@ async function deduplicatedQuery<T>(
   const cached = resultCache.get(key);
   if (cached && cached.expires > now) {
     cacheStats.hits++;
-    console.debug(`[Cache HIT] ${key}`);
+    logCacheDebug(`[Cache HIT] ${key}`);
     return cached.data;
   }
 
@@ -151,7 +156,7 @@ async function deduplicatedQuery<T>(
   const pending = pendingRequests.get(key);
   if (pending) {
     cacheStats.pending++;
-    console.debug(`[Cache PENDING] ${key} - awaiting in-flight request`);
+    logCacheDebug(`[Cache PENDING] ${key} - awaiting in-flight request`);
     try {
       const result = await pending.promise;
       return result;
@@ -164,7 +169,7 @@ async function deduplicatedQuery<T>(
 
   // 3. No cache, no pending request: fetch and cache
   cacheStats.misses++;
-  console.debug(`[Cache MISS] ${key} - fetching from Firestore`);
+  logCacheDebug(`[Cache MISS] ${key} - fetching from Firestore`);
 
   const promise = (async () => {
     try {

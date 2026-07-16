@@ -30,6 +30,10 @@ const ADMIN_SOURCE_CACHE_TAG = "lms-admin-source"
 const SESSION_USER_PROFILE_CACHE_TAG = "session-user-profile"
 const ALLOW_FIRESTORE_COURSE_FALLBACK = process.env.LMS_ALLOW_FIRESTORE_COURSE_FALLBACK === "true"
 
+function revalidateCacheTag(tag: string) {
+  revalidateTag(tag, "max")
+}
+
 async function getUserId() {
   const user = await getSessionUser()
   if (!user) throw new Error("Unauthorized")
@@ -40,7 +44,7 @@ export async function promoteMeToAdmin() {
   const user = await getSessionUser()
   if (isSuperAdminEmail(user?.email)) {
     await adminDb.collection("users").doc(user.id).update({ role: "admin" })
-    revalidateTag(SESSION_USER_PROFILE_CACHE_TAG)
+    revalidateCacheTag(SESSION_USER_PROFILE_CACHE_TAG)
   }
 }
 
@@ -87,6 +91,9 @@ function isFirestoreQuotaError(error: unknown) {
 function toCacheSafeValue(value: any): any {
   if (value == null) return value
   if (typeof value?.toDate === "function") return value.toDate().toISOString()
+  if (typeof value?._seconds === "number") {
+    return new Date(value._seconds * 1000 + Math.round((value._nanoseconds ?? 0) / 1000000)).toISOString()
+  }
   if (value instanceof Date) return value.toISOString()
   if (Array.isArray(value)) return value.map(toCacheSafeValue)
   if (typeof value === "object") {
@@ -126,7 +133,7 @@ function invalidateAdminCaches() {
   invalidateCache("all_users")
   invalidateCache("all_enrollments")
   invalidateCache("all_certificates")
-  revalidateTag(ADMIN_SOURCE_CACHE_TAG)
+  revalidateCacheTag(ADMIN_SOURCE_CACHE_TAG)
 }
 
 function courseIsInManagerScope(course: Course, viewer: { id: string; role?: string; subsidiary?: string | null }) {
@@ -205,7 +212,7 @@ export async function getMyEnrollments(): Promise<Enrollment[]> {
     }
     throw error
   }
-  return (enrollments || []).sort((a: any, b: any) => {
+  return (enrollments || []).map(toCacheSafeValue).sort((a: any, b: any) => {
     const aTime = (a.enrolledAt as any)?.getTime?.() || new Date(a.enrolledAt).getTime()
     const bTime = (b.enrolledAt as any)?.getTime?.() || new Date(b.enrolledAt).getTime()
     return aTime - bTime
@@ -215,7 +222,8 @@ export async function getMyEnrollments(): Promise<Enrollment[]> {
 export async function getMyEnrollmentForCourse(courseId: number): Promise<Enrollment | null> {
   const userId = await getUserId()
   const enrollments = await getEnrollmentsByUser(userId)
-  return (enrollments || []).find((e: any) => e.courseId === courseId) || null
+  const enrollment = (enrollments || []).find((e: any) => e.courseId === courseId)
+  return enrollment ? (toCacheSafeValue(enrollment) as Enrollment) : null
 }
 
 export async function enrollInCourse(courseId: number) {
@@ -344,7 +352,8 @@ export type MyCourseLearningState = {
 export async function getMyCourseLearningState(courseId: number): Promise<MyCourseLearningState> {
   const userId = await getUserId()
   const enrollments = await getEnrollmentsByUser(userId)
-  const enrollment = ((enrollments || []).find((e: any) => e.courseId === courseId) || null) as Enrollment | null
+  const rawEnrollment = (enrollments || []).find((e: any) => e.courseId === courseId)
+  const enrollment = rawEnrollment ? (toCacheSafeValue(rawEnrollment) as Enrollment) : null
 
   if (!enrollment) {
     return {
@@ -643,8 +652,8 @@ export async function createCourse(data: any) {
   })
 
   invalidateCache("courses")
-  revalidateTag(COURSE_CACHE_TAG)
-  revalidateTag(ADMIN_SOURCE_CACHE_TAG)
+  revalidateCacheTag(COURSE_CACHE_TAG)
+  revalidateCacheTag(ADMIN_SOURCE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
 }
@@ -666,8 +675,8 @@ export async function updateCourse(slug: string, data: any) {
   })
 
   invalidateCache("courses")
-  revalidateTag(COURSE_CACHE_TAG)
-  revalidateTag(ADMIN_SOURCE_CACHE_TAG)
+  revalidateCacheTag(COURSE_CACHE_TAG)
+  revalidateCacheTag(ADMIN_SOURCE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
 }
@@ -682,8 +691,8 @@ export async function saveCustomCourseContent(slug: string, content: string) {
 
   await adminDb.collection("courses").doc(String(existing.id)).update({ customContent: content })
   invalidateCache("courses")
-  revalidateTag(COURSE_CACHE_TAG)
-  revalidateTag(ADMIN_SOURCE_CACHE_TAG)
+  revalidateCacheTag(COURSE_CACHE_TAG)
+  revalidateCacheTag(ADMIN_SOURCE_CACHE_TAG)
   revalidatePath(`/lms/admin`)
   revalidatePath(`/lms/courses/${slug}`)
 }
@@ -697,7 +706,7 @@ export async function setInitialRole(userId: string, requestedRole: string) {
   const validRoles = ["learner", "lead", "group_head"]
   if (!validRoles.includes(requestedRole)) return
   await adminDb.collection("users").doc(userId).update({ role: requestedRole })
-  revalidateTag(SESSION_USER_PROFILE_CACHE_TAG)
+  revalidateCacheTag(SESSION_USER_PROFILE_CACHE_TAG)
   invalidateAdminCaches()
   revalidatePath("/lms/admin")
 }
@@ -754,7 +763,7 @@ export async function adminResetUserPassword(userId: string) {
   const { adminAuth } = await import("@/lib/firebase-admin")
   await adminAuth.updateUser(userId, { password: defaultPass })
   await adminDb.collection("users").doc(userId).update({ mustChangePassword: true })
-  revalidateTag(SESSION_USER_PROFILE_CACHE_TAG)
+  revalidateCacheTag(SESSION_USER_PROFILE_CACHE_TAG)
   revalidatePath("/lms/admin")
 }
 
@@ -762,7 +771,7 @@ export async function adminUpdateUserName(userId: string, newName: string) {
   const user = await getSessionUser()
   if (!isSuperAdminEmail(user?.email)) throw new Error("Forbidden")
   await adminDb.collection("users").doc(userId).update({ name: newName.trim() })
-  revalidateTag(SESSION_USER_PROFILE_CACHE_TAG)
+  revalidateCacheTag(SESSION_USER_PROFILE_CACHE_TAG)
   invalidateAdminCaches()
   revalidatePath("/lms/admin")
 }
@@ -841,8 +850,8 @@ export async function deleteCourse(slug: string) {
   
   await adminDb.collection("courses").doc(String(course.id)).delete()
   invalidateCache("courses")
-  revalidateTag(COURSE_CACHE_TAG)
-  revalidateTag(ADMIN_SOURCE_CACHE_TAG)
+  revalidateCacheTag(COURSE_CACHE_TAG)
+  revalidateCacheTag(ADMIN_SOURCE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
 }
@@ -867,8 +876,8 @@ export async function duplicateCourseAsLMS(slug: string) {
   })
 
   invalidateCache("courses")
-  revalidateTag(COURSE_CACHE_TAG)
-  revalidateTag(ADMIN_SOURCE_CACHE_TAG)
+  revalidateCacheTag(COURSE_CACHE_TAG)
+  revalidateCacheTag(ADMIN_SOURCE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
   return { newSlug }

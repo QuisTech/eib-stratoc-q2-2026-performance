@@ -7,6 +7,10 @@ import { revalidateTag, unstable_cache } from "next/cache"
 
 const SESSION_USER_PROFILE_CACHE_TAG = "session-user-profile"
 
+function revalidateCacheTag(tag: string) {
+  revalidateTag(tag, "max")
+}
+
 const getCachedSessionUserProfile = unstable_cache(
   async (uid: string) => {
     const userDoc = await adminDb.collection("users").doc(uid).get()
@@ -103,10 +107,10 @@ export async function createUserProfile(uid: string, data: { name: string, email
     subsidiary: data.subsidiary,
     createdAt: new Date(),
   })
-  revalidateTag(SESSION_USER_PROFILE_CACHE_TAG)
+  revalidateCacheTag(SESSION_USER_PROFILE_CACHE_TAG)
 }
 
 export async function updateUserDoc(uid: string, data: Partial<{ name: string, role: string, subsidiary: string, mustChangePassword: boolean }>) {
   await adminDb.collection("users").doc(uid).update(data)
-  revalidateTag(SESSION_USER_PROFILE_CACHE_TAG)
+  revalidateCacheTag(SESSION_USER_PROFILE_CACHE_TAG)
 }
