@@ -42,7 +42,7 @@ async function getUserId() {
 
 export async function promoteMeToAdmin() {
   const user = await getSessionUser()
-  if (isSuperAdminEmail(user?.email)) {
+  if (user && isSuperAdminEmail(user.email)) {
     await adminDb.collection("users").doc(user.id).update({ role: "admin" })
     revalidateCacheTag(SESSION_USER_PROFILE_CACHE_TAG)
   }
