@@ -124,7 +124,10 @@ export function getStaticLmsCourseById(id: number): Course | null {
               delete cleanEnv[key]
             }
           }
-          const buildResult = await execAsync("pnpm run build", { env: cleanEnv as any })
+          const buildResult = await execAsync("npx next build && node scripts/postbuild.js", { 
+            env: cleanEnv as any,
+            cwd: process.cwd() 
+          })
           log("Build completed successfully!")
         } catch (buildErr: any) {
           log("Build failed! " + (buildErr.stderr || buildErr.message))
