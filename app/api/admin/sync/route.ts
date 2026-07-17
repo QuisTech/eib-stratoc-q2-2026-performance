@@ -118,7 +118,13 @@ export function getStaticLmsCourseById(id: number): Course | null {
 
         log("Building Next.js application (this may take a minute)...")
         try {
-          const buildResult = await execAsync("pnpm run build")
+          const cleanEnv = { ...process.env }
+          for (const key of Object.keys(cleanEnv)) {
+            if (key.startsWith('__NEXT_') || key === 'NEXT_PHASE' || key === 'NODE_OPTIONS') {
+              delete cleanEnv[key]
+            }
+          }
+          const buildResult = await execAsync("pnpm run build", { env: cleanEnv as any })
           log("Build completed successfully!")
         } catch (buildErr: any) {
           log("Build failed! " + (buildErr.stderr || buildErr.message))
