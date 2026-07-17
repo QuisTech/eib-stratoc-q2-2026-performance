@@ -105,12 +105,7 @@ export function getStaticLmsCourseById(id: number): Course | null {
         try {
           await execAsync('git commit -am "chore: hybrid sync - update courses and media"')
         } catch (e: any) {
-          // git commit fails if there are no changes, which is fine
-          if (e.stdout?.includes("nothing to commit") || e.stderr?.includes("nothing to commit")) {
-            log("No new changes detected to commit.")
-          } else {
-            throw e
-          }
+          log("No new changes detected to commit, or commit failed. Continuing...")
         }
 
         log("Pushing to GitHub (origin main)...")
