@@ -95,7 +95,12 @@ export function getStaticLmsCourseById(id: number): Course | null {
         await fs.writeFile(filePath, fileContent)
 
         log("Staging changes in git (git add)...")
-        await execAsync("git add lib/static-lms-courses.ts public/uploads")
+        await execAsync("git add lib/static-lms-courses.ts")
+        try {
+          await execAsync("git add public/uploads")
+        } catch (e) {
+          log("Note: No public/uploads directory to add yet.")
+        }
 
         log("Committing changes...")
         try {
