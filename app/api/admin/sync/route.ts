@@ -95,16 +95,15 @@ export function getStaticLmsCourseById(id: number): Course | null {
         await fs.writeFile(filePath, fileContent)
 
         log("Staging changes in git (git add)...")
-        await execAsync("git add lib/static-lms-courses.ts")
         try {
           await execAsync("git add public/uploads")
         } catch (e) {
-          log("Note: No public/uploads directory to add yet.")
+          // ignore if directory doesn't exist
         }
 
         log("Committing changes...")
         try {
-          await execAsync('git commit -m "chore: hybrid sync - update courses and media"')
+          await execAsync('git commit -am "chore: hybrid sync - update courses and media"')
         } catch (e: any) {
           // git commit fails if there are no changes, which is fine
           if (e.stdout?.includes("nothing to commit") || e.stderr?.includes("nothing to commit")) {
