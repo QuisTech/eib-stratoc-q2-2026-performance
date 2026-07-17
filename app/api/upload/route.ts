@@ -58,8 +58,8 @@ export async function POST(req: Request) {
     const filePath = path.join(uploadDir, filename)
     await fs.writeFile(filePath, buffer)
 
-    // Return the local URL
-    const localUrl = `/uploads/course-images/${filename}`
+    // Return the local URL through our dynamic serving API route
+    const localUrl = `/api/local-images/course-images/${filename}`
 
     return NextResponse.json({
       success: true,
