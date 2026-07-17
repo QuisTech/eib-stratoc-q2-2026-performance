@@ -2,7 +2,7 @@
 
 import { useState, useRef, MouseEvent } from "react"
 import { LabeledGraphicData, LabeledGraphicHotspot } from "@/lib/lms-content"
-import { Plus, Trash2 } from "lucide-react"
+import { Plus, Trash2, Upload, Loader2, Image as ImageIcon } from "lucide-react"
 
 interface GraphicBuilderProps {
   data?: LabeledGraphicData
@@ -12,6 +12,10 @@ interface GraphicBuilderProps {
 export function GraphicBuilder({ data, onChange }: GraphicBuilderProps) {
   const [activeTab, setActiveTab] = useState<"image" | "hotspots">("image")
   const imageRef = useRef<HTMLImageElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
 
   const handleImageChange = (url: string) => {
     if (!url) {
@@ -22,6 +26,74 @@ export function GraphicBuilder({ data, onChange }: GraphicBuilderProps) {
       imageUrl: url,
       hotspots: data?.hotspots || [],
     })
+  }
+
+  const handleFileUpload = async (file: File) => {
+    setUploadError(null)
+    
+    // Client-side pre-flight validation
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"]
+    if (!allowedTypes.includes(file.type)) {
+      setUploadError("Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.")
+      return
+    }
+
+    const maxSize = 5 * 1024 * 1024 // 5MB
+    if (file.size > maxSize) {
+      setUploadError("File too large. Maximum size is 5MB.")
+      return
+    }
+
+    setIsUploading(true)
+
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Upload failed")
+      }
+
+      const data = await response.json()
+      handleImageChange(data.url)
+    } catch (error) {
+      console.error("Upload error:", error)
+      setUploadError(error instanceof Error ? error.message : "Failed to upload image")
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      handleFileUpload(file)
+    }
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragging(false)
+    const file = e.dataTransfer.files?.[0]
+    if (file && file.type.startsWith("image/")) {
+      handleFileUpload(file)
+    }
   }
 
   const handleImageClick = (e: MouseEvent<HTMLImageElement>) => {
@@ -68,13 +140,103 @@ export function GraphicBuilder({ data, onChange }: GraphicBuilderProps) {
       </div>
 
       <div className="mb-4">
-        <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Image URL</label>
-        <input
-          value={data?.imageUrl || ""}
-          onChange={(e) => handleImageChange(e.target.value)}
-          className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-          placeholder="e.g. https://images.unsplash.com/photo-..."
-        />
+        <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Image</label>
+        
+        {!data?.imageUrl ? (
+          <div
+            className={`relative rounded-md border-2 border-dashed p-8 text-center transition-colors ${
+              isDragging 
+                ? "border-primary bg-primary/5" 
+                : "border-muted-foreground/30 bg-muted/20 hover:border-muted-foreground/50"
+            }`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              onChange={handleFileSelect}
+              className="hidden"
+              disabled={isUploading}
+            />
+            
+            <div className="flex flex-col items-center gap-3">
+              {isUploading ? (
+                <>
+                  <Loader2 className="h-12 w-12 animate-spin text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground">Uploading image...</p>
+                </>
+              ) : (
+                <>
+                  <ImageIcon className="h-12 w-12 text-muted-foreground" />
+                  <div>
+                    <p className="text-sm font-medium text-foreground">
+                      Upload an image
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Drag and drop or click to browse
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                  >
+                    <Upload className="h-4 w-4" />
+                    Choose File
+                  </button>
+                </>
+              )}
+            </div>
+            
+            {uploadError && (
+              <p className="mt-3 text-xs text-destructive">{uploadError}</p>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <img
+                src={data.imageUrl}
+                alt="Uploaded image"
+                className="h-20 w-20 rounded-md border object-cover"
+              />
+              <div className="flex-1">
+                <p className="text-xs font-medium text-foreground">Image uploaded</p>
+                <p className="text-xs text-muted-foreground truncate max-w-xs">
+                  {data.imageUrl}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleImageChange("")}
+                className="rounded-md border border-destructive/50 bg-destructive/10 px-3 py-1.5 text-xs font-medium text-destructive hover:bg-destructive/20"
+              >
+                Remove
+              </button>
+            </div>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+              className="flex items-center gap-2 rounded-md border bg-muted px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted/80 disabled:opacity-50"
+            >
+              <Upload className="h-3 w-3" />
+              Replace image
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/gif,image/webp"
+              onChange={handleFileSelect}
+              className="hidden"
+              disabled={isUploading}
+            />
+          </div>
+        )}
       </div>
 
       {data?.imageUrl && (
