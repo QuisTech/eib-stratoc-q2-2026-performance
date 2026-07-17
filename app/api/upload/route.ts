@@ -2,6 +2,7 @@ import { getSessionUser } from "@/app/actions/auth"
 import { NextResponse } from "next/server"
 import fs from "fs/promises"
 import path from "path"
+import { isSuperAdminEmail } from "@/lib/access-control"
 
 export async function POST(req: Request) {
   try {
@@ -12,7 +13,8 @@ export async function POST(req: Request) {
     }
 
     // Admin role check
-    if (user.role !== "admin" && user.role !== "super_admin") {
+    const isSuperAdmin = isSuperAdminEmail(user.email)
+    if (!isSuperAdmin && user.role !== "admin" && user.role !== "super_admin" && user.role !== "group_head" && user.role !== "lead") {
       return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 })
     }
 
