@@ -47,6 +47,7 @@ export default function HybridSyncPage() {
               }
             }
           })
+        }
       }
 
       setSuccess(true)
