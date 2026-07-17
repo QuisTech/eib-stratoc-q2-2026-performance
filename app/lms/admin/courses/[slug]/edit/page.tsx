@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react"
 import { isSuperAdminEmail } from "@/lib/access-control"
 
 import { updateCourse } from "@/app/actions/lms"
+import { ImageUploadField } from "@/components/lms/image-upload-field"
 
 
 
@@ -145,10 +146,7 @@ export default async function EditCoursePage({
           <input id="videoUrl" name="videoUrl" defaultValue={course.videoUrl || ""} className="h-10 rounded-md border border-input bg-background px-3 text-sm" placeholder="e.g. https://www.youtube.com/embed/..." />
         </div>
 
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="imageUrl" className="text-sm font-medium">Thumbnail Image URL (Optional)</label>
-          <input id="imageUrl" name="imageUrl" defaultValue={course.imageUrl || ""} className="h-10 rounded-md border border-input bg-background px-3 text-sm" placeholder="e.g. https://images.unsplash.com/..." />
-        </div>
+        <ImageUploadField name="imageUrl" defaultValue={course.imageUrl || ""} label="Thumbnail Image URL (Optional)" />
 
         <button
           type="submit"
