@@ -109,8 +109,12 @@ export function getStaticLmsCourseById(id: number): Course | null {
         }
 
         log("Pushing to GitHub (origin main)...")
-        const pushResult = await execAsync("git push origin main")
-        log(pushResult.stdout || pushResult.stderr || "Push successful.")
+        try {
+          const pushResult = await execAsync("git push origin main")
+          log(pushResult.stdout || pushResult.stderr || "Push successful.")
+        } catch (pushErr: any) {
+          log("Warning: Could not push to GitHub (VPS lacks credentials). Vercel deploy skipped, continuing with local VPS update...")
+        }
 
         log("Building Next.js application (this may take a minute)...")
         try {
