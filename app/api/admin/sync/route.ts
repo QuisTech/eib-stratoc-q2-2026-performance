@@ -124,7 +124,8 @@ export function getStaticLmsCourseById(id: number): Course | null {
               delete cleanEnv[key]
             }
           }
-          const buildResult = await execAsync("npx next build && node scripts/postbuild.js", { 
+          const buildCommand = `node node_modules/next/dist/bin/next build "${process.cwd()}" && node scripts/postbuild.js`
+          const buildResult = await execAsync(buildCommand, { 
             env: cleanEnv as any,
             cwd: process.cwd() 
           })
