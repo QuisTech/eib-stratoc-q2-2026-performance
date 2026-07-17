@@ -29,6 +29,11 @@ export async function POST(req: Request) {
       }
 
       try {
+        const currentCwd = process.cwd()
+        const realCwd = currentCwd.includes("standalone") 
+          ? path.join(currentCwd, "..", "..") 
+          : currentCwd
+          
         log("Fetching courses from Firestore...")
         const snapshot = await adminDb.collection("courses").get()
         const courses = snapshot.docs.map(doc => doc.data() as Course)
