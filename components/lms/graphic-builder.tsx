@@ -143,59 +143,70 @@ export function GraphicBuilder({ data, onChange }: GraphicBuilderProps) {
         <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Image</label>
         
         {!data?.imageUrl ? (
-          <div
-            className={`relative rounded-md border-2 border-dashed p-8 text-center transition-colors ${
-              isDragging 
-                ? "border-primary bg-primary/5" 
-                : "border-muted-foreground/30 bg-muted/20 hover:border-muted-foreground/50"
-            }`}
-            onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
-            onDrop={handleDrop}
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/gif,image/webp"
-              onChange={handleFileSelect}
-              className="hidden"
-              disabled={isUploading}
-            />
-            
-            <div className="flex flex-col items-center gap-3">
-              {isUploading ? (
-                <>
-                  <Loader2 className="h-12 w-12 animate-spin text-muted-foreground" />
-                  <p className="text-sm text-muted-foreground">Uploading image...</p>
-                </>
-              ) : (
-                <>
-                  <ImageIcon className="h-12 w-12 text-muted-foreground" />
-                  <div>
-                    <p className="text-sm font-medium text-foreground">
-                      Upload an image
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Drag and drop or click to browse
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={isUploading}
-                    className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
-                  >
-                    <Upload className="h-4 w-4" />
-                    Choose File
-                  </button>
-                </>
+          <>
+            <div
+              className={`relative rounded-md border-2 border-dashed p-8 text-center transition-colors ${
+                isDragging 
+                  ? "border-primary bg-primary/5" 
+                  : "border-muted-foreground/30 bg-muted/20 hover:border-muted-foreground/50"
+              }`}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/gif,image/webp"
+                onChange={handleFileSelect}
+                className="hidden"
+                disabled={isUploading}
+              />
+              
+              <div className="flex flex-col items-center gap-3">
+                {isUploading ? (
+                  <>
+                    <Loader2 className="h-12 w-12 animate-spin text-muted-foreground" />
+                    <p className="text-sm text-muted-foreground">Uploading image...</p>
+                  </>
+                ) : (
+                  <>
+                    <ImageIcon className="h-12 w-12 text-muted-foreground" />
+                    <div>
+                      <p className="text-sm font-medium text-foreground">
+                        Upload an image
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Drag and drop or click to browse
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                      className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+                    >
+                      <Upload className="h-4 w-4" />
+                      Choose File
+                    </button>
+                  </>
+                )}
+              </div>
+              
+              {uploadError && (
+                <p className="mt-3 text-xs text-destructive">{uploadError}</p>
               )}
             </div>
-            
-            {uploadError && (
-              <p className="mt-3 text-xs text-destructive">{uploadError}</p>
-            )}
-          </div>
+            <div className="mt-4 space-y-1.5">
+              <label className="block text-xs font-medium text-muted-foreground">Or provide a direct Image URL</label>
+              <input
+                value={data?.imageUrl || ""}
+                onChange={(e) => handleImageChange(e.target.value)}
+                className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                placeholder="e.g. https://images.unsplash.com/photo-..."
+              />
+            </div>
+          </>
         ) : (
           <div className="space-y-2">
             <div className="flex items-center gap-2">
