@@ -77,6 +77,42 @@ function invalidateCache(key?: string) {
   else cache.clear()
 }
 
+// ── Composite learning state cache (15 min TTL) ──
+// Caches the fully-assembled MyCourseLearningState per user+course.
+// This is the key optimization: a user clicking through 8 lessons
+// only pays 1 Firestore read (the first page load). All subsequent
+// navigations read from this cache until it expires or is invalidated.
+const LEARNING_STATE_TTL_MS = 15 * 60 * 1000 // 15 minutes
+const learningStateCache = new Map<string, { data: any; expiresAt: number }>()
+
+function getLearningStateCacheKey(userId: string, courseId: number) {
+  return `ls:${userId}:${courseId}`
+}
+
+function getCachedLearningState(userId: string, courseId: number): any | null {
+  const key = getLearningStateCacheKey(userId, courseId)
+  const entry = learningStateCache.get(key)
+  if (entry && Date.now() < entry.expiresAt) return entry.data
+  learningStateCache.delete(key)
+  return null
+}
+
+function setCachedLearningState(userId: string, courseId: number, state: any) {
+  const key = getLearningStateCacheKey(userId, courseId)
+  learningStateCache.set(key, { data: state, expiresAt: Date.now() + LEARNING_STATE_TTL_MS })
+}
+
+function invalidateLearningState(userId: string, courseId?: number) {
+  if (courseId != null) {
+    learningStateCache.delete(getLearningStateCacheKey(userId, courseId))
+  } else {
+    // Invalidate all learning states for this user
+    for (const key of learningStateCache.keys()) {
+      if (key.startsWith(`ls:${userId}:`)) learningStateCache.delete(key)
+    }
+  }
+}
+
 function isFirestoreQuotaError(error: unknown) {
   const err = error as { code?: string | number; message?: string; details?: string }
   const text = `${err?.message ?? ""} ${err?.details ?? ""}`
@@ -288,6 +324,7 @@ export async function enrollInCourse(courseId: number) {
       completedAt: null
     })
     invalidateUserCourseCaches(userId, courseId)
+    invalidateLearningState(userId, courseId)
     await recomputeCourseProgress(userId, courseId)
   }
   invalidateAdminCaches()
@@ -303,6 +340,7 @@ export async function unenrollFromCourse(courseId: number) {
 
   await adminDb.collection("enrollments").doc(`${userId}_${courseId}`).delete()
   invalidateUserCourseCaches(userId, courseId)
+  invalidateLearningState(userId, courseId)
   invalidateAdminCaches()
   revalidatePath("/lms")
   revalidatePath("/lms/[slug]", "page")
@@ -324,6 +362,7 @@ export async function completeLesson(courseId: number, lessonKey: string) {
     completedAt: new Date()
   }, { merge: true })
   invalidateUserCourseCaches(userId, courseId)
+  invalidateLearningState(userId, courseId)
   await recomputeCourseProgress(userId, courseId)
   revalidatePath("/lms")
   revalidatePath("/lms/[slug]", "page")
@@ -357,6 +396,7 @@ export async function submitQuiz(courseId: number, answers: any[]) {
   })
 
   invalidateUserCourseCaches(userId, courseId)
+  invalidateLearningState(userId, courseId)
   await recomputeCourseProgress(userId, courseId)
   revalidatePath("/lms")
   revalidatePath("/lms/[slug]", "page")
@@ -383,6 +423,10 @@ export type MyCourseLearningState = {
 
 export async function getMyCourseLearningState(courseId: number): Promise<MyCourseLearningState> {
   const userId = await getUserId()
+
+  // ── Check composite cache first (zero Firestore reads on hit) ──
+  const cached = getCachedLearningState(userId, courseId)
+  if (cached) return cached
   
   try {
     const enrollments = await getEnrollmentsByUser(userId)
@@ -390,12 +434,15 @@ export async function getMyCourseLearningState(courseId: number): Promise<MyCour
     const enrollment = rawEnrollment ? (toCacheSafeValue(rawEnrollment) as Enrollment) : null
 
     if (!enrollment) {
-      return {
+      const emptyState: MyCourseLearningState = {
         enrollment: null,
         completedLessonKeys: [],
         quizAttempts: [],
         certificate: null,
       }
+      // Cache empty state too — prevents re-querying for non-enrolled courses
+      setCachedLearningState(userId, courseId, emptyState)
+      return emptyState
     }
 
     const [progress, attempts, certificates] = await Promise.all([
@@ -416,12 +463,16 @@ export async function getMyCourseLearningState(courseId: number): Promise<MyCour
         } as Certificate)
       : null
 
-    return {
+    const state: MyCourseLearningState = {
       enrollment,
       completedLessonKeys: (progress || []).map((p: any) => p.lessonKey),
       quizAttempts,
       certificate,
     }
+
+    // ── Save to composite cache ──
+    setCachedLearningState(userId, courseId, state)
+    return state
   } catch (error) {
     if (isFirestoreQuotaError(error)) {
       console.error("Firestore quota exhausted while loading course learning state; serving empty fallback.", error)
@@ -509,6 +560,7 @@ export async function recomputeCourseProgress(userId: string, courseId: number) 
     })
   }
   invalidateUserCourseCaches(userId, courseId)
+  invalidateLearningState(userId, courseId)
 }
 
 export type LearnerReportRow = {
@@ -809,6 +861,7 @@ export async function autoEnrollOnboarding(subsidiary: string) {
           completedAt: null
         })
         invalidateUserCourseCaches(userId, courseId)
+        invalidateLearningState(userId, courseId)
       }
     }
     invalidateAdminCaches()
