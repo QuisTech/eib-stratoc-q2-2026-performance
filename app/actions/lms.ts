@@ -1028,7 +1028,7 @@ export async function getAdminUserDetail(userId: string) {
 
   const enrollmentsList = (enrollments || []).map((e: any) => {
     const course = courseMap.get(e.courseId)
-    const lessonsForCourse = (lessonProgress || []).filter((lp: any) => lp.courseId === e.courseId && lp.completed)
+    const lessonsForCourse = (lessonProgress || []).filter((lp: any) => lp.courseId === e.courseId && !!lp.lessonKey)
     const quizzesForCourse = (quizAttempts || []).filter((qa: any) => qa.courseId === e.courseId)
     
     let bestQuizScore = null
