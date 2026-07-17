@@ -91,26 +91,26 @@ export function getStaticLmsCourseById(id: number): Course | null {
 }
 `
         log("Writing new static-lms-courses.ts file...")
-        const filePath = path.join(process.cwd(), "lib", "static-lms-courses.ts")
+        const filePath = path.join(realCwd, "lib", "static-lms-courses.ts")
         await fs.writeFile(filePath, fileContent)
 
         log("Staging changes in git (git add)...")
         try {
-          await execAsync("git add public/uploads")
+          await execAsync("git add public/uploads", { cwd: realCwd })
         } catch (e) {
           // ignore if directory doesn't exist
         }
 
         log("Committing changes...")
         try {
-          await execAsync('git commit -am "chore: hybrid sync - update courses and media"')
+          await execAsync('git commit -am "chore: hybrid sync - update courses and media"', { cwd: realCwd })
         } catch (e: any) {
           log("No new changes detected to commit, or commit failed. Continuing...")
         }
 
         log("Pushing to GitHub (origin main)...")
         try {
-          const pushResult = await execAsync("git push origin main")
+          const pushResult = await execAsync("git push origin main", { cwd: realCwd })
           log(pushResult.stdout || pushResult.stderr || "Push successful.")
         } catch (pushErr: any) {
           log("Warning: Could not push to GitHub (VPS lacks credentials). Vercel deploy skipped, continuing with local VPS update...")
@@ -124,10 +124,10 @@ export function getStaticLmsCourseById(id: number): Course | null {
               delete cleanEnv[key]
             }
           }
-          const buildCommand = `node node_modules/next/dist/bin/next build "${process.cwd()}" && node scripts/postbuild.js`
+          const buildCommand = `npx next build && node scripts/postbuild.js`
           const buildResult = await execAsync(buildCommand, { 
             env: cleanEnv as any,
-            cwd: process.cwd() 
+            cwd: realCwd 
           })
           log("Build completed successfully!")
         } catch (buildErr: any) {
@@ -142,7 +142,7 @@ export function getStaticLmsCourseById(id: number): Course | null {
 
         // Give the stream 2 seconds to flush to the client before killing the server
         setTimeout(() => {
-          exec("pm2 restart ecosystem.config.js --env production", (error) => {
+          exec("pm2 restart ecosystem.config.js --env production", { cwd: realCwd }, (error) => {
             if (error) console.error("PM2 Restart Failed:", error)
           })
         }, 2000)
