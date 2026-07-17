@@ -113,7 +113,27 @@ export function getStaticLmsCourseById(id: number): Course | null {
         const pushResult = await execAsync("git push origin main")
         log(pushResult.stdout || pushResult.stderr || "Push successful.")
 
+        log("Building Next.js application (this may take a minute)...")
+        try {
+          const buildResult = await execAsync("pnpm run build")
+          log("Build completed successfully!")
+        } catch (buildErr: any) {
+          log("Build failed! " + (buildErr.stderr || buildErr.message))
+          throw new Error("Build failed")
+        }
+
+        log("Restarting PM2 server... The dashboard will refresh automatically when it's back online.")
+        
+        // We close the stream here so the client gets the final message
         controller.close()
+
+        // Give the stream 2 seconds to flush to the client before killing the server
+        setTimeout(() => {
+          exec("pm2 restart ecosystem.config.js --env production", (error) => {
+            if (error) console.error("PM2 Restart Failed:", error)
+          })
+        }, 2000)
+
       } catch (error: any) {
         console.error("Hybrid Sync Error:", error)
         controller.enqueue(encoder.encode(JSON.stringify({ error: error.message || "Unknown error" }) + "\n"))

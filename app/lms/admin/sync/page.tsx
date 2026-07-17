@@ -47,14 +47,15 @@ export default function HybridSyncPage() {
               }
             }
           })
-        }
       }
 
       setSuccess(true)
-      setLogs(prev => [...prev, "Sync completed successfully! Vercel will deploy shortly."])
+      setLogs(prev => [...prev, "Sync completed successfully! Vercel is deploying and the VPS is restarting."])
+      
+      // Wait 15 seconds before refreshing to give PM2 and Next.js time to fully reboot
       setTimeout(() => {
         router.refresh()
-      }, 2000)
+      }, 15000)
 
     } catch (err: any) {
       setError(err.message || "An error occurred during sync")
