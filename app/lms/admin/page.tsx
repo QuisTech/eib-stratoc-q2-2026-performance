@@ -14,6 +14,7 @@ import { CourseManagement } from "./course-management"
 import { isSuperAdminEmail } from "@/lib/access-control"
 import { getCacheStats } from "@/lib/firebase-admin"
 import { getFirestoreUsageSummary } from "@/lib/firestore-usage"
+import { FirestoreQuotaButton } from "./firestore-quota-button"
 
 export const dynamic = "force-dynamic"
 
@@ -107,12 +108,15 @@ export default async function AdminPage({
                     ))}
                   </div>
                 ) : (
-                  <div className="rounded-md border border-destructive/30 bg-destructive/5 p-4 text-sm">
-                    <p className="font-medium text-destructive">Usage metrics unavailable</p>
-                    <p className="mt-2 text-muted-foreground">
-                      {firestoreUsage.error ||
-                        "Google Monitoring API requires billing for in-app usage metrics. Use the server command for now."}
-                    </p>
+                  <div className="flex flex-col gap-3">
+                    <div className="rounded-md border border-destructive/30 bg-destructive/5 p-4 text-sm">
+                      <p className="font-medium text-destructive">Usage metrics unavailable</p>
+                      <p className="mt-2 text-muted-foreground">
+                        {firestoreUsage.error ||
+                          "Google Monitoring API requires billing for in-app usage metrics. You can bypass this using the server command below."}
+                      </p>
+                    </div>
+                    <FirestoreQuotaButton />
                   </div>
                 )}
                 <p className="mt-4 text-xs text-muted-foreground">
