@@ -32,16 +32,37 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed." }, { status: 400 })
     }
 
-    // Validate file size (max 5MB)
-    const maxSize = 5 * 1024 * 1024 // 5MB
+    // Check environment
+    const isVercel = process.env.VERCEL === "1"
+
+    // Validate file size
+    // Base64 encoding increases size by ~33%. Firestore document limit is 1MB.
+    // We restrict Vercel uploads to 700KB to safely fit the Base64 string alongside course data.
+    const maxSize = isVercel ? 700 * 1024 : 5 * 1024 * 1024 
     if (file.size > maxSize) {
-      return NextResponse.json({ error: "File too large. Maximum size is 5MB." }, { status: 400 })
+      const msg = isVercel 
+        ? "File too large for Vercel preview. Maximum size is 700KB (Base64 constraint)."
+        : "File too large. Maximum size is 5MB."
+      return NextResponse.json({ error: msg }, { status: 400 })
     }
 
     // Convert file to Buffer
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
+    // HYBRID FALLBACK: Base64 for Vercel
+    if (isVercel) {
+      const base64String = buffer.toString('base64')
+      const dataUrl = `data:${file.type};base64,${base64String}`
+      
+      return NextResponse.json({
+        success: true,
+        url: dataUrl,
+        filename: file.name,
+      })
+    }
+
+    // ORIGINAL BEHAVIOR: Local Filesystem for On-Premise VPX
     // Generate unique filename
     const timestamp = Date.now()
     const randomString = Math.random().toString(36).substring(2, 8)
@@ -74,3 +95,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
   }
 }
+
