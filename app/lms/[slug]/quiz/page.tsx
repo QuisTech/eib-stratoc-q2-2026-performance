@@ -157,42 +157,18 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
         </Card>
       )}
 
-      {!alreadyPassed && isLockedOutByAttempts ? (
-        <Card className="mt-7 border-destructive">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-destructive">
-              <Ban className="h-5 w-5" /> Maximum Attempts Reached
-            </CardTitle>
-            <CardDescription>
-              You have reached the maximum of {policy.maxAttempts} attempts for this course assessment.
-              Please contact your administrator or supervisor to review the material and request a reset.
-            </CardDescription>
-          </CardHeader>
-        </Card>
-      ) : !alreadyPassed && isLockedOutByTime ? (
-        <Card className="mt-7 border-muted bg-muted/30">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-muted-foreground" /> Waiting Period
-            </CardTitle>
-            <CardDescription>
-              This course requires a {policy.waitPeriodHours}-hour waiting period between failed attempts
-              to encourage reviewing the material before trying again.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm font-medium">
-              You can try again in approximately {waitHoursLeft} hour(s).
-            </p>
-          </CardContent>
-        </Card>
-      ) : !alreadyPassed ? (
+      {!alreadyPassed ? (
         <div className="mt-7">
           <QuizForm
             courseId={course.id}
             slug={slug}
             questions={clientQuestions}
             passThreshold={policy.passThreshold}
+            isLockedOutByAttempts={isLockedOutByAttempts}
+            isLockedOutByTime={isLockedOutByTime}
+            waitHoursLeft={waitHoursLeft}
+            waitPeriodHours={policy.waitPeriodHours}
+            maxAttempts={policy.maxAttempts}
           />
         </div>
       ) : null}

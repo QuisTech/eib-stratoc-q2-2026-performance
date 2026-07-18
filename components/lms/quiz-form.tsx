@@ -4,9 +4,9 @@ import { useState, useTransition, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button, buttonVariants } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { submitQuiz } from "@/app/actions/lms"
-import { Loader2, CheckCircle2, XCircle, Award, RotateCcw, AlertTriangle } from "lucide-react"
+import { Loader2, CheckCircle2, XCircle, Award, RotateCcw, AlertTriangle, Ban, Clock } from "lucide-react"
 
 type ClientQuestion = { 
   type?: "multiple_choice" | "matching"
@@ -190,11 +190,21 @@ export function QuizForm({
   slug,
   questions,
   passThreshold,
+  isLockedOutByAttempts,
+  isLockedOutByTime,
+  waitHoursLeft,
+  waitPeriodHours,
+  maxAttempts,
 }: {
   courseId: number
   slug: string
   questions: ClientQuestion[]
   passThreshold: number
+  isLockedOutByAttempts?: boolean
+  isLockedOutByTime?: boolean
+  waitHoursLeft?: number
+  waitPeriodHours?: number
+  maxAttempts?: number
 }) {
   const router = useRouter()
   const [answers, setAnswers] = useState<Record<number, any>>({})
@@ -452,12 +462,13 @@ export function QuizForm({
                   )}
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        )
-      })}
+              </CardContent>
+            </Card>
+          )
+        })
+      )}
 
-      {!result && (
+      {!result && !isLockedOutByAttempts && !isLockedOutByTime && (
         <>
           {error && (
             <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive" role="alert">
