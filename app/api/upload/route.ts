@@ -45,6 +45,8 @@ export async function POST(req: Request) {
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
+    // HYBRID FALLBACK: Base64 for Vercel
+    if (isVercel) {
       // For Vercel, we must restrict to 700KB because Base64 increases size and Firestore limit is 1MB.
       if (buffer.length > 700 * 1024) {
         return NextResponse.json({ error: "File too large for Vercel preview. Maximum size is 700KB (Base64 constraint)." }, { status: 400 })

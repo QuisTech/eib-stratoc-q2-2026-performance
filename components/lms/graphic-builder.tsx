@@ -34,6 +34,10 @@ export function GraphicBuilder({ data, onChange }: GraphicBuilderProps) {
     // Client-side pre-flight validation
     const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"]
     if (!allowedTypes.includes(file.type)) {
+      setUploadError("Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.")
+      return
+    }
+
     try {
       setIsUploading(true)
       setUploadError(null)
