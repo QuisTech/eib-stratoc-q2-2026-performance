@@ -277,10 +277,25 @@ export function QuizForm({
       }
     }
 
+    const handlePopState = () => {
+      // If the user tries to use the browser back button while the quiz is active
+      submit(true)
+    }
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      // Prompt user with standard browser warning if they try to close/refresh tab
+      e.preventDefault()
+      e.returnValue = ''
+    }
+
     document.addEventListener('visibilitychange', handleVisibilityChange)
+    window.addEventListener('popstate', handlePopState)
+    window.addEventListener('beforeunload', handleBeforeUnload)
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
+      window.removeEventListener('popstate', handlePopState)
+      window.removeEventListener('beforeunload', handleBeforeUnload)
     }
   }, [isMounted, result, pending])
 
@@ -328,7 +343,23 @@ export function QuizForm({
   }
 
   return (
-    <div className="flex flex-col gap-5">
+    <div 
+      className="flex flex-col gap-5 relative select-none"
+      onCopy={(e) => e.preventDefault()}
+      onContextMenu={(e) => e.preventDefault()}
+    >
+      {result?.passed && (
+        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden opacity-[0.03] dark:opacity-[0.05]">
+          <div className="flex flex-wrap gap-8 w-[200%] h-[200%] -translate-x-1/4 -translate-y-1/4 -rotate-12">
+            {Array.from({ length: 150 }).map((_, i) => (
+              <span key={i} className="text-xl font-bold whitespace-nowrap">
+                {userEmail} • {new Date().toLocaleDateString()}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+      <div className="z-10 flex flex-col gap-5">
       {result && (
         <Card
           className="border-l-4 mb-4"
@@ -379,9 +410,12 @@ export function QuizForm({
         </Card>
       )}
 
-      {shuffled.length === 0 && !isLockedOutByAttempts && !isLockedOutByTime && (
-        <p className="text-sm text-muted-foreground">No questions available.</p>
-      )}
+      {/* ZERO LEAKAGE POLICY: If they failed, we DO NOT show the questions or answers. */}
+      {result && !result.passed ? null : (
+        <>
+          {shuffled.length === 0 && !isLockedOutByAttempts && !isLockedOutByTime && (
+            <p className="text-sm text-muted-foreground">No questions available.</p>
+          )}
 
       {!result && isLockedOutByAttempts ? (
         <Card className="border-destructive">
@@ -501,6 +535,8 @@ export function QuizForm({
           )
         })
       )}
+      </>
+      )}
 
       {!result && !isLockedOutByAttempts && !isLockedOutByTime && (
         <>
@@ -543,6 +579,7 @@ export function QuizForm({
           </Card>
         </div>
       )}
+    </div>
     </div>
   )
 }
