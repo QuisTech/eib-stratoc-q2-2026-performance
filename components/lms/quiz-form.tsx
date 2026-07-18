@@ -379,7 +379,41 @@ export function QuizForm({
         </Card>
       )}
 
-      {shuffled.map((sq, qi) => {
+      {shuffled.length === 0 && !isLockedOutByAttempts && !isLockedOutByTime && (
+        <p className="text-sm text-muted-foreground">No questions available.</p>
+      )}
+
+      {!result && isLockedOutByAttempts ? (
+        <Card className="border-destructive">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-destructive">
+              <Ban className="h-5 w-5" /> Maximum Attempts Reached
+            </CardTitle>
+            <CardDescription>
+              You have reached the maximum of {maxAttempts} attempts for this course assessment.
+              Please contact your administrator or supervisor to review the material and request a reset.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      ) : !result && isLockedOutByTime ? (
+        <Card className="border-muted bg-muted/30">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-muted-foreground" /> Waiting Period
+            </CardTitle>
+            <CardDescription>
+              This course requires a {waitPeriodHours}-hour waiting period between failed attempts
+              to encourage reviewing the material before trying again.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm font-medium">
+              You can try again in approximately {waitHoursLeft} hour(s).
+            </p>
+          </CardContent>
+        </Card>
+      ) : (
+        shuffled.map((sq, qi) => {
         const qResult = result?.details[sq.originalIndex]
         
         return (
