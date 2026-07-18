@@ -95,6 +95,61 @@ export function getStaticLmsCourseById(id: number): Course | null {
   return course ? hydrateCourse(course) : null
 }
 `
+        const isVercel = process.env.VERCEL === "1"
+        
+        if (isVercel) {
+          log("Detected Vercel environment. Proceeding with GitHub API integration...")
+          const githubToken = process.env.GITHUB_TOKEN
+          const repoPath = process.env.GITHUB_REPO || "QuisTech/eib-stratoc-q2-2026-performance"
+          const filePathTarget = "lib/static-lms-courses.ts"
+
+          if (!githubToken) {
+            throw new Error("Missing GITHUB_TOKEN environment variable. Required for Vercel Hybrid Sync.")
+          }
+
+          log("Fetching current file SHA from GitHub...")
+          const getRes = await fetch(`https://api.github.com/repos/${repoPath}/contents/${filePathTarget}`, {
+            headers: {
+              Authorization: `Bearer ${githubToken}`,
+              "X-GitHub-Api-Version": "2022-11-28",
+              "User-Agent": "LMS-Hybrid-Sync"
+            }
+          })
+          
+          let sha = ""
+          if (getRes.ok) {
+            const getData = await getRes.json()
+            sha = getData.sha
+          } else if (getRes.status !== 404) {
+            throw new Error(`Failed to fetch from GitHub: ${getRes.status} ${await getRes.text()}`)
+          }
+
+          log("Pushing updated file directly to GitHub...")
+          const putRes = await fetch(`https://api.github.com/repos/${repoPath}/contents/${filePathTarget}`, {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${githubToken}`,
+              "X-GitHub-Api-Version": "2022-11-28",
+              "Content-Type": "application/json",
+              "User-Agent": "LMS-Hybrid-Sync"
+            },
+            body: JSON.stringify({
+              message: "chore: hybrid sync - update static courses catalog",
+              content: Buffer.from(fileContent).toString("base64"),
+              ...(sha ? { sha } : {})
+            })
+          })
+
+          if (!putRes.ok) {
+            throw new Error(`GitHub push failed: ${putRes.status} ${await putRes.text()}`)
+          }
+
+          log("Successfully pushed to GitHub! Vercel will automatically trigger a new deployment.")
+          controller.close()
+          return
+        }
+
+        // --- ON-PREMISE (LOCAL) MODE ---
         log("Writing new static-lms-courses.ts file...")
         const filePath = path.join(realCwd, "lib", "static-lms-courses.ts")
         await fs.writeFile(filePath, fileContent)
