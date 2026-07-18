@@ -402,7 +402,7 @@ export function QuizForm({
                   <RotateCcw className="mr-2 h-4 w-4" /> Retake Assessment
                 </Button>
                 <Link
-                  href={`/lms/${slug}/learn/${"orientation"}`}
+                  href={`/lms/${slug}`}
                   className={buttonVariants({ variant: "outline", size: "lg" })}
                 >
                   Review lessons
