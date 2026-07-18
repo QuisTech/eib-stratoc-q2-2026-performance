@@ -58,12 +58,17 @@ export async function generateMetadata({
 
 export default async function CourseDetailPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params
-  const course = await getCourseBySlug(slug)
-  if (!course) notFound()
-
+  
   const user = await getSessionUser();
   const session = user ? { user } : null
   const signedIn = Boolean(session?.user)
+
+  // Super Admins get the bleeding edge live data so they can test their edits immediately
+  const { getAdminCourseBySlug } = await import("@/app/actions/lms")
+  const isSuperAdmin = user && (await import("@/lib/access-control")).isSuperAdminEmail(user.email)
+  const course = isSuperAdmin ? await getAdminCourseBySlug(slug) : await getCourseBySlug(slug)
+  
+  if (!course) notFound()
 
   // Enforce subsidiary visibility check if the user is signed in
   if (session?.user) {
