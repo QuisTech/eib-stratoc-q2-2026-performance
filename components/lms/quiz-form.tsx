@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition, useEffect } from "react"
+import { useState, useTransition, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -205,7 +205,8 @@ export function QuizForm({
   const [isMounted, setIsMounted] = useState(false)
   const [shuffled, setShuffled] = useState<ShuffledQuestion[]>([])
 
-  const [tabSwitchCount, setTabSwitchCount] = useState(0)
+  const tabSwitchCountRef = useRef(0)
+  const lastLossRef = useRef(0)
   const [showWarningModal, setShowWarningModal] = useState(false)
 
   const buildShuffled = () => {
@@ -248,21 +249,20 @@ export function QuizForm({
     // Only enforce anti-cheating when mounted, actively taking the quiz, and no pending submission
     if (!isMounted || result || pending) return
 
-    let lastLoss = 0
     const handleFocusLoss = () => {
       const now = Date.now()
-      if (now - lastLoss < 1000) return // Ignore duplicate events fired simultaneously
-      lastLoss = now
+      // Ignore duplicate events fired within a second
+      if (now - lastLossRef.current < 1000) return 
+      lastLossRef.current = now
 
-      setTabSwitchCount((prev) => {
-        const newCount = prev + 1
-        if (newCount === 1) {
-          setShowWarningModal(true)
-        } else if (newCount >= 2) {
-          submit(true) // Force auto-submit
-        }
-        return newCount
-      })
+      tabSwitchCountRef.current += 1
+      const count = tabSwitchCountRef.current
+
+      if (count === 1) {
+        setShowWarningModal(true)
+      } else if (count >= 2) {
+        submit(true) // Force auto-submit
+      }
     }
 
     const handleVisibilityChange = () => {
