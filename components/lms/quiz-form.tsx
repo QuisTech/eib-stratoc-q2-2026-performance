@@ -261,7 +261,7 @@ export function QuizForm({
 
   useEffect(() => {
     // Only enforce anti-cheating when mounted, actively taking the quiz, and no pending submission
-    if (!isMounted || result || pending) return
+    if (!isMounted || result || pending || isLockedOutByAttempts || isLockedOutByTime) return
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
