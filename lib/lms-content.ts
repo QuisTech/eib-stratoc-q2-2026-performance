@@ -878,9 +878,6 @@ export function getQuiz(course: Course, seed?: number): QuizQuestion[] {
   return pool
 }
 
-
-}
-
 // Stable shuffle so option order is consistent per course between renders.
 function shuffleDeterministic<T>(arr: T[], seed: number): T[] {
   const a = [...arr]
