@@ -33,8 +33,9 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 })
   }
 
-  const { title, category, customContext, existingLessons } = await req.json()
-  const isAppendMode = existingLessons && existingLessons.length > 0
+  const { title, category, customContext, existingLessons, existingQuiz, action } = await req.json()
+  const isAppendMode = action === "append_lesson" || (existingLessons && existingLessons.length > 0 && !action)
+  const isAppendQuizMode = action === "append_quiz"
 
   const customInstructions = customContext?.trim()
     ? `\n\nADDITIONAL INSTRUCTIONS FROM THE ADMIN:\n${customContext.trim()}`
@@ -42,7 +43,25 @@ export async function POST(req: Request) {
 
   let prompt = ""
 
-  if (isAppendMode) {
+  if (isAppendQuizMode) {
+    const existingCount = existingQuiz?.length || 0
+    prompt = `${EIB_GROUP_CONTEXT}
+
+You are a corporate training expert creating curriculum for the Nigerian conglomerate described above.
+The course is titled "${title}" in the category of "${category}".
+
+The admin already has ${existingCount} quiz questions and wants to expand their Item Pool.
+Your task is to generate EXACTLY 10 NEW highly detailed, challenging multiple-choice questions for the course.
+Ensure they test genuine understanding and are completely unique from standard trivia.
+
+Requirements:
+- Generate exactly 10 questions inside the "quiz" array. 
+- Do NOT generate any lessons.
+- Include a detailed explanation for every question.
+- All content must be relevant to the Nigerian corporate context.
+- CRITICAL: Do NOT use any subsidiary names. Use generic terms like "the organization".
+- Do NOT mention the European Investment Bank or the EU anywhere.${customInstructions}`
+  } else if (isAppendMode) {
     const existingTitles = existingLessons.map((l: any) => l.title).join(", ")
     prompt = `${EIB_GROUP_CONTEXT}
 

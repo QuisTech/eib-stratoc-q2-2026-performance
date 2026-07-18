@@ -30,21 +30,19 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
   const [customContext, setCustomContext] = useState("")
   const [showContextBox, setShowContextBox] = useState(false)
 
-  const isAppendMode = useRef(false)
+  const appendMode = useRef<"none" | "lesson" | "quiz">("none")
 
   const { object, submit, isLoading, stop, error: streamError } = useObject({
     api: "/api/lms/generate-course",
     schema: courseSchema,
     onFinish: ({ object }) => {
-      if (object?.lessons) {
-        if (isAppendMode.current) {
-          // If we were appending, add the new lessons to the end of the existing ones
-          setLessons((prev) => [...prev, ...object.lessons!])
-        } else {
-          // Full generation overrides everything
-          setLessons(object.lessons)
-          if (object.quiz) setQuiz(object.quiz)
-        }
+      if (object?.lessons && appendMode.current === "lesson") {
+        setLessons((prev) => [...prev, ...object.lessons!])
+      } else if (object?.quiz && appendMode.current === "quiz") {
+        setQuiz((prev) => [...prev, ...object.quiz!])
+      } else if (appendMode.current === "none") {
+        if (object?.lessons) setLessons(object.lessons)
+        if (object?.quiz) setQuiz(object.quiz)
       }
     }
   })
@@ -54,7 +52,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
   }, [streamError])
 
   function handleGenerateWithGemini() {
-    isAppendMode.current = false
+    appendMode.current = "none"
     setError(null)
     submit({
       title: course.title,
@@ -64,23 +62,36 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
   }
 
   function handleAppendWithGemini() {
-    isAppendMode.current = true
+    appendMode.current = "lesson"
     setError(null)
     submit({
       title: course.title,
       category: course.category || "General",
       customContext: customContext || undefined,
-      existingLessons: lessons
+      existingLessons: lessons,
+      action: "append_lesson"
+    })
+  }
+
+  function handleAppendQuizWithGemini() {
+    appendMode.current = "quiz"
+    setError(null)
+    submit({
+      title: course.title,
+      category: course.category || "General",
+      customContext: customContext || undefined,
+      existingQuiz: quiz,
+      action: "append_quiz"
     })
   }
 
   // Determine what to display while generating vs resting
   const displayLessons = isLoading && object?.lessons 
-    ? (isAppendMode.current ? [...lessons, ...object.lessons] : object.lessons)
+    ? (appendMode.current === "lesson" ? [...lessons, ...object.lessons] : object.lessons)
     : lessons
 
-  const displayQuiz = isLoading && !isAppendMode.current && object?.quiz 
-    ? object.quiz 
+  const displayQuiz = isLoading && object?.quiz 
+    ? (appendMode.current === "quiz" ? [...quiz, ...object.quiz] : object.quiz)
     : quiz
 
   async function handleSave() {
@@ -288,7 +299,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
                 disabled={isLoading || loading}
                 className="inline-flex items-center gap-1.5 rounded-md bg-indigo-100 px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-200 disabled:opacity-50"
               >
-                {isLoading && isAppendMode.current ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                {isLoading && appendMode.current === "lesson" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                 Append Lesson with Spark
               </button>
             )}
@@ -451,13 +462,25 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
       <div className="mb-12">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-xl font-bold">Course Final Quiz</h2>
-          <button
-            onClick={addQuestion}
-            disabled={isLoading}
-            className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-foreground hover:bg-accent/80 disabled:opacity-50"
-          >
-            <Plus className="h-4 w-4" /> Add Question
-          </button>
+          <div className="flex gap-2">
+            {userRole === "admin" && (
+              <button
+                onClick={handleAppendQuizWithGemini}
+                disabled={isLoading || loading}
+                className="inline-flex items-center gap-1.5 rounded-md bg-indigo-100 px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-200 disabled:opacity-50"
+              >
+                {isLoading && appendMode.current === "quiz" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                Append 10 Questions with Spark
+              </button>
+            )}
+            <button
+              onClick={addQuestion}
+              disabled={isLoading}
+              className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-foreground hover:bg-accent/80 disabled:opacity-50"
+            >
+              <Plus className="h-4 w-4" /> Add Question
+            </button>
+          </div>
         </div>
 
         {displayQuiz.length === 0 && (
