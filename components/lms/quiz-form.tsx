@@ -321,7 +321,7 @@ export function QuizForm({
     const ordered = questions.map((_, i) => answers[i] || null)
     startTransition(async () => {
       try {
-        const res = await submitQuiz(courseId, Object.values(answers), quizSeed)
+        const res = await submitQuiz(courseId, ordered, quizSeed)
         setResult(res as Result)
         window.scrollTo({ top: 0, behavior: "smooth" })
       } catch (e) {
