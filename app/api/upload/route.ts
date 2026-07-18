@@ -2,7 +2,6 @@ import { getSessionUser } from "@/app/actions/auth"
 import { NextResponse } from "next/server"
 import fs from "fs/promises"
 import path from "path"
-import sharp from "sharp"
 import { isSuperAdminEmail } from "@/lib/access-control"
 
 export async function POST(req: Request) {
@@ -46,37 +45,13 @@ export async function POST(req: Request) {
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    // HYBRID FALLBACK: Base64 for Vercel
-    if (isVercel) {
-      let finalBuffer = buffer;
-      let finalMime = file.type;
-
-      try {
-        // Compress to WebP and resize to max width 1200px to drastically reduce size for Base64
-        finalBuffer = await sharp(buffer)
-          .resize({ width: 1200, withoutEnlargement: true })
-          .webp({ quality: 75 })
-          .toBuffer();
-          
-        finalMime = "image/webp";
-
-        // Fallback for extreme cases
-        if (finalBuffer.length > 700 * 1024) {
-          finalBuffer = await sharp(buffer)
-            .resize({ width: 600, withoutEnlargement: true })
-            .jpeg({ quality: 40 })
-            .toBuffer();
-        }
-      } catch (e) {
-        console.warn("Sharp image compression failed on Vercel fallback:", e);
+      // For Vercel, we must restrict to 700KB because Base64 increases size and Firestore limit is 1MB.
+      if (buffer.length > 700 * 1024) {
+        return NextResponse.json({ error: "File too large for Vercel preview. Maximum size is 700KB (Base64 constraint)." }, { status: 400 })
       }
 
-      if (finalBuffer.length > 700 * 1024) {
-         return NextResponse.json({ error: "File is still too large after compression. Please upload a smaller image (under ~1MB) for Vercel preview." }, { status: 400 })
-      }
-
-      const base64String = finalBuffer.toString('base64')
-      const dataUrl = `data:${finalMime};base64,${base64String}`
+      const base64String = buffer.toString('base64')
+      const dataUrl = `data:${file.type};base64,${base64String}`
       
       return NextResponse.json({
         success: true,

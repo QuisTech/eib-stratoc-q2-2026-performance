@@ -34,37 +34,61 @@ export function GraphicBuilder({ data, onChange }: GraphicBuilderProps) {
     // Client-side pre-flight validation
     const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"]
     if (!allowedTypes.includes(file.type)) {
-      setUploadError("Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.")
-      return
-    }
-
-    const maxSize = 5 * 1024 * 1024 // 5MB
-    if (file.size > maxSize) {
-      setUploadError("File too large. Maximum size is 5MB.")
-      return
-    }
-
-    setIsUploading(true)
-
     try {
-      const formData = new FormData()
-      formData.append("file", file)
+      setIsUploading(true)
+      setUploadError(null)
 
-      const response = await fetch("/api/upload", {
+      let uploadFile = file;
+
+      // Client-side compression for large images (e.g. > 700KB) to ensure Vercel compatibility
+      // This bypasses the need for backend sharp processing entirely.
+      if (file.size > 700 * 1024 && file.type.startsWith("image/")) {
+        uploadFile = await new Promise<File>((resolve) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            let width = img.width;
+            let height = img.height;
+            const MAX_WIDTH = 1200;
+            
+            if (width > MAX_WIDTH) {
+              height = Math.round((height * MAX_WIDTH) / width);
+              width = MAX_WIDTH;
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return resolve(file);
+            
+            ctx.drawImage(img, 0, 0, width, height);
+            canvas.toBlob(
+              (blob) => {
+                if (blob) resolve(new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), { type: "image/jpeg" }));
+                else resolve(file);
+              },
+              "image/jpeg",
+              0.6 // Aggressive compression for Base64 injection
+            );
+          };
+          img.onerror = () => resolve(file);
+          img.src = URL.createObjectURL(file);
+        });
+      }
+
+      const formData = new FormData()
+      formData.append("file", uploadFile)
+
+      const res = await fetch("/api/upload", {
         method: "POST",
         body: formData,
       })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || "Upload failed")
-      }
-
-      const data = await response.json()
-      handleImageChange(data.url)
-    } catch (error) {
-      console.error("Upload error:", error)
-      setUploadError(error instanceof Error ? error.message : "Failed to upload image")
+      const result = await res.json()
+      if (!res.ok) throw new Error(result.error || "Upload failed")
+      
+      handleImageChange(result.url)
+    } catch (e: any) {
+      setUploadError(e.message)
     } finally {
       setIsUploading(false)
     }
