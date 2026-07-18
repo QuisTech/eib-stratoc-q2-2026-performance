@@ -248,7 +248,12 @@ export function QuizForm({
     // Only enforce anti-cheating when mounted, actively taking the quiz, and no pending submission
     if (!isMounted || result || pending) return
 
+    let lastLoss = 0
     const handleFocusLoss = () => {
+      const now = Date.now()
+      if (now - lastLoss < 1000) return // Ignore duplicate events fired simultaneously
+      lastLoss = now
+
       setTabSwitchCount((prev) => {
         const newCount = prev + 1
         if (newCount === 1) {
