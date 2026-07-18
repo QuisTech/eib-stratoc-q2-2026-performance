@@ -182,8 +182,7 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
           </CardHeader>
           <CardContent>
             <p className="text-sm font-medium">
-              You can try again in approximately {waitHoursLeft} hour(s) 
-              ({lockoutUntil?.toLocaleString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit' })}).
+              You can try again in approximately {waitHoursLeft} hour(s).
             </p>
           </CardContent>
         </Card>

@@ -249,33 +249,27 @@ export function QuizForm({
     // Only enforce anti-cheating when mounted, actively taking the quiz, and no pending submission
     if (!isMounted || result || pending) return
 
-    const handleFocusLoss = () => {
-      const now = Date.now()
-      // Ignore duplicate events fired within a second
-      if (now - lastLossRef.current < 1000) return 
-      lastLossRef.current = now
-
-      tabSwitchCountRef.current += 1
-      const count = tabSwitchCountRef.current
-
-      if (count === 1) {
-        setShowWarningModal(true)
-      } else if (count >= 2) {
-        submit(true) // Force auto-submit
-      }
-    }
-
     const handleVisibilityChange = () => {
       if (document.visibilityState === 'hidden') {
-        handleFocusLoss()
+        const now = Date.now()
+        // Ignore duplicate events fired within 2 seconds
+        if (now - lastLossRef.current < 2000) return 
+        lastLossRef.current = now
+
+        tabSwitchCountRef.current += 1
+        const count = tabSwitchCountRef.current
+
+        if (count === 1) {
+          setShowWarningModal(true)
+        } else if (count >= 2) {
+          submit(true) // Force auto-submit
+        }
       }
     }
 
-    window.addEventListener('blur', handleFocusLoss)
     document.addEventListener('visibilitychange', handleVisibilityChange)
 
     return () => {
-      window.removeEventListener('blur', handleFocusLoss)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
   }, [isMounted, result, pending])
