@@ -116,13 +116,16 @@ export default async function AdminPage({
                           "Google Monitoring API requires billing for in-app usage metrics. You can bypass this using the server command below."}
                       </p>
                     </div>
-                    <FirestoreQuotaButton />
                   </div>
                 )}
-                <p className="mt-4 text-xs text-muted-foreground">
-                  Lagos reset window: {formatTime(firestoreUsage.resetAt)} to{" "}
-                  {formatTime(firestoreUsage.measuredAt)}.
-                </p>
+                
+                <div className="mt-6 flex flex-col items-start gap-2 border-t pt-4">
+                  <FirestoreQuotaButton />
+                  <p className="text-xs text-muted-foreground">
+                    Lagos reset window: {formatTime(firestoreUsage.resetAt)} to{" "}
+                    {formatTime(firestoreUsage.measuredAt)}.
+                  </p>
+                </div>
               </CardContent>
             </Card>
 
