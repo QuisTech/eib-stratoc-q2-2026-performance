@@ -53,7 +53,7 @@ export function GraphicBuilder({ data, onChange }: GraphicBuilderProps) {
             const canvas = document.createElement("canvas");
             let width = img.width;
             let height = img.height;
-            const MAX_WIDTH = 1200;
+            const MAX_WIDTH = 600;
             
             if (width > MAX_WIDTH) {
               height = Math.round((height * MAX_WIDTH) / width);
@@ -72,7 +72,7 @@ export function GraphicBuilder({ data, onChange }: GraphicBuilderProps) {
                 else resolve(file);
               },
               "image/jpeg",
-              0.6 // Aggressive compression for Base64 injection
+              0.4 // Extremely aggressive compression to survive Firestore 1MB limits when saving multiple diagrams
             );
           };
           img.onerror = () => resolve(file);
