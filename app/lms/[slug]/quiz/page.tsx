@@ -78,9 +78,13 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
   // Check max attempts lockout
   const isLockedOutByAttempts = !alreadyPassed && attempts.length >= policy.maxAttempts
 
+  // Generate a random seed for Item Pooling (Question Banks)
+  // This ensures a random subset of 10 questions is selected, and passed to the client and server.
+  const quizSeed = Math.floor(Math.random() * 1000000)
+
   // Sanitize: never send correct answers to the client (for multiple choice).
   // For matching, pairs are sent to client so it can shuffle them.
-  const clientQuestions = getQuiz(course).map((q) => {
+  const clientQuestions = getQuiz(course, quizSeed).map((q) => {
     if (q.type === "matching") {
       return {
         type: q.type,
@@ -172,6 +176,7 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
             waitPeriodHours={policy.waitPeriodHours}
             maxAttempts={policy.maxAttempts}
             userEmail={session.user.email || "Unknown User"}
+            quizSeed={quizSeed}
           />
         </div>
       ) : null}

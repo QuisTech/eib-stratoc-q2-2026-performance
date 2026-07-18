@@ -378,12 +378,12 @@ export async function getMyQuizAttempts(courseId: number): Promise<QuizAttempt[]
   return results.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
 }
 
-export async function submitQuiz(courseId: number, answers: any[]) {
+export async function submitQuiz(courseId: number, answers: any[], seed?: number) {
   const userId = await getUserId()
   const course = await getCourseById(courseId)
   if (!course) throw new Error("Course not found")
 
-  const result = gradeQuiz(course, answers)
+  const result = gradeQuiz(course, answers, seed)
   await adminDb.collection("quizAttempts").add({
     id: Date.now(),
     userId,

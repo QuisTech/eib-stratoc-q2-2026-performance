@@ -195,6 +195,8 @@ export function QuizForm({
   waitHoursLeft,
   waitPeriodHours,
   maxAttempts,
+  userEmail,
+  quizSeed
 }: {
   courseId: number
   slug: string
@@ -204,7 +206,9 @@ export function QuizForm({
   isLockedOutByTime?: boolean
   waitHoursLeft?: number
   waitPeriodHours?: number
-  maxAttempts?: number
+  maxAttempts: number
+  userEmail: string
+  quizSeed?: number
 }) {
   const router = useRouter()
   const [answers, setAnswers] = useState<Record<number, any>>({})
@@ -317,11 +321,10 @@ export function QuizForm({
     const ordered = questions.map((_, i) => answers[i] || null)
     startTransition(async () => {
       try {
-        const r = await submitQuiz(courseId, ordered)
-        setResult(r as Result)
-        setShowWarningModal(false)
-        router.refresh()
-      } catch {
+        const res = await submitQuiz(courseId, Object.values(answers), quizSeed)
+        setResult(res as Result)
+        window.scrollTo({ top: 0, behavior: "smooth" })
+      } catch (e) {
         setError("Could not submit your quiz. Please try again.")
       }
     })

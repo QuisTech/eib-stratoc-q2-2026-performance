@@ -817,57 +817,68 @@ const CONCEPT_BANK: Record<string, BankQuestion[]> = {
 
 // Build the quiz for a course: concept questions for its category plus two
 // data-derived questions whose answers come straight from the course record.
-export function getQuiz(course: Course): QuizQuestion[] {
+export function getQuiz(course: Course, seed?: number): QuizQuestion[] {
+  let pool: QuizQuestion[] = []
   if (course.customContent) {
     try {
       const parsed = JSON.parse(course.customContent)
       if (parsed.quiz && Array.isArray(parsed.quiz)) {
-        return parsed.quiz
+        pool = parsed.quiz
       }
     } catch (e) {
       console.error("Failed to parse custom quiz for", course.slug, e)
     }
   }
 
-  const concept = (CONCEPT_BANK[course.category] ?? []).slice(0, 3)
-  const questions: QuizQuestion[] = concept.map((q, i) => ({ id: `c${i + 1}`, ...q }))
+  if (pool.length === 0) {
+    const concept = (CONCEPT_BANK[course.category] ?? [])
+    pool = concept.map((q, i) => ({ id: `c${i + 1}`, ...q }))
 
-  // Data-derived: delivery format.
-  const formats = ["Workshop", "Online", "Blended"]
-  questions.push({
-    id: "d-format",
-    prompt: `What is the primary delivery format of "${course.title}"?`,
-    options: formats,
-    correctIndex: Math.max(0, formats.indexOf(course.format)),
-    explanation: `This course is delivered as a ${course.format.toLowerCase()}.`,
-  })
+    // Data-derived: delivery format.
+    const formats = ["Workshop", "Online", "Blended"]
+    pool.push({
+      id: "d-format",
+      prompt: `What is the primary delivery format of "${course.title}"?`,
+      options: formats,
+      correctIndex: Math.max(0, formats.indexOf(course.format)),
+      explanation: `This course is delivered as a ${course.format.toLowerCase()}.`,
+    })
 
-  // Data-derived: strategic initiative (only when the course maps to one).
-  if (course.initiative != null && INITIATIVE_NAMES[course.initiative]) {
-    const correct = INITIATIVE_NAMES[course.initiative]
-    const distractors = Object.values(INITIATIVE_NAMES)
-      .filter((n) => n !== correct)
-      .slice(0, 3)
-    const options = shuffleDeterministic([correct, ...distractors], course.id)
-    questions.push({
-      id: "d-initiative",
-      prompt: `Which EIB Group strategic initiative does "${course.title}" primarily support?`,
-      options,
-      correctIndex: options.indexOf(correct),
-      explanation: `This course feeds the "${correct}" initiative in the 90-day plan.`,
-    })
-  } else {
-    const levels = ["Beginner", "Intermediate", "Advanced"]
-    questions.push({
-      id: "d-level",
-      prompt: `What is the level of "${course.title}"?`,
-      options: levels,
-      correctIndex: Math.max(0, levels.indexOf(course.level)),
-      explanation: `This course is pitched at the ${course.level.toLowerCase()} level.`,
-    })
+    // Data-derived: strategic initiative (only when the course maps to one).
+    if (course.initiative != null && INITIATIVE_NAMES[course.initiative]) {
+      const correct = INITIATIVE_NAMES[course.initiative]
+      const distractors = Object.values(INITIATIVE_NAMES)
+        .filter((n) => n !== correct)
+        .slice(0, 3)
+      const options = shuffleDeterministic([correct, ...distractors], course.id)
+      pool.push({
+        id: "d-initiative",
+        prompt: `Which EIB Group strategic initiative does "${course.title}" primarily support?`,
+        options,
+        correctIndex: options.indexOf(correct),
+        explanation: `This course feeds the "${correct}" initiative in the 90-day plan.`,
+      })
+    } else {
+      const levels = ["Beginner", "Intermediate", "Advanced"]
+      pool.push({
+        id: "d-level",
+        prompt: `What is the level of "${course.title}"?`,
+        options: levels,
+        correctIndex: Math.max(0, levels.indexOf(course.level)),
+        explanation: `This course is pitched at the ${course.level.toLowerCase()} level.`,
+      })
+    }
   }
 
-  return questions
+  const QUIZ_LENGTH = 10
+  if (pool.length > QUIZ_LENGTH) {
+    pool = shuffleDeterministic(pool, seed || course.id).slice(0, QUIZ_LENGTH)
+  }
+
+  return pool
+}
+
+
 }
 
 // Stable shuffle so option order is consistent per course between renders.
@@ -892,8 +903,9 @@ export type QuestionResult = {
 export function gradeQuiz(
   course: Course,
   answers: any[],
+  seed?: number
 ): { score: number; total: number; percent: number; passed: boolean; details: QuestionResult[] } {
-  const quiz = getQuiz(course)
+  const quiz = getQuiz(course, seed)
   const total = quiz.length
   let score = 0
   const details: QuestionResult[] = []
