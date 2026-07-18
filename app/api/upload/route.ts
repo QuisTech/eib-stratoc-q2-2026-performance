@@ -2,6 +2,7 @@ import { getSessionUser } from "@/app/actions/auth"
 import { NextResponse } from "next/server"
 import fs from "fs/promises"
 import path from "path"
+import sharp from "sharp"
 import { isSuperAdminEmail } from "@/lib/access-control"
 
 export async function POST(req: Request) {
@@ -51,7 +52,6 @@ export async function POST(req: Request) {
       let finalMime = file.type;
 
       try {
-        const sharp = (await import('sharp')).default
         // Compress to WebP and resize to max width 1200px to drastically reduce size for Base64
         finalBuffer = await sharp(buffer)
           .resize({ width: 1200, withoutEnlargement: true })
@@ -63,8 +63,8 @@ export async function POST(req: Request) {
         // Fallback for extreme cases
         if (finalBuffer.length > 700 * 1024) {
           finalBuffer = await sharp(buffer)
-            .resize({ width: 800, withoutEnlargement: true })
-            .webp({ quality: 50 })
+            .resize({ width: 600, withoutEnlargement: true })
+            .jpeg({ quality: 40 })
             .toBuffer();
         }
       } catch (e) {
