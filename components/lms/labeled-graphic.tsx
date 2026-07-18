@@ -13,7 +13,7 @@ export function LabeledGraphic({ data }: { data: LabeledGraphicData }) {
     <div className="my-8 rounded-lg border bg-card p-4 shadow-sm relative">
       <h3 className="mb-4 text-lg font-semibold text-primary">Interactive Diagram</h3>
       
-      <div className="relative w-full max-w-4xl mx-auto overflow-hidden rounded-md border border-muted-foreground/20 bg-muted/30">
+      <div className="relative w-full mx-auto overflow-hidden rounded-md border border-muted-foreground/20 bg-muted/30">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={data.imageUrl}
