@@ -61,6 +61,29 @@ function getResetStart(now = new Date()) {
 }
 
 async function getMonitoringAccessToken() {
+  if (process.env.GCLOUD_USER_CREDENTIALS) {
+    try {
+      const creds = JSON.parse(process.env.GCLOUD_USER_CREDENTIALS)
+      const response = await fetch("https://oauth2.googleapis.com/token", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          client_id: creds.client_id,
+          client_secret: creds.client_secret,
+          refresh_token: creds.refresh_token,
+          grant_type: "refresh_token",
+        }),
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        if (data.access_token) return data.access_token
+      }
+    } catch (e) {
+      console.error("Failed to parse or use GCLOUD_USER_CREDENTIALS", e)
+    }
+  }
+
   const clientEmail = process.env.FIREBASE_CLIENT_EMAIL?.replace(/[\r\n\s]+/g, "").replace(/\\n/g, "")
   const privateKey = getPrivateKey()
 

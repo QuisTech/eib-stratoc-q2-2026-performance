@@ -1,14 +1,18 @@
-"use server"
+import { getApp } from "firebase-admin/app";
+import fs from "fs";
+import path from "path";
 
-import { getSessionUser } from "./auth"
-import { isSuperAdminEmail } from "@/lib/access-control"
-
-export async function runFirestoreQuotaScript() {
-  const user = await getSessionUser()
-  if (!user || !isSuperAdminEmail(user.email)) {
-    throw new Error("Unauthorized")
+// Load environment natively if we have .env.local
+try {
+  const envPath = path.resolve(process.cwd(), '.env.local');
+  if (fs.existsSync(envPath) && typeof (process as any).loadEnvFile === 'function') {
+    (process as any).loadEnvFile(envPath);
   }
+} catch (e) {
+  // ignore
+}
 
+async function runFirestoreQuotaScriptManual() {
   try {
     let token = "";
     
@@ -64,14 +68,16 @@ export async function runFirestoreQuotaScript() {
     const data = await response.json();
     
     if (data.error) {
-      return { error: data.error.message || JSON.stringify(data.error) };
+      console.error("ERROR:", data.error.message || JSON.stringify(data.error));
+      process.exit(1);
     }
 
     let output = "\n--- FIRESTORE READS (HOURLY SINCE RESET) ---\n";
     
     const series = data.timeSeries || [];
     if (!series.length) {
-      return { output: output + "No read activity since reset.\n" };
+      console.log(output + "No read activity since reset.\n");
+      process.exit(0);
     }
 
     const points: Record<string, number> = {};
@@ -95,9 +101,12 @@ export async function runFirestoreQuotaScript() {
     output += "-".repeat(44) + "\n";
     output += `TOTAL SINCE RESET: ${total.toLocaleString()} reads\n`;
 
-    return { output };
-
+    console.log(output);
+    process.exit(0);
   } catch (error: any) {
-    return { error: error.message };
+    console.error("Script failed:", error.message);
+    process.exit(1);
   }
 }
+
+runFirestoreQuotaScriptManual();
