@@ -36,14 +36,9 @@ export async function POST(req: Request) {
     const isVercel = process.env.VERCEL === "1"
 
     // Validate file size
-    // Base64 encoding increases size by ~33%. Firestore document limit is 1MB.
-    // We restrict Vercel uploads to 700KB to safely fit the Base64 string alongside course data.
-    const maxSize = isVercel ? 700 * 1024 : 5 * 1024 * 1024 
+    const maxSize = 5 * 1024 * 1024 
     if (file.size > maxSize) {
-      const msg = isVercel 
-        ? "File too large for Vercel preview. Maximum size is 700KB (Base64 constraint)."
-        : "File too large. Maximum size is 5MB."
-      return NextResponse.json({ error: msg }, { status: 400 })
+      return NextResponse.json({ error: "File too large. Maximum size is 5MB." }, { status: 400 })
     }
 
     // Convert file to Buffer
@@ -52,8 +47,36 @@ export async function POST(req: Request) {
 
     // HYBRID FALLBACK: Base64 for Vercel
     if (isVercel) {
-      const base64String = buffer.toString('base64')
-      const dataUrl = `data:${file.type};base64,${base64String}`
+      let finalBuffer = buffer;
+      let finalMime = file.type;
+
+      try {
+        const sharp = (await import('sharp')).default
+        // Compress to WebP and resize to max width 1200px to drastically reduce size for Base64
+        finalBuffer = await sharp(buffer)
+          .resize({ width: 1200, withoutEnlargement: true })
+          .webp({ quality: 75 })
+          .toBuffer();
+          
+        finalMime = "image/webp";
+
+        // Fallback for extreme cases
+        if (finalBuffer.length > 700 * 1024) {
+          finalBuffer = await sharp(buffer)
+            .resize({ width: 800, withoutEnlargement: true })
+            .webp({ quality: 50 })
+            .toBuffer();
+        }
+      } catch (e) {
+        console.warn("Sharp image compression failed on Vercel fallback:", e);
+      }
+
+      if (finalBuffer.length > 700 * 1024) {
+         return NextResponse.json({ error: "File is still too large after compression. Please upload a smaller image (under ~1MB) for Vercel preview." }, { status: 400 })
+      }
+
+      const base64String = finalBuffer.toString('base64')
+      const dataUrl = `data:${finalMime};base64,${base64String}`
       
       return NextResponse.json({
         success: true,
