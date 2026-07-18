@@ -270,6 +270,19 @@ export async function getCourseBySlug(slug: string): Promise<Course | null> {
   }
 }
 
+export async function getAdminCourseBySlug(slug: string): Promise<Course | null> {
+  // Always fetch fresh data from Firestore for the admin builder so changes are immediately visible
+  try {
+    const snap = await adminDb.collection("courses").where("slug", "==", slug).limit(1).get()
+    if (!snap.empty) {
+      return toCacheSafeValue(snap.docs[0].data()) as Course
+    }
+  } catch (error) {
+    console.warn("Failed to fetch live admin course from Firestore, falling back to static.", error)
+  }
+  return getCourseBySlug(slug)
+}
+
 export async function getMyEnrollments(): Promise<Enrollment[]> {
   const userId = await getUserId()
   let enrollments: Enrollment[] | null = null

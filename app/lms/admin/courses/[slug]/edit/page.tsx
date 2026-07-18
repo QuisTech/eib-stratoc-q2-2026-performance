@@ -25,8 +25,8 @@ export default async function EditCoursePage({
   const isSuperAdmin = isSuperAdminEmail(session.user.email)
   if (!isSuperAdmin && role !== "group_head" && role !== "lead") redirect("/lms")
 
-  const { getCourseBySlug } = await import("@/app/actions/lms")
-  const course = await getCourseBySlug(slug)
+  const { getAdminCourseBySlug } = await import("@/app/actions/lms")
+  const course = await getAdminCourseBySlug(slug)
   if (!course) redirect("/lms/admin")
   if (!isSuperAdmin && course.authorId !== session.user.id) redirect("/lms/admin")
 
