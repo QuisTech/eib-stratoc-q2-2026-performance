@@ -196,7 +196,8 @@ export function QuizForm({
   waitPeriodHours,
   maxAttempts,
   userEmail,
-  quizSeed
+  quizSeed,
+  alreadyPassed
 }: {
   courseId: number
   slug: string
@@ -209,6 +210,7 @@ export function QuizForm({
   maxAttempts: number
   userEmail: string
   quizSeed?: number
+  alreadyPassed?: boolean
 }) {
   const router = useRouter()
   const [answers, setAnswers] = useState<Record<number, any>>({})
@@ -343,6 +345,13 @@ export function QuizForm({
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
     )
+  }
+
+  // If the user already passed and we have no fresh result to show, hide the form.
+  // The server component shows the "already passed" card instead.
+  // But if result is set (just submitted), keep showing so user can see answers/explanations.
+  if (alreadyPassed && !result) {
+    return null
   }
 
   return (

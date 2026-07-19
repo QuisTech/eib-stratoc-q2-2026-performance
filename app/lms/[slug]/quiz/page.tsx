@@ -168,8 +168,7 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
         </Card>
       )}
 
-      {!alreadyPassed ? (
-        <div className="mt-7">
+      <div className="mt-7">
           <QuizForm
             courseId={course.id}
             slug={slug}
@@ -182,9 +181,9 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
             maxAttempts={policy.maxAttempts}
             userEmail={session.user.email || "Unknown User"}
             quizSeed={quizSeed}
+            alreadyPassed={alreadyPassed}
           />
         </div>
-      ) : null}
     </main>
   )
 }
