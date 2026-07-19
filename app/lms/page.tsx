@@ -147,6 +147,7 @@ export default async function LmsPage() {
                 enrolled
                 progress={enrollMap.get(c.id)?.progress ?? 0}
                 isCompleted={enrollMap.get(c.id)?.status === "completed"}
+                enrollmentCount={c.enrollmentCount || 0}
               />
             ))}
           </div>

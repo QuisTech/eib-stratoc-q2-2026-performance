@@ -1,6 +1,7 @@
 "use server"
 
 import { adminDb } from "@/lib/firebase-admin"
+import { FieldValue } from "firebase-admin/firestore"
 import {
   getEnrollmentsByUser,
   getQuizAttemptsByUser,
@@ -336,6 +337,9 @@ export async function enrollInCourse(courseId: number) {
       enrolledAt: new Date(),
       completedAt: null
     })
+    await adminDb.collection("courses").doc(String(courseId)).update({
+      enrollmentCount: FieldValue.increment(1)
+    }).catch(e => console.error("Failed to increment enrollmentCount", e))
     invalidateUserCourseCaches(userId, courseId)
     invalidateLearningState(userId, courseId)
     await recomputeCourseProgress(userId, courseId)
@@ -352,6 +356,9 @@ export async function unenrollFromCourse(courseId: number) {
   if (existing.status === "completed") throw new Error("Cannot drop a course that has already been completed.")
 
   await adminDb.collection("enrollments").doc(`${userId}_${courseId}`).delete()
+  await adminDb.collection("courses").doc(String(courseId)).update({
+    enrollmentCount: FieldValue.increment(-1)
+  }).catch(e => console.error("Failed to decrement enrollmentCount", e))
   invalidateUserCourseCaches(userId, courseId)
   invalidateLearningState(userId, courseId)
   invalidateAdminCaches()
@@ -873,6 +880,9 @@ export async function autoEnrollOnboarding(subsidiary: string) {
           enrolledAt: new Date(),
           completedAt: null
         })
+        await adminDb.collection("courses").doc(String(courseId)).update({
+          enrollmentCount: FieldValue.increment(1)
+        }).catch(e => console.error("Failed to increment auto-enrollment count", e))
         invalidateUserCourseCaches(userId, courseId)
         invalidateLearningState(userId, courseId)
       }
@@ -977,10 +987,36 @@ export async function deleteCourse(slug: string) {
   const course = await getCourseBySlug(slug)
   if (!course) return
   
-  await adminDb.collection("courses").doc(String(course.id)).delete()
+  // 1. Fetch related enrollments to know which users were enrolled (needed for user cache invalidation)
+  const enrollmentsSnap = await adminDb.collection("enrollments").where("courseId", "==", course.id).get()
+  const userIds = Array.from(new Set(enrollmentsSnap.docs.map(d => d.data().userId)))
+
+  // 2. Perform batched deletions of all related documents to optimize Firestore writes
+  const batch = adminDb.batch()
+  batch.delete(adminDb.collection("courses").doc(String(course.id)))
+
+  enrollmentsSnap.docs.forEach(doc => batch.delete(doc.ref))
+
+  const quizAttemptsSnap = await adminDb.collection("quizAttempts").where("courseId", "==", course.id).get()
+  quizAttemptsSnap.docs.forEach(doc => batch.delete(doc.ref))
+
+  const lessonProgressSnap = await adminDb.collection("lessonProgress").where("courseId", "==", course.id).get()
+  lessonProgressSnap.docs.forEach(doc => batch.delete(doc.ref))
+
+  const certificatesSnap = await adminDb.collection("certificates").where("courseId", "==", course.id).get()
+  certificatesSnap.docs.forEach(doc => batch.delete(doc.ref))
+
+  await batch.commit()
+
+  // 3. Invalidate caches for all affected users so their dashboard metrics are accurate
+  for (const uid of userIds) {
+    invalidateUserCourseCaches(uid, course.id)
+  }
+
+  // 4. Invalidate global admin and catalog caches
+  invalidateAdminCaches()
   invalidateCache("courses")
   revalidateCacheTag(COURSE_CACHE_TAG)
-  revalidateCacheTag(ADMIN_SOURCE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
 }

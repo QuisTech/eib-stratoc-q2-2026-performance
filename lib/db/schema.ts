@@ -76,6 +76,7 @@ export const courses = pgTable("courses", {
   customContent: text("customContent"), // JSON string containing custom lessons and quiz
   isBriefing: boolean("isBriefing").notNull().default(false), // true = Strategic Briefing, false = regular LMS Course
   authorId: text("authorId"), // tracks the manager/admin who created this course
+  enrollmentCount: integer("enrollmentCount"),
   createdAt: timestamp("createdAt").notNull().defaultNow(),
 })
 

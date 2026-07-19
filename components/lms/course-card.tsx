@@ -6,7 +6,7 @@ import { buttonVariants } from "@/components/ui/button"
 import { EnrollButton } from "@/components/lms/enroll-button"
 import type { Course } from "@/lib/types"
 import { formatNaira, formatCourseSubsidiaries } from "@/lib/utils"
-import { Clock, Layers, Building2, ArrowRight } from "lucide-react"
+import { Clock, Layers, Building2, ArrowRight, Users } from "lucide-react"
 
 const levelClass: Record<string, string> = {
   Beginner: "bg-[color-mix(in_oklch,var(--chart-1)_18%,transparent)] text-[var(--chart-1)]",
@@ -19,11 +19,13 @@ export function CourseCard({
   enrolled,
   progress,
   isCompleted,
+  enrollmentCount,
 }: {
   course: Course
   enrolled: boolean
   progress?: number
   isCompleted?: boolean
+  enrollmentCount?: number
 }) {
   return (
     <Card className="avoid-break flex flex-col overflow-hidden">
@@ -86,6 +88,9 @@ export function CourseCard({
           </li>
           <li className="flex items-center gap-2">
             <Clock className="h-3.5 w-3.5 text-accent" /> {course.durationHours} hours
+          </li>
+          <li className="flex items-center gap-2">
+            <Users className="h-3.5 w-3.5 text-accent" /> {enrollmentCount || 0} enrolled
           </li>
           <li className="flex items-center gap-2">
             <Building2 className="h-3.5 w-3.5 text-accent" />

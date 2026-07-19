@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import type { Course, Enrollment } from "@/lib/db/schema"
+import type { Enrollment } from "@/lib/db/schema"
+import type { Course } from "@/lib/types"
 import { CourseCard } from "@/components/lms/course-card"
 import { formatNaira } from "@/lib/utils"
 import { isSuperAdminEmail } from "@/lib/access-control"
@@ -12,6 +13,7 @@ type CourseCatalogProps = {
   userRole?: string
   userSubsidiary?: string | null
   userEmail?: string | null
+  enrollmentCounts?: Record<number, number>
 }
 
 export function CourseCatalog({
@@ -20,6 +22,7 @@ export function CourseCatalog({
   userRole = "learner",
   userSubsidiary = null,
   userEmail = null,
+  enrollmentCounts = {},
 }: CourseCatalogProps) {
   const [filterSubsidiary, setFilterSubsidiary] = useState<string>("All")
   const [filterCategory, setFilterCategory] = useState<string>("All")
@@ -215,6 +218,7 @@ export function CourseCatalog({
                     enrolled={enrollMap.has(c.id)}
                     progress={enrollMap.get(c.id)?.progress}
                     isCompleted={enrollMap.get(c.id)?.status === "completed"}
+                    enrollmentCount={c.enrollmentCount || 0}
                   />
                 ))}
               </div>

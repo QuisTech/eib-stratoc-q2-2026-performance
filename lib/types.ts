@@ -15,6 +15,7 @@ export type Course = {
   authorId: string | null;
   isBriefing: boolean | null;
   customContent: string | null;
+  enrollmentCount?: number;
   createdAt: Date;
   updatedAt: Date;
 }

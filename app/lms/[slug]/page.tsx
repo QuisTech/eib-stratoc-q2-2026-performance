@@ -144,7 +144,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
           </div>
 
           {/* Curriculum */}
-          <section className="mt-9">
+          <section id="curriculum" className="mt-9">
             <h2 className="flex items-center gap-2 font-heading text-xl font-bold">
               <BookOpen className="h-5 w-5 text-primary" /> Curriculum
             </h2>
@@ -299,7 +299,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
                     </div>
                   </div>
                   <Link 
-                    href={enrollment?.status === "completed" && lessons.length > 0 ? `/lms/${slug}/learn/${lessons[0].key}` : continueHref} 
+                    href={`/lms/${slug}#curriculum`}
                     className={buttonVariants({ size: "sm" })}
                   >
                     <PlayCircle className="mr-2 h-4 w-4" />
