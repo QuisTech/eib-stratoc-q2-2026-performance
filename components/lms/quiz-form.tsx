@@ -318,7 +318,7 @@ export function QuizForm({
       return
     }
     // If forced, unanswered questions will be passed as undefined to the server and marked incorrect.
-    const ordered = questions.map((_, i) => answers[i] || null)
+    const ordered = questions.map((_, i) => answers[i] !== undefined ? answers[i] : null)
     startTransition(async () => {
       try {
         const res = await submitQuiz(courseId, ordered, quizSeed)
