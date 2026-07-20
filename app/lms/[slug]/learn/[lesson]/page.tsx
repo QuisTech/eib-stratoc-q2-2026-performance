@@ -84,18 +84,17 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
     else redirect(`/lms/${slug}`)
   }
 
-  // Enforce sequential progression from Lesson 3 (index 2) onwards
-  if (enrollment && index >= 2) {
-    const previousLessonKey = lessons[index - 1].key
-    if (!completedKeys.has(previousLessonKey)) {
-      // Find the first uncompleted lesson from index 2 onwards, or default to index 2
-      let firstLockedIndex = 2
-      for (let i = 2; i < index; i++) {
-        if (!completedKeys.has(lessons[i - 1].key)) {
-          firstLockedIndex = i
-          break
-        }
+  // Enforce sequential progression for Lesson 4 (index 3) onwards
+  // Lessons 1 and 2 are free previews, so they are exempt from strict completion locks.
+  if (enrollment && index >= 3) {
+    let firstLockedIndex = -1
+    for (let i = 2; i < index; i++) {
+      if (!completedKeys.has(lessons[i].key)) {
+        firstLockedIndex = i
+        break
       }
+    }
+    if (firstLockedIndex !== -1) {
       redirect(`/lms/${slug}/learn/${lessons[firstLockedIndex].key}`)
     }
   }
@@ -123,8 +122,16 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
               const done = completedKeys.has(l.key)
               const active = l.key === lessonKey
               
-              // Lessons 3 and beyond are locked if the previous lesson isn't done
-              const isLocked = enrollment && i >= 2 && !completedKeys.has(lessons[i - 1].key)
+              // Lessons 4 and beyond are locked if any required previous lesson (from index 2) isn't done
+              let isLocked = false
+              if (enrollment && i >= 3) {
+                for (let j = 2; j < i; j++) {
+                  if (!completedKeys.has(lessons[j].key)) {
+                    isLocked = true
+                    break
+                  }
+                }
+              }
 
               return (
                 <li key={l.key}>
