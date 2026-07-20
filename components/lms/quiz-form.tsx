@@ -463,20 +463,27 @@ export function QuizForm({
           </CardContent>
         </Card>
       ) : (
-        shuffled.map((sq, qi) => {
+        <>
+        {result && result.details.every(d => d.isCorrect) && (
+          <div className="mt-8 rounded-md border border-[var(--chart-1)] bg-green-500/5 p-6 text-center">
+            <CheckCircle2 className="mx-auto h-8 w-8 text-[var(--chart-1)] mb-3" />
+            <p className="font-semibold text-lg text-foreground">Perfect Score!</p>
+            <p className="text-muted-foreground text-sm mt-1">You answered all questions correctly. There are no missed questions to review.</p>
+          </div>
+        )}
+        {shuffled.map((sq, qi) => {
         const qResult = result?.details[sq.originalIndex]
         
+        // If results exist, only show questions that were missed
+        if (result && qResult?.isCorrect) return null;
+
         return (
-          <Card key={sq.q.id} className={qResult ? (qResult.isCorrect ? "border-[var(--chart-1)] bg-green-500/5 dark:bg-green-500/10" : "border-destructive bg-destructive/5") : ""}>
+          <Card key={sq.q.id} className={qResult ? "border-destructive bg-destructive/5" : ""}>
             <CardContent className="p-5">
               <div className="flex items-start gap-3">
                 {qResult && (
                   <div className="mt-0.5 shrink-0">
-                    {qResult.isCorrect ? (
-                      <CheckCircle2 className="h-5 w-5 text-[var(--chart-1)]" />
-                    ) : (
-                      <XCircle className="h-5 w-5 text-destructive" />
-                    )}
+                    <XCircle className="h-5 w-5 text-destructive" />
                   </div>
                 )}
                 <div className="flex-1 overflow-hidden">
