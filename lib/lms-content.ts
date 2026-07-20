@@ -148,14 +148,26 @@ function sanitizeCustomCourseData(data: any): any[] {
   let items = Array.isArray(data) ? data : (data?.lessons || [])
   if (!Array.isArray(items)) return []
   
-  return items.filter(Boolean).map((item: any) => {
+  return items.filter(Boolean).map((rawItem: any, index: number) => {
+    // If the AI returned a pure string instead of a lesson object, coerce it into a valid lesson
+    const item = typeof rawItem === 'object' && rawItem !== null ? { ...rawItem } : { 
+      key: `lesson-${index}`, 
+      title: String(rawItem), 
+      minutes: 15, 
+      summary: "", 
+      sections: [{ heading: "Overview", body: [String(rawItem)] }] 
+    }
+
     // Clean sections
     if (item.sections) {
-      item.sections = (Array.isArray(item.sections) ? item.sections : [item.sections]).map((s: any) => ({
-        ...s,
-        heading: String(s.heading || ""),
-        body: Array.isArray(s.body) ? s.body : (typeof s.body === 'string' ? [s.body] : [])
-      }))
+      item.sections = (Array.isArray(item.sections) ? item.sections : [item.sections]).map((s: any) => {
+        const safeS = typeof s === 'object' && s !== null ? s : { heading: "Section", body: [String(s)] }
+        return {
+          ...safeS,
+          heading: String(safeS.heading || ""),
+          body: Array.isArray(safeS.body) ? safeS.body : (typeof safeS.body === 'string' ? [safeS.body] : [])
+        }
+      })
     } else {
       item.sections = []
     }
@@ -857,7 +869,17 @@ const CONCEPT_BANK: Record<string, BankQuestion[]> = {
 
 function sanitizeCustomQuizData(data: any[]): any[] {
   if (!Array.isArray(data)) return []
-  return data.filter(Boolean).map(q => {
+  return data.filter(Boolean).map((rawQ: any, index: number) => {
+    // If the AI returned a pure string instead of a question object, coerce it
+    const q = typeof rawQ === 'object' && rawQ !== null ? { ...rawQ } : {
+      id: `q-${index}`,
+      prompt: String(rawQ),
+      type: 'multiple_choice',
+      options: ["True", "False"],
+      correctIndex: 0,
+      explanation: ""
+    }
+
     if (q.type === 'matching' || q.pairs) {
       q.type = 'matching'
       q.pairs = Array.isArray(q.pairs) ? q.pairs : (q.pairs ? [q.pairs] : [])
