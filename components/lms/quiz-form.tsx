@@ -227,9 +227,11 @@ export function QuizForm({
 
   const buildShuffled = () => {
     const randomized = questions.map((q, qi) => {
-      if (q.type === "matching" && q.pairs) {
-        const lefts = q.pairs.map(p => p.left)
-        const rights = q.pairs.map(p => p.right)
+      const safeQ = { ...q, prompt: typeof q.prompt === 'string' ? q.prompt : String(q.prompt || "") }
+      if (safeQ.type === "matching" && safeQ.pairs) {
+        const pairsArray = Array.isArray(safeQ.pairs) ? safeQ.pairs : []
+        const lefts = pairsArray.map(p => typeof p?.left === 'string' ? p.left : String(p?.left || "Unknown"))
+        const rights = pairsArray.map(p => typeof p?.right === 'string' ? p.right : String(p?.right || "Unknown"))
         for (let i = lefts.length - 1; i > 0; i--) {
           const j = Math.floor(Math.random() * (i + 1))
           ;[lefts[i], lefts[j]] = [lefts[j], lefts[i]]
@@ -238,15 +240,16 @@ export function QuizForm({
           const j = Math.floor(Math.random() * (i + 1))
           ;[rights[i], rights[j]] = [rights[j], rights[i]]
         }
-        return { q, originalIndex: qi, shuffledLeft: lefts, shuffledRight: rights }
+        return { q: safeQ, originalIndex: qi, shuffledLeft: lefts, shuffledRight: rights }
       }
 
-      const options = (q.options || []).map((opt, oi) => ({ opt, originalOptionIndex: oi }))
+      const optionsArray = Array.isArray(safeQ.options) ? safeQ.options : []
+      const options = optionsArray.map((opt, oi) => ({ opt: typeof opt === 'string' ? opt : String(opt), originalOptionIndex: oi }))
       for (let i = options.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1))
         ;[options[i], options[j]] = [options[j], options[i]]
       }
-      return { q, originalIndex: qi, shuffledOptions: options }
+      return { q: safeQ, originalIndex: qi, shuffledOptions: options }
     })
     
     for (let i = randomized.length - 1; i > 0; i--) {
@@ -307,8 +310,9 @@ export function QuizForm({
 
   const allAnswered = questions.every((q, i) => {
     if (q.type === "matching") {
+      const pairsArray = Array.isArray(q.pairs) ? q.pairs : []
       const ans = answers[i] as { left: string; right: string }[] | undefined
-      return ans && ans.length === q.pairs?.length
+      return ans && ans.length === pairsArray.length
     }
     return answers[i] !== undefined
   })
