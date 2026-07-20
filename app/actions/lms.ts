@@ -261,11 +261,8 @@ export async function getCourses(): Promise<Course[]> {
     setCache("courses", courses)
     return courses
   } catch (error) {
-    if (isFirestoreQuotaError(error)) {
-      console.error("Firestore quota exhausted while loading LMS courses; serving empty catalog fallback.", error)
-      return []
-    }
-    throw error
+    console.error("Firestore error while loading LMS courses; serving empty catalog fallback.", error)
+    return []
   }
 }
 
@@ -276,11 +273,8 @@ async function getAdminCourses(): Promise<Course[]> {
   try {
     liveCourses = await getCachedCoursesFromFirestore()
   } catch (error) {
-    if (isFirestoreQuotaError(error)) {
-      console.error("Firestore quota exhausted while loading admin LMS courses; serving static catalog only.", error)
-      return staticCourses
-    }
-    throw error
+    console.error("Firestore error while loading admin LMS courses; serving static catalog only.", error)
+    return staticCourses
   }
 
   if (staticCourses.length === 0) return liveCourses
@@ -331,11 +325,8 @@ export async function getMyEnrollments(): Promise<Enrollment[]> {
   try {
     enrollments = await getEnrollmentsByUser(userId)
   } catch (error) {
-    if (isFirestoreQuotaError(error)) {
-      console.error("Firestore quota exhausted while loading user enrollments; serving empty enrollment fallback.", error)
-      return []
-    }
-    throw error
+    console.error("Firestore error while loading user enrollments; serving empty enrollment fallback.", error)
+    return []
   }
   return (enrollments || []).map(toCacheSafeValue).sort((a: any, b: any) => {
     const aTime = (a.enrolledAt as any)?.getTime?.() || new Date(a.enrolledAt).getTime()
@@ -558,16 +549,13 @@ export async function getMyCourseLearningState(courseId: number): Promise<MyCour
     setCachedLearningState(userId, courseId, state)
     return state
   } catch (error) {
-    if (isFirestoreQuotaError(error)) {
-      console.error("Firestore quota exhausted while loading course learning state; serving empty fallback.", error)
-      return {
-        enrollment: null,
-        completedLessonKeys: [],
-        quizAttempts: [],
-        certificate: null,
-      }
+    console.error("Firestore error while loading course learning state; serving empty fallback.", error)
+    return {
+      enrollment: null,
+      completedLessonKeys: [],
+      quizAttempts: [],
+      certificate: null,
     }
-    throw error
   }
 }
 

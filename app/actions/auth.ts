@@ -87,11 +87,8 @@ export async function getSessionUser() {
     try {
       userData = await getCachedSessionUserProfile(decodedClaims.uid)
     } catch (error) {
-      if (isFirestoreQuotaError(error)) {
-        console.error("Firestore quota exhausted while loading session profile; using auth claims fallback.", error)
-        return sessionUserFromClaims(decodedClaims)
-      }
-      throw error
+      console.error("Firestore error while loading session profile; using auth claims fallback.", error)
+      return sessionUserFromClaims(decodedClaims)
     }
 
     if (!userData) return sessionUserFromClaims(decodedClaims)
