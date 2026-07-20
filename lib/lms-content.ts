@@ -179,6 +179,7 @@ function sanitizeCustomCourseData(data: any): any[] {
     
     // Clean LabeledGraphic
     if (item.labeledGraphic) {
+      item.labeledGraphic = typeof item.labeledGraphic === 'object' && item.labeledGraphic !== null ? { ...item.labeledGraphic } : { imageUrl: "", hotspots: [] }
       item.labeledGraphic.hotspots = Array.isArray(item.labeledGraphic.hotspots) 
         ? item.labeledGraphic.hotspots 
         : (item.labeledGraphic.hotspots ? [item.labeledGraphic.hotspots] : [])
@@ -186,6 +187,7 @@ function sanitizeCustomCourseData(data: any): any[] {
     
     // Clean KnowledgeCheck
     if (item.knowledgeCheck) {
+      item.knowledgeCheck = typeof item.knowledgeCheck === 'object' && item.knowledgeCheck !== null ? { ...item.knowledgeCheck } : { type: "matching", id: "k-1", prompt: "Match the following", pairs: [], explanation: "" }
       item.knowledgeCheck.pairs = Array.isArray(item.knowledgeCheck.pairs)
         ? item.knowledgeCheck.pairs
         : (item.knowledgeCheck.pairs ? [item.knowledgeCheck.pairs] : [])
