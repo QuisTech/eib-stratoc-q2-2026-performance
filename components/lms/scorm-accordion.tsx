@@ -78,11 +78,11 @@ function AccordionItem({ index, heading, body }: { index: number; heading: strin
       >
         <div className="blocks-accordion__description brand--body brand--linkColor">
           <div className="fr-view flex flex-col gap-3">
-            {body?.map((p, i) => (
+            {(Array.isArray(body) ? body : (typeof body === 'string' ? [body] : [])).map((p, i) => (
               <p 
                 key={i} 
                 className="text-pretty leading-relaxed text-muted-foreground text-base"
-                dangerouslySetInnerHTML={{ __html: parseMarkdown(p) }}
+                dangerouslySetInnerHTML={{ __html: parseMarkdown(String(p)) }}
               />
             ))}
           </div>

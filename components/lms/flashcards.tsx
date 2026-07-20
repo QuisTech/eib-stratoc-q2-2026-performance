@@ -6,12 +6,13 @@ import { Lightbulb, Target, Compass, Shield, Zap, BookOpen, Flag, Key, Star, Che
 const ICONS = [Lightbulb, Target, Compass, Shield, Zap, BookOpen, Flag, Key, Star, CheckCircle]
 
 export function Flashcards({ takeaways }: { takeaways: string[] }) {
-  if (!takeaways || takeaways.length === 0) return null
+  const safeTakeaways = Array.isArray(takeaways) ? takeaways : (typeof takeaways === 'string' ? [takeaways] : [])
+  if (safeTakeaways.length === 0) return null
 
   return (
     <ol className="block-flashcards__wrapper" role="list">
-      {takeaways.map((takeaway, i) => (
-        <Flashcard key={i} index={i + 1} text={takeaway} />
+      {safeTakeaways.map((takeaway, i) => (
+        <Flashcard key={i} index={i + 1} text={String(takeaway)} />
       ))}
     </ol>
   )

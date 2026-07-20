@@ -166,17 +166,18 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
           )}
 
           <div className="mt-7 flex flex-col gap-7">
-            {lesson.sections?.map((s, idx) => {
+            {Array.isArray(lesson.sections) && lesson.sections.map((s, idx) => {
               if (idx === 0) {
+                const bodyArray = Array.isArray(s.body) ? s.body : (typeof s.body === 'string' ? [s.body] : [])
                 return (
-                  <section key={s.heading}>
-                    <h2 className="font-heading text-xl font-bold">{s.heading}</h2>
+                  <section key={s.heading || `section-${idx}`}>
+                    <h2 className="font-heading text-xl font-bold">{String(s.heading || "Introduction")}</h2>
                     <div className="mt-2 flex flex-col gap-3">
-                      {s.body?.map((p, i) => (
+                      {bodyArray.map((p, i) => (
                         <p 
                           key={i} 
                           className="text-pretty leading-relaxed text-muted-foreground"
-                          dangerouslySetInnerHTML={{ __html: parseMarkdown(p) }}
+                          dangerouslySetInnerHTML={{ __html: parseMarkdown(String(p)) }}
                         />
                       ))}
                     </div>
@@ -186,32 +187,32 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
               return null
             })}
 
-            {lesson.sections && lesson.sections.length > 1 && (
+            {Array.isArray(lesson.sections) && lesson.sections.length > 1 && (
               <ScormAccordion sections={lesson.sections.slice(1)} />
             )}
           </div>
 
-          {lesson.attachments && lesson.attachments.length > 0 && (
+          {Array.isArray(lesson.attachments) && lesson.attachments.length > 0 && (
             <div className="mt-8 flex flex-col gap-3">
               <h3 className="font-heading text-lg font-bold">Attachments & Links</h3>
               <div className="flex flex-col gap-2">
                 {lesson.attachments.map((att, i) => (
                   <a
                     key={i}
-                    href={att.url}
+                    href={att?.url || "#"}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex w-fit items-center gap-2 rounded-md border bg-card px-4 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground"
                   >
                     <Paperclip className="h-4 w-4" />
-                    {att.title || att.url}
+                    {att?.title || att?.url || "Link"}
                   </a>
                 ))}
               </div>
             </div>
           )}
 
-          {lesson.labeledGraphic && lesson.labeledGraphic.imageUrl && (
+          {lesson.labeledGraphic?.imageUrl && (
             <div className="mt-12">
               <LabeledGraphic data={lesson.labeledGraphic} />
             </div>
@@ -223,14 +224,14 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
             </div>
           )}
 
-          {lesson.interactiveTabs && lesson.interactiveTabs.length > 0 && (
+          {Array.isArray(lesson.interactiveTabs) && lesson.interactiveTabs.length > 0 && (
             <div className="mt-12">
               <h3 className="font-heading text-xl font-bold mb-4">Deep Dive</h3>
               <InteractiveTabs tabs={lesson.interactiveTabs} />
             </div>
           )}
 
-          {lesson.takeaways && lesson.takeaways.length > 0 && (
+          {Array.isArray(lesson.takeaways) && lesson.takeaways.length > 0 && (
             <div className="mt-12">
               <h3 className="flex items-center gap-2 font-heading text-xl font-bold mb-5">
                 <Lightbulb className="h-5 w-5 text-accent" /> Key Takeaways
