@@ -1,5 +1,6 @@
 import { getSessionUser } from "@/app/actions/auth"
 import { headers } from "next/headers"
+import { isSuperAdminEmail } from "@/lib/access-control"
 import { streamObject } from "ai"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { courseSchema } from "@/lib/lms-schema"
@@ -29,7 +30,14 @@ export async function POST(req: Request) {
   // Authentication Check
   const user = await getSessionUser();
   const session = user ? { user } : null
-  if (!session?.user || session.user.role !== "admin") {
+  if (!session?.user) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 })
+  }
+
+  const role = session.user.role
+  const isSuperAdmin = isSuperAdminEmail(session.user.email)
+
+  if (!isSuperAdmin && role !== "admin") {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 })
   }
 
