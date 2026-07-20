@@ -6,10 +6,6 @@ import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { createGroq } from "@ai-sdk/groq"
 import { courseSchema } from "@/lib/lms-schema"
 
-const google = createGoogleGenerativeAI({
-  apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-})
-
 // Allow streaming responses up to 5 minutes to prevent Vercel hobby timeouts on Edge/Node
 export const maxDuration = 300
 
@@ -30,9 +26,18 @@ CRITICAL RULE: NEVER use the terms "EIB Group", "DCI", "BLACK", "Giga Forensics"
 export async function POST(req: Request) {
   // bypassed
 
-  if (!process.env.GEMINI_API_KEY && !process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+  const rawKeys = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY
+  if (!rawKeys) {
     return new Response(JSON.stringify({ error: "API_KEY_MISSING", details: "No Gemini API Key is configured in Vercel Environment Variables." }), { status: 500, headers: { 'Content-Type': 'application/json' } })
   }
+
+  // Support multiple API keys separated by commas for rate limit rotation
+  const keyList = rawKeys.split(",").map(k => k.trim()).filter(Boolean)
+  const selectedKey = keyList[Math.floor(Math.random() * keyList.length)]
+
+  const google = createGoogleGenerativeAI({
+    apiKey: selectedKey,
+  })
 
   const { title, category, customContext, existingLessons, existingQuiz, action } = await req.json()
   const isAppendMode = action === "append_lesson" || (existingLessons && existingLessons.length > 0 && !action)
