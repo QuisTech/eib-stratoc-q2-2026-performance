@@ -74,6 +74,6 @@ export const quizSchema = z.array(
 ).describe("A 10-question quiz. Include exactly ONE matching question and 9 multiple_choice questions.")
 
 export const courseSchema = z.object({
-  lessons: z.array(lessonSchema),
+  lessons: z.array(lessonSchema).optional(),
   quiz: quizSchema.optional(), // Quiz is optional because Append mode doesn't generate it
 })
