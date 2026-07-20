@@ -1,7 +1,7 @@
 import { getSessionUser } from "@/app/actions/auth"
 import { headers } from "next/headers"
 import { isSuperAdminEmail } from "@/lib/access-control"
-import { streamText } from "ai"
+import { streamObject } from "ai"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { createGroq } from "@ai-sdk/groq"
 import { courseSchema } from "@/lib/lms-schema"
@@ -93,8 +93,7 @@ Requirements:
 2. You MUST generate 4 to 6 lessons.
 3. You MUST generate a 5-question multiple choice quiz at the end.
 4. Ensure the content is substantive but concise. Provide solid paragraphs for each section.
-5. Include a 'knowledgeCheck' in at least 1 or 2 of the lessons.
-6. OUTPUT ONLY RAW JSON. NO MARKDOWN BACKTICKS. NO EXPLANATIONS. EXACTLY MATCH THE REQUESTED SCHEMA.`
+5. Include a 'knowledgeCheck' in at least 1 or 2 of the lessons.`
   }
 
   try {
@@ -103,12 +102,10 @@ Requirements:
     // We default to Groq if available since the current Gemini quota is returning RESOURCE_EXHAUSTED
     const aiModel = process.env.GROQ_API_KEY ? groq("llama-3.1-70b-versatile") : google("gemini-2.5-flash")
 
-    const result = streamText({
+    const result = streamObject({
       model: aiModel,
-      prompt: `${prompt}\n\nIMPORTANT: YOU MUST RETURN ONLY VALID JSON MATCHING THIS EXACT SCHEMA:\n${JSON.stringify({
-        lessons: [{ key: "string", title: "string", minutes: "number", summary: "string", sections: [{ heading: "string", body: ["string"] }] }],
-        quiz: [{ type: "multiple_choice", id: "string", prompt: "string", explanation: "string" }]
-      }, null, 2)}\n\nDO NOT USE MARKDOWN BACKTICKS. RETURN RAW JSON ONLY.`,
+      schema: courseSchema,
+      prompt: prompt,
       temperature: 0.7,
       providerOptions: {
         google: {
