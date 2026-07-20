@@ -106,7 +106,7 @@ Requirements:
   }
 
   const result = streamObject({
-    model: google("gemini-1.5-flash"),
+    model: google("gemini-2.5-flash"),
     schema: courseSchema,
     prompt: prompt,
     temperature: 0.7,
