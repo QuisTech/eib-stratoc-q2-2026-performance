@@ -516,13 +516,13 @@ export async function getMyCourseLearningState(courseId: number): Promise<MyCour
 
     const quizAttempts = ((attempts || []).map((d: any) => ({
       ...d,
-      createdAt: (d.createdAt as any)?.toDate?.() || new Date(d.createdAt),
+      createdAt: parseSafeDate(d.createdAt),
     })) as QuizAttempt[]).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
 
     const certificate = certificates?.[0]
       ? ({
           ...certificates[0],
-          issuedAt: (certificates[0].issuedAt as any)?.toDate?.() || new Date(certificates[0].issuedAt),
+          issuedAt: parseSafeDate(certificates[0].issuedAt),
         } as Certificate)
       : null
 
@@ -556,7 +556,7 @@ export async function getMyCertificates(): Promise<Certificate[]> {
   return (certificates || [])
     .map((c: any) => ({
       ...c,
-      issuedAt: (c.issuedAt as any)?.toDate?.() || new Date(c.issuedAt)
+      issuedAt: parseSafeDate(c.issuedAt)
     }))
     .sort((a: any, b: any) => b.issuedAt.getTime() - a.issuedAt.getTime())
 }
