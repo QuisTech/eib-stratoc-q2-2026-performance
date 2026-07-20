@@ -9,15 +9,6 @@ const google = createGoogleGenerativeAI({
   apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY,
 })
 
-const customModel = google("gemini-2.5-flash", {
-  safetySettings: [
-    { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-    { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-    { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-    { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
-  ],
-})
-
 // Allow streaming responses up to 5 minutes to prevent Vercel hobby timeouts on Edge/Node
 export const maxDuration = 300
 
@@ -104,10 +95,20 @@ Requirements:
 
   try {
     const result = streamObject({
-      model: customModel,
+      model: google("gemini-2.5-flash"),
       schema: courseSchema,
       prompt: prompt,
       temperature: 0.7,
+      providerOptions: {
+        google: {
+          safetySettings: [
+            { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+            { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+            { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+            { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
+          ]
+        }
+      }
     })
 
     return result.toTextStreamResponse()
