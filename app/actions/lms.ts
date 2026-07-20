@@ -84,23 +84,35 @@ function invalidateCache(key?: string) {
 // only pays 1 Firestore read (the first page load). All subsequent
 // navigations read from this cache until it expires or is invalidated.
 const LEARNING_STATE_TTL_MS = 15 * 60 * 1000 // 15 minutes
-const learningStateCache = new Map<string, { data: any; expiresAt: number }>()
+const learningStateCache = new Map<string, { data: any; expiresAt: number; createdAt: number }>()
 
 function getLearningStateCacheKey(userId: string, courseId: number) {
   return `ls:${userId}:${courseId}`
 }
 
-function getCachedLearningState(userId: string, courseId: number): any | null {
+async function getCachedLearningState(userId: string, courseId: number): Promise<any | null> {
+  const { cookies } = await import("next/headers")
+  const cookieStore = await cookies()
+  const lastMutation = Number(cookieStore.get("lms_last_mutation")?.value || 0)
+
   const key = getLearningStateCacheKey(userId, courseId)
   const entry = learningStateCache.get(key)
-  if (entry && Date.now() < entry.expiresAt) return entry.data
+  
+  if (entry && Date.now() < entry.expiresAt && entry.createdAt > lastMutation) {
+    return entry.data
+  }
+  
   learningStateCache.delete(key)
   return null
 }
 
 function setCachedLearningState(userId: string, courseId: number, state: any) {
   const key = getLearningStateCacheKey(userId, courseId)
-  learningStateCache.set(key, { data: state, expiresAt: Date.now() + LEARNING_STATE_TTL_MS })
+  learningStateCache.set(key, { 
+    data: state, 
+    expiresAt: Date.now() + LEARNING_STATE_TTL_MS,
+    createdAt: Date.now()
+  })
 }
 
 function invalidateLearningState(userId: string, courseId?: number) {
@@ -109,9 +121,17 @@ function invalidateLearningState(userId: string, courseId?: number) {
   } else {
     // Invalidate all learning states for this user
     for (const key of learningStateCache.keys()) {
-      if (key.startsWith(`ls:${userId}:`)) learningStateCache.delete(key)
+      if (key.startsWith(`ls:${userId}:`)) {
+        learningStateCache.delete(key)
+      }
     }
   }
+}
+
+async function markUserMutation() {
+  const { cookies } = await import("next/headers")
+  const cookieStore = await cookies()
+  cookieStore.set("lms_last_mutation", Date.now().toString(), { maxAge: 15 * 60 })
 }
 
 function isFirestoreQuotaError(error: unknown) {
@@ -342,6 +362,7 @@ export async function enrollInCourse(courseId: number) {
     }).catch(e => console.error("Failed to increment enrollmentCount", e))
     invalidateUserCourseCaches(userId, courseId)
     invalidateLearningState(userId, courseId)
+    await markUserMutation()
     await recomputeCourseProgress(userId, courseId)
   }
   invalidateAdminCaches()
@@ -361,6 +382,7 @@ export async function unenrollFromCourse(courseId: number) {
   }).catch(e => console.error("Failed to decrement enrollmentCount", e))
   invalidateUserCourseCaches(userId, courseId)
   invalidateLearningState(userId, courseId)
+  await markUserMutation()
   invalidateAdminCaches()
   revalidatePath("/lms")
   revalidatePath("/lms/[slug]", "page")
@@ -383,6 +405,7 @@ export async function completeLesson(courseId: number, lessonKey: string) {
   }, { merge: true })
   invalidateUserCourseCaches(userId, courseId)
   invalidateLearningState(userId, courseId)
+  await markUserMutation()
   await recomputeCourseProgress(userId, courseId)
   revalidatePath("/lms")
   revalidatePath("/lms/[slug]", "page")
@@ -445,8 +468,17 @@ export async function getMyCourseLearningState(courseId: number): Promise<MyCour
   const userId = await getUserId()
 
   // ── Check composite cache first (zero Firestore reads on hit) ──
-  const cached = getCachedLearningState(userId, courseId)
-  if (cached) return cached
+  const cached = await getCachedLearningState(userId, courseId)
+  
+  // Verify with distributed mutation cookie to avoid stale reads across serverless functions
+  const { cookies } = await import("next/headers")
+  const cookieStore = await cookies()
+  const lastMutation = Number(cookieStore.get("lms_last_mutation")?.value || 0)
+  
+  if (cached && (!lastMutation || cached.createdAt >= lastMutation)) {
+    return cached.data
+  }
+
   
   try {
     const enrollments = await getEnrollmentsByUser(userId)
