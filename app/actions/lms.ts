@@ -35,6 +35,17 @@ function revalidateCacheTag(tag: string) {
   revalidateTag(tag, "max")
 }
 
+function parseSafeDate(val: any): Date {
+  if (!val) return new Date()
+  let d: Date
+  if (typeof val?.toDate === "function") {
+    d = val.toDate()
+  } else {
+    d = new Date(val)
+  }
+  return isNaN(d.getTime()) ? new Date() : d
+}
+
 async function getUserId() {
   const user = await getSessionUser()
   if (!user) throw new Error("Unauthorized")
