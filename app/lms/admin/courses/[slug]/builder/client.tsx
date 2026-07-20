@@ -36,6 +36,13 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
     api: "/api/lms/generate-course",
     schema: courseSchema,
     onFinish: ({ object }) => {
+      // @ts-ignore - error is dynamically added to schema for debugging
+      if (object?.error) {
+        // @ts-ignore
+        setError(`Server Error: ${object.error}`)
+        return
+      }
+
       if (!object?.lessons?.length && !object?.quiz?.length) {
         setError("AI returned an empty response. The content may have been blocked by safety filters or there is a configuration error.")
         return
