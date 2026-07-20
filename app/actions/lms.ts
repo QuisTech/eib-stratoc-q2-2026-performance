@@ -306,7 +306,7 @@ export async function getMyEnrollments(): Promise<Enrollment[]> {
 export async function getMyEnrollmentForCourse(courseId: number): Promise<Enrollment | null> {
   const userId = await getUserId()
   const enrollments = await getEnrollmentsByUser(userId)
-  const enrollment = (enrollments || []).find((e: any) => e.courseId === courseId)
+  const enrollment = (enrollments || []).find((e: any) => Number(e.courseId) === Number(courseId))
   return enrollment ? (toCacheSafeValue(enrollment) as Enrollment) : null
 }
 
@@ -450,7 +450,7 @@ export async function getMyCourseLearningState(courseId: number): Promise<MyCour
   
   try {
     const enrollments = await getEnrollmentsByUser(userId)
-    const rawEnrollment = (enrollments || []).find((e: any) => e.courseId === courseId)
+    const rawEnrollment = (enrollments || []).find((e: any) => Number(e.courseId) === Number(courseId))
     const enrollment = rawEnrollment ? (toCacheSafeValue(rawEnrollment) as Enrollment) : null
 
     if (!enrollment) {
