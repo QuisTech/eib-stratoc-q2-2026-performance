@@ -3,6 +3,7 @@ import { headers } from "next/headers"
 import { isSuperAdminEmail } from "@/lib/access-control"
 import { streamText } from "ai"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
+import { createGroq } from "@ai-sdk/groq"
 import { courseSchema } from "@/lib/lms-schema"
 
 const google = createGoogleGenerativeAI({
@@ -97,8 +98,13 @@ Requirements:
   }
 
   try {
+    const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
+    
+    // We default to Groq if available since the current Gemini quota is returning RESOURCE_EXHAUSTED
+    const aiModel = process.env.GROQ_API_KEY ? groq("llama-3.1-70b-versatile") : google("gemini-2.5-flash")
+
     const result = streamText({
-      model: google("gemini-2.5-flash"),
+      model: aiModel,
       prompt: `${prompt}\n\nIMPORTANT: YOU MUST RETURN ONLY VALID JSON MATCHING THIS EXACT SCHEMA:\n${JSON.stringify({
         lessons: [{ key: "string", title: "string", minutes: "number", summary: "string", sections: [{ heading: "string", body: ["string"] }] }],
         quiz: [{ type: "multiple_choice", id: "string", prompt: "string", explanation: "string" }]
