@@ -84,6 +84,22 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
     else redirect(`/lms/${slug}`)
   }
 
+  // Enforce sequential progression from Lesson 3 (index 2) onwards
+  if (enrollment && index >= 2) {
+    const previousLessonKey = lessons[index - 1].key
+    if (!completedKeys.has(previousLessonKey)) {
+      // Find the first uncompleted lesson from index 2 onwards, or default to index 2
+      let firstLockedIndex = 2
+      for (let i = 2; i < index; i++) {
+        if (!completedKeys.has(lessons[i - 1].key)) {
+          firstLockedIndex = i
+          break
+        }
+      }
+      redirect(`/lms/${slug}/learn/${lessons[firstLockedIndex].key}`)
+    }
+  }
+
   const isLast = index === lessons.length - 1
   const nextHref = isLast ? `/lms/${slug}/quiz` : `/lms/${slug}/learn/${lessons[index + 1].key}`
 
@@ -106,26 +122,40 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
             {lessons.map((l, i) => {
               const done = completedKeys.has(l.key)
               const active = l.key === lessonKey
+              
+              // Lessons 3 and beyond are locked if the previous lesson isn't done
+              const isLocked = enrollment && i >= 2 && !completedKeys.has(lessons[i - 1].key)
+
               return (
                 <li key={l.key}>
-                  <Link
-                    href={`/lms/${slug}/learn/${l.key}`}
-                    className={`flex items-start gap-2.5 rounded-md px-3 py-2 text-sm transition-colors ${
-                      active
-                        ? "bg-primary/10 font-medium text-foreground"
-                        : "text-muted-foreground hover:bg-muted"
-                    }`}
-                  >
-                    {done ? (
-                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--chart-1)]" />
-                    ) : (
-                      <Circle className="mt-0.5 h-4 w-4 shrink-0" />
-                    )}
-                    <span>
-                      <span className="block text-xs text-muted-foreground">Lesson {i + 1}</span>
-                      {l.title}
-                    </span>
-                  </Link>
+                  {isLocked ? (
+                    <div className="flex items-start gap-2.5 rounded-md px-3 py-2 text-sm text-muted-foreground opacity-50 cursor-not-allowed">
+                      <Lock className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span>
+                        <span className="block text-xs text-muted-foreground">Lesson {i + 1}</span>
+                        {l.title}
+                      </span>
+                    </div>
+                  ) : (
+                    <Link
+                      href={`/lms/${slug}/learn/${l.key}`}
+                      className={`flex items-start gap-2.5 rounded-md px-3 py-2 text-sm transition-colors ${
+                        active
+                          ? "bg-primary/10 font-medium text-foreground"
+                          : "text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {done ? (
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[var(--chart-1)]" />
+                      ) : (
+                        <Circle className="mt-0.5 h-4 w-4 shrink-0" />
+                      )}
+                      <span>
+                        <span className="block text-xs text-muted-foreground">Lesson {i + 1}</span>
+                        {l.title}
+                      </span>
+                    </Link>
+                  )}
                 </li>
               )
             })}

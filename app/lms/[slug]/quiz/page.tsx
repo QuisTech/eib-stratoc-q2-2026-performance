@@ -11,7 +11,7 @@ import { getLessons, getQuiz, getQuizPolicy } from "@/lib/lms-content"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { buttonVariants } from "@/components/ui/button"
 import { QuizForm } from "@/components/lms/quiz-form"
-import { ArrowLeft, ClipboardCheck, AlertTriangle, Award, Clock, Ban } from "lucide-react"
+import { ArrowLeft, ClipboardCheck, AlertTriangle, Award, Clock, Ban, Lock } from "lucide-react"
 import { isCourseVisibleToUser } from "@/lib/utils"
 
 type Params = { slug: string }
@@ -145,17 +145,17 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
         </Card>
       )}
 
-      {remaining.length > 0 && !alreadyPassed && (
+      {remaining.length > 0 && !alreadyPassed ? (
         <Card className="mt-6 border-l-4" style={{ borderLeftColor: "var(--chart-3)" }}>
           <CardContent className="flex items-start gap-3 p-4">
-            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-[var(--chart-3)]" />
+            <Lock className="mt-0.5 h-5 w-5 shrink-0 text-[var(--chart-3)]" />
             <div className="text-sm">
               <p className="font-medium">
-                You can take the assessment now, but {remaining.length} lesson
-                {remaining.length > 1 ? "s are" : " is"} still incomplete.
+                Assessment Locked ({remaining.length} lesson
+                {remaining.length > 1 ? "s" : ""} incomplete)
               </p>
               <p className="mt-0.5 text-muted-foreground">
-                The course is only marked complete once every lesson is done and the quiz is passed.{" "}
+                You must complete all lessons before you can take the final assessment.{" "}
                 <Link
                   href={`/lms/${slug}/learn/${remaining[0].key}`}
                   className="font-medium text-primary hover:underline"
@@ -166,9 +166,8 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
             </div>
           </CardContent>
         </Card>
-      )}
-
-      <div className="mt-7">
+      ) : (
+        <div className="mt-7">
           <QuizForm
             courseId={course.id}
             slug={slug}
@@ -184,6 +183,7 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
             alreadyPassed={alreadyPassed}
           />
         </div>
+      )}
     </main>
   )
 }
