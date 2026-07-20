@@ -147,9 +147,9 @@ export function getLessons(course: Course): Lesson[] {
     try {
       const parsed = JSON.parse(course.customContent)
       if (parsed.lessons && Array.isArray(parsed.lessons)) {
-        return parsed.lessons
+        return parsed.lessons.filter(Boolean)
       } else if (Array.isArray(parsed)) {
-        return parsed
+        return parsed.filter(Boolean)
       }
     } catch (e) {
       console.error("Failed to parse custom lessons for", course.slug, e)
@@ -823,7 +823,7 @@ export function getQuiz(course: Course, seed?: number): QuizQuestion[] {
     try {
       const parsed = JSON.parse(course.customContent)
       if (parsed.quiz && Array.isArray(parsed.quiz)) {
-        pool = parsed.quiz
+        pool = parsed.quiz.filter(Boolean)
       }
     } catch (e) {
       console.error("Failed to parse custom quiz for", course.slug, e)

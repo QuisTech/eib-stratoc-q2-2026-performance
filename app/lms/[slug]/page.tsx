@@ -149,12 +149,13 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
               <BookOpen className="h-5 w-5 text-primary" /> Curriculum
             </h2>
             <ol className="mt-4 flex flex-col gap-3">
-              {lessons.map((l, i) => {
-                const done = completedKeys.has(l.key)
+              {(lessons || []).map((l, i) => {
+                if (!l) return null
+                const done = l.key ? completedKeys.has(l.key) : false
                 const isFreePreview = i < 2 || !!l.isPreview
                 const canAccess = enrolled || isFreePreview
                 return (
-                  <li key={l.key}>
+                  <li key={l.key || `lesson-${i}`}>
                     <Card className="avoid-break">
                       <CardContent className="flex items-start gap-4 p-4">
                         <span
@@ -170,21 +171,21 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
                           <div className="flex flex-wrap items-center justify-between gap-2">
                             {canAccess ? (
                               <Link
-                                href={`/lms/${slug}/learn/${l.key}`}
+                                href={`/lms/${slug}/learn/${l.key || ''}`}
                                 className="font-medium hover:text-primary flex items-center gap-2"
                               >
-                                {l.title}
+                                {l.title || 'Untitled Lesson'}
                                 {!enrolled && isFreePreview && (
                                   <Badge variant="default" className="text-xs font-bold uppercase tracking-widest px-2 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white border-none shadow-sm shadow-emerald-500/20">Free Preview</Badge>
                                 )}
                               </Link>
                             ) : (
-                              <p className="font-medium">{l.title}</p>
+                              <p className="font-medium">{l.title || 'Untitled Lesson'}</p>
                             )}
                             <span className="flex items-center gap-1 text-xs text-muted-foreground">
                               {!enrolled && !isFreePreview && <Lock className="h-3 w-3" />}
                               {!enrolled && isFreePreview && <Unlock className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />}
-                              ~{l.minutes}m
+                              ~{l.minutes || 0}m
                             </span>
                           </div>
                           <p className="mt-0.5 text-sm text-muted-foreground">{l.summary}</p>
