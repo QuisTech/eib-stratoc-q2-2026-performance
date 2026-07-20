@@ -76,4 +76,5 @@ export const quizSchema = z.array(
 export const courseSchema = z.object({
   lessons: z.array(lessonSchema).optional(),
   quiz: quizSchema.optional(), // Quiz is optional because Append mode doesn't generate it
+  error: z.string().optional(),
 })
