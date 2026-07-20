@@ -44,6 +44,10 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
         if (object?.lessons) setLessons(object.lessons)
         if (object?.quiz) setQuiz(object.quiz)
       }
+    },
+    onError: (err) => {
+      console.error("useObject error:", err)
+      setError(err?.message || "AI Stream Error: Failed to generate content.")
     }
   })
 
