@@ -139,6 +139,50 @@ function subsidiaryPhrase(course: Course): string {
   return `${list.slice(0, -1).join(", ")}, and ${list[list.length - 1]}`
 }
 
+// --- Data Sanitization -----------------------------------------------------
+// Industrial standard schema sanitization. Ensures that any malformed JSON
+// structures from the AI (e.g. strings instead of arrays) are forcefully
+// converted into their correct array shapes BEFORE leaving this module.
+// This prevents React components from crashing on .map() during SSR.
+function sanitizeCustomCourseData(data: any): any[] {
+  let items = Array.isArray(data) ? data : (data?.lessons || [])
+  if (!Array.isArray(items)) return []
+  
+  return items.filter(Boolean).map((item: any) => {
+    // Clean sections
+    if (item.sections) {
+      item.sections = (Array.isArray(item.sections) ? item.sections : [item.sections]).map((s: any) => ({
+        ...s,
+        heading: String(s.heading || ""),
+        body: Array.isArray(s.body) ? s.body : (typeof s.body === 'string' ? [s.body] : [])
+      }))
+    } else {
+      item.sections = []
+    }
+
+    // Clean arrays
+    item.takeaways = Array.isArray(item.takeaways) ? item.takeaways : (typeof item.takeaways === 'string' ? [item.takeaways] : [])
+    item.attachments = Array.isArray(item.attachments) ? item.attachments : (item.attachments ? [item.attachments] : [])
+    item.interactiveTabs = Array.isArray(item.interactiveTabs) ? item.interactiveTabs : (item.interactiveTabs ? [item.interactiveTabs] : [])
+    
+    // Clean LabeledGraphic
+    if (item.labeledGraphic) {
+      item.labeledGraphic.hotspots = Array.isArray(item.labeledGraphic.hotspots) 
+        ? item.labeledGraphic.hotspots 
+        : (item.labeledGraphic.hotspots ? [item.labeledGraphic.hotspots] : [])
+    }
+    
+    // Clean KnowledgeCheck
+    if (item.knowledgeCheck) {
+      item.knowledgeCheck.pairs = Array.isArray(item.knowledgeCheck.pairs)
+        ? item.knowledgeCheck.pairs
+        : (item.knowledgeCheck.pairs ? [item.knowledgeCheck.pairs] : [])
+    }
+    
+    return item
+  })
+}
+
 // --- Lessons ---------------------------------------------------------------
 // Five lessons per course: Orientation, Core concepts, Hands-on practice,
 // Applied workshop, and Review & readiness. Copy is tailored to the course.
@@ -146,11 +190,7 @@ export function getLessons(course: Course): Lesson[] {
   if (course.customContent) {
     try {
       const parsed = JSON.parse(course.customContent)
-      if (parsed.lessons && Array.isArray(parsed.lessons)) {
-        return parsed.lessons.filter(Boolean)
-      } else if (Array.isArray(parsed)) {
-        return parsed.filter(Boolean)
-      }
+      return sanitizeCustomCourseData(parsed)
     } catch (e) {
       console.error("Failed to parse custom lessons for", course.slug, e)
     }
@@ -815,6 +855,20 @@ const CONCEPT_BANK: Record<string, BankQuestion[]> = {
   ],
 }
 
+function sanitizeCustomQuizData(data: any[]): any[] {
+  if (!Array.isArray(data)) return []
+  return data.filter(Boolean).map(q => {
+    if (q.type === 'matching' || q.pairs) {
+      q.type = 'matching'
+      q.pairs = Array.isArray(q.pairs) ? q.pairs : (q.pairs ? [q.pairs] : [])
+    } else {
+      q.type = 'multiple_choice'
+      q.options = Array.isArray(q.options) ? q.options : (typeof q.options === 'string' ? [q.options] : [])
+    }
+    return q
+  })
+}
+
 // Build the quiz for a course: concept questions for its category plus two
 // data-derived questions whose answers come straight from the course record.
 export function getQuiz(course: Course, seed?: number): QuizQuestion[] {
@@ -823,7 +877,10 @@ export function getQuiz(course: Course, seed?: number): QuizQuestion[] {
     try {
       const parsed = JSON.parse(course.customContent)
       if (parsed.quiz && Array.isArray(parsed.quiz)) {
-        pool = parsed.quiz.filter(Boolean)
+        pool = sanitizeCustomQuizData(parsed.quiz)
+      } else if (Array.isArray(parsed)) {
+        // Fallback if the AI returned a pure array
+        pool = sanitizeCustomQuizData(parsed)
       }
     } catch (e) {
       console.error("Failed to parse custom quiz for", course.slug, e)
