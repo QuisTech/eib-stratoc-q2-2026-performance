@@ -166,13 +166,13 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
           )}
 
           <div className="mt-7 flex flex-col gap-7">
-            {lesson.sections.map((s, idx) => {
+            {lesson.sections?.map((s, idx) => {
               if (idx === 0) {
                 return (
                   <section key={s.heading}>
                     <h2 className="font-heading text-xl font-bold">{s.heading}</h2>
                     <div className="mt-2 flex flex-col gap-3">
-                      {s.body.map((p, i) => (
+                      {s.body?.map((p, i) => (
                         <p 
                           key={i} 
                           className="text-pretty leading-relaxed text-muted-foreground"
@@ -186,7 +186,7 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
               return null
             })}
 
-            {lesson.sections.length > 1 && (
+            {lesson.sections && lesson.sections.length > 1 && (
               <ScormAccordion sections={lesson.sections.slice(1)} />
             )}
           </div>
@@ -230,12 +230,14 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
             </div>
           )}
 
-          <div className="mt-12">
-            <h3 className="flex items-center gap-2 font-heading text-xl font-bold mb-5">
-              <Lightbulb className="h-5 w-5 text-accent" /> Key Takeaways
-            </h3>
-            <Flashcards takeaways={lesson.takeaways} />
-          </div>
+          {lesson.takeaways && lesson.takeaways.length > 0 && (
+            <div className="mt-12">
+              <h3 className="flex items-center gap-2 font-heading text-xl font-bold mb-5">
+                <Lightbulb className="h-5 w-5 text-accent" /> Key Takeaways
+              </h3>
+              <Flashcards takeaways={lesson.takeaways} />
+            </div>
+          )}
 
           <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6">
             {index > 0 ? (
