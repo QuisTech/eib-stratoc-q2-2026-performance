@@ -36,6 +36,11 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
     api: "/api/lms/generate-course",
     schema: courseSchema,
     onFinish: ({ object }) => {
+      if (!object?.lessons?.length && !object?.quiz?.length) {
+        setError("AI returned an empty response. The content may have been blocked by safety filters or there is a configuration error.")
+        return
+      }
+
       if (object?.lessons && appendMode.current === "lesson") {
         setLessons((prev) => [...prev, ...object.lessons!])
       } else if (object?.quiz && appendMode.current === "quiz") {
