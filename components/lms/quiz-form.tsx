@@ -556,11 +556,11 @@ export function QuizForm({
               </CardContent>
             </Card>
           )
-        })
+        })}
+        </>
       )}
       </>
       )}
-
       {!result && !isLockedOutByAttempts && !isLockedOutByTime && (
         <>
           {error && (
