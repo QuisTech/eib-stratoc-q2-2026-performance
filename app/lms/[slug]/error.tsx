@@ -26,7 +26,7 @@ export default function LmsErrorBoundary({
           </div>
           <CardTitle className="text-xl">Content Loading Error</CardTitle>
           <CardDescription className="text-foreground/80 mt-2">
-            We encountered a problem loading this course content. This is usually caused by a temporary formatting issue in the database.
+            We encountered a problem loading this course content. This may be caused by a temporary network timeout or a formatting issue.
           </CardDescription>
         </CardHeader>
         <CardContent>

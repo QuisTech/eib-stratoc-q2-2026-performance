@@ -25,9 +25,19 @@ function isFirestoreQuotaError(error: unknown) {
   const text = `${err?.message ?? ""} ${err?.details ?? ""}`
   return (
     err?.code === 8 ||
+    err?.code === 4 ||
+    err?.code === 14 ||
     err?.code === "resource-exhausted" ||
+    err?.code === "deadline-exceeded" ||
+    err?.code === "unavailable" ||
     text.includes("RESOURCE_EXHAUSTED") ||
-    text.includes("Quota exceeded")
+    text.includes("DEADLINE_EXCEEDED") ||
+    text.includes("UNAVAILABLE") ||
+    text.includes("Quota exceeded") ||
+    text.includes("fetch failed") ||
+    text.includes("network-request-failed") ||
+    text.includes("Too many requests") ||
+    text.includes("timeout")
   )
 }
 
