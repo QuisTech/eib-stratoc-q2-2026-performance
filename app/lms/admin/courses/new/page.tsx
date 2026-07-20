@@ -29,8 +29,8 @@ export default function NewCoursePage() {
         durationHours: parseInt(formData.get("durationHours") as string),
         priceNaira: parseInt(formData.get("priceNaira") as string) || 0,
         subsidiaries: formData.get("subsidiaries") as string,
-        videoUrl: (formData.get("videoUrl") as string) || undefined,
-        imageUrl: (formData.get("imageUrl") as string) || undefined,
+        videoUrl: (formData.get("videoUrl") as string) || null,
+        imageUrl: (formData.get("imageUrl") as string) || null,
         isBriefing: formData.get("isBriefing") === "on",
       })
       router.push("/lms/admin")

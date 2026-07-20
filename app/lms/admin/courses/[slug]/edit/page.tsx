@@ -41,8 +41,8 @@ export default async function EditCoursePage({
       durationHours: parseInt(formData.get("durationHours") as string),
       priceNaira: parseInt(formData.get("priceNaira") as string) || 0,
       subsidiaries: formData.get("subsidiaries") as string,
-      videoUrl: (formData.get("videoUrl") as string) || undefined,
-      imageUrl: (formData.get("imageUrl") as string) || undefined,
+      videoUrl: (formData.get("videoUrl") as string) || null,
+      imageUrl: (formData.get("imageUrl") as string) || null,
       isBriefing: formData.get("isBriefing") === "on",
     })
     redirect("/lms/admin")
@@ -137,7 +137,7 @@ export default async function EditCoursePage({
         </div>
 
         <div className="flex items-center gap-2 mt-2">
-          <input type="checkbox" id="isBriefing" name="isBriefing" defaultChecked={course.isBriefing} className="h-4 w-4 rounded border-input" />
+          <input type="checkbox" id="isBriefing" name="isBriefing" defaultChecked={course.isBriefing ?? false} className="h-4 w-4 rounded border-input" />
           <label htmlFor="isBriefing" className="text-sm font-medium">Mark as Strategic Briefing (Hides from LMS Course Catalog)</label>
         </div>
 

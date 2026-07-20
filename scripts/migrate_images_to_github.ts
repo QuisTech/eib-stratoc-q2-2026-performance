@@ -1,9 +1,8 @@
-import { adminDb } from "../lib/firebase-admin";
 import fs from "fs/promises";
 import path from "path";
 import dotenv from "dotenv";
 
-// Load .env.local variables if running locally
+// Load .env.local variables FIRST before any imports that rely on them
 dotenv.config({ path: ".env.local" });
 
 const token = process.env.GITHUB_TOKEN;
@@ -82,6 +81,9 @@ async function processImage(imageUrl: string, docId: string): Promise<string | n
 }
 
 async function migrate() {
+  // Dynamically import adminDb AFTER dotenv is loaded
+  const { adminDb } = await import("../lib/firebase-admin");
+
   console.log(`Starting GitHub Image Migration...`);
   console.log(`Target Repo: ${owner}/${repo}`);
 

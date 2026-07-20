@@ -376,7 +376,18 @@ export async function unenrollFromCourse(courseId: number) {
   if (!existing) return
   if (existing.status === "completed") throw new Error("Cannot drop a course that has already been completed.")
 
-  await adminDb.collection("enrollments").doc(`${userId}_${courseId}`).delete()
+  // Delete all matching documents regardless of doc ID format (legacy enrollments used Date.now() in doc ID)
+  const snap = await adminDb.collection("enrollments")
+    .where("userId", "==", userId)
+    .where("courseId", "in", [courseId, String(courseId)])
+    .get()
+
+  if (!snap.empty) {
+    const batch = adminDb.batch()
+    snap.docs.forEach(doc => batch.delete(doc.ref))
+    await batch.commit()
+  }
+
   await adminDb.collection("courses").doc(String(courseId)).update({
     enrollmentCount: FieldValue.increment(-1)
   }).catch(e => console.error("Failed to decrement enrollmentCount", e))
