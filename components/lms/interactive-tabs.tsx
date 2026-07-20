@@ -21,11 +21,11 @@ export function InteractiveTabs({ tabs }: { tabs: { tabTitle: string; content: s
         <TabsList className="w-full justify-start rounded-none border-b bg-transparent p-0 flex-wrap h-auto">
           {safeTabs.map((t, i) => (
             <TabsTrigger
-              key={t.tabTitle}
-              value={t.tabTitle}
+              key={t?.tabTitle || `tab-${i}`}
+              value={t?.tabTitle || `tab-${i}`}
               className="relative rounded-none border-b-2 border-transparent px-6 py-4 font-semibold text-muted-foreground data-[state=active]:border-primary data-[state=active]:text-foreground hover:bg-muted/50 transition-none data-[state=active]:bg-transparent"
             >
-              {t.tabTitle}
+              {t?.tabTitle || `Tab ${i + 1}`}
             </TabsTrigger>
           ))}
         </TabsList>

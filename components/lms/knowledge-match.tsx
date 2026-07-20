@@ -43,8 +43,9 @@ export function KnowledgeMatch({ question }: { question: MatchingQuestion }) {
 
   if (!isMounted) return null
 
+  const pairsArray = Array.isArray(question?.pairs) ? question.pairs : []
   const pool = shuffledRight.filter(r => !answers.some(a => a.right === r))
-  const isComplete = answers.length === question.pairs.length
+  const isComplete = answers.length === pairsArray.length
 
   const handleDragStart = (e: React.DragEvent, rightItem: string, sourceLeft?: string) => {
     if (isSubmitted) {

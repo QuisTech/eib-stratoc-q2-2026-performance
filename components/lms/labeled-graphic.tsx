@@ -21,7 +21,7 @@ export function LabeledGraphic({ data }: { data: LabeledGraphicData }) {
           className="w-full h-auto block"
         />
 
-        {data.hotspots?.map((hotspot, i) => (
+        {Array.isArray(data.hotspots) && data.hotspots.map((hotspot, i) => (
           <button
             key={hotspot.id || i}
             onClick={() => setActiveHotspot(hotspot)}
