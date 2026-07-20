@@ -1,7 +1,7 @@
 import { getSessionUser } from "@/app/actions/auth"
 import { headers } from "next/headers"
 import { isSuperAdminEmail } from "@/lib/access-control"
-import { streamObject } from "ai"
+import { streamText } from "ai"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { courseSchema } from "@/lib/lms-schema"
 
@@ -28,6 +28,10 @@ CRITICAL RULE: NEVER use the terms "EIB Group", "DCI", "BLACK", "Giga Forensics"
 
 export async function POST(req: Request) {
   // bypassed
+
+  if (!process.env.GEMINI_API_KEY && !process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
+    return new Response(JSON.stringify({ error: "API_KEY_MISSING", details: "No Gemini API Key is configured in Vercel Environment Variables." }), { status: 500, headers: { 'Content-Type': 'application/json' } })
+  }
 
   const { title, category, customContext, existingLessons, existingQuiz, action } = await req.json()
   const isAppendMode = action === "append_lesson" || (existingLessons && existingLessons.length > 0 && !action)
@@ -78,26 +82,27 @@ Requirements:
   } else {
     prompt = `${EIB_GROUP_CONTEXT}
 
-You are a corporate training expert creating curriculum for the Nigerian conglomerate described above.
-Generate a highly detailed, rich, and substantive curriculum. You MUST generate AT LEAST 7 lessons (up to 10) to ensure comprehensive coverage of the topic, and a 10-question multiple choice quiz for a course titled "${title}" in the category of "${category}".
+You are generating a full course curriculum.
+Course Title: ${title}
+Category: ${category}
+${customInstructions}
 
 Requirements:
-- Content MUST be exceptionally rich, actionable, and substantive. Provide deep explanations, not just high-level fluff.
-- Each lesson must have detailed sections with real, practical information and robust paragraphs.
-- Each lesson must include key takeaways.
-- Include a 'knowledgeCheck' (drag-and-drop matching exercise) in at least 50% of the lessons to reinforce learning.
-- Quiz questions must test genuine understanding, not trivial facts.
-- Include exactly ONE 'matching' question in the final quiz, and the rest should be 'multiple_choice' questions.
-- All content must be relevant to the Nigerian corporate context.
-- CRITICAL: Do NOT use any subsidiary names in the content. Use generic terms like "the organization".
-- Do NOT mention the European Investment Bank or the EU anywhere.${customInstructions}`
+1. Generate a comprehensive course structure.
+2. You MUST generate 4 to 6 lessons.
+3. You MUST generate a 5-question multiple choice quiz at the end.
+4. Ensure the content is substantive but concise. Provide solid paragraphs for each section.
+5. Include a 'knowledgeCheck' in at least 1 or 2 of the lessons.
+6. OUTPUT ONLY RAW JSON. NO MARKDOWN BACKTICKS. NO EXPLANATIONS. EXACTLY MATCH THE REQUESTED SCHEMA.`
   }
 
   try {
-    const result = streamObject({
+    const result = streamText({
       model: google("gemini-2.5-flash"),
-      schema: courseSchema,
-      prompt: prompt,
+      prompt: `${prompt}\n\nIMPORTANT: YOU MUST RETURN ONLY VALID JSON MATCHING THIS EXACT SCHEMA:\n${JSON.stringify({
+        lessons: [{ key: "string", title: "string", minutes: "number", summary: "string", sections: [{ heading: "string", body: ["string"] }] }],
+        quiz: [{ type: "multiple_choice", id: "string", prompt: "string", explanation: "string" }]
+      }, null, 2)}\n\nDO NOT USE MARKDOWN BACKTICKS. RETURN RAW JSON ONLY.`,
       temperature: 0.7,
       providerOptions: {
         google: {
