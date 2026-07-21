@@ -209,15 +209,15 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
                     </span>
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        {enrolled ? (
+                        {enrolled && (allLessonsDone || quizPassed) ? (
                           <Link href={`/lms/${slug}/quiz`} className="font-medium hover:text-primary">
                             Final assessment
                           </Link>
                         ) : (
-                          <p className="font-medium">Final assessment</p>
+                          <p className={`font-medium ${enrolled ? 'text-muted-foreground' : ''}`}>Final assessment</p>
                         )}
                         <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                          {!enrolled && <Lock className="h-3 w-3" />}
+                          {!(enrolled && (allLessonsDone || quizPassed)) && <Lock className="h-3 w-3" />}
                           {quizPassed ? "Passed" : "Quiz"}
                         </span>
                       </div>
@@ -312,20 +312,32 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
                         : "Continue learning"}
                   </Link>
 
-                  <Link
-                    href={`/lms/${slug}/quiz`}
-                    className={buttonVariants({
-                      variant: allLessonsDone && !quizPassed ? "default" : "outline",
-                      size: "sm",
-                    })}
-                  >
-                    <ClipboardCheck className="mr-2 h-4 w-4" />
-                    {quizPassed
-                      ? `Assessment passed (${bestPercent}%)`
-                      : attempts.length > 0
-                        ? "Retake assessment"
-                        : "Take assessment"}
-                  </Link>
+                  {(allLessonsDone || quizPassed) ? (
+                    <Link
+                      href={`/lms/${slug}/quiz`}
+                      className={buttonVariants({
+                        variant: allLessonsDone && !quizPassed ? "default" : "outline",
+                        size: "sm",
+                      })}
+                    >
+                      <ClipboardCheck className="mr-2 h-4 w-4" />
+                      {quizPassed
+                        ? `Assessment passed (${bestPercent}%)`
+                        : attempts.length > 0
+                          ? "Retake assessment"
+                          : "Take assessment"}
+                    </Link>
+                  ) : (
+                    <div
+                      className={buttonVariants({
+                        variant: "outline",
+                        size: "sm",
+                      }) + " opacity-50 cursor-not-allowed"}
+                    >
+                      <Lock className="mr-2 h-4 w-4" />
+                      Unlock assessment
+                    </div>
+                  )}
 
                   {certificate && (
                     <Link
