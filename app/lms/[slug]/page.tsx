@@ -301,7 +301,11 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
                     </div>
                   </div>
                   <Link 
-                    href={`/lms/${slug}#curriculum`}
+                    href={
+                      enrollment?.status === "completed" || completedKeys.size === 0
+                        ? `/lms/${slug}/learn/${lessons[0]?.key || ''}`
+                        : `/lms/${slug}/learn/${lessons.find(l => l.key && !completedKeys.has(l.key))?.key || lessons[0]?.key || ''}`
+                    }
                     className={buttonVariants({ size: "sm" })}
                   >
                     <PlayCircle className="mr-2 h-4 w-4" />
