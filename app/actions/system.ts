@@ -12,9 +12,27 @@ export async function runFirestoreQuotaScript() {
   try {
     let token = "";
     
-    // Use Personal GCloud User Credentials to bypass billing
-    if (process.env.GCLOUD_USER_CREDENTIALS) {
-      const creds = JSON.parse(process.env.GCLOUD_USER_CREDENTIALS);
+    let rawCreds = process.env.GCLOUD_USER_CREDENTIALS;
+    
+    // Fallback: Manually read from .env if Next.js/PM2 drops the variable
+    if (!rawCreds) {
+      try {
+        const fs = require('fs');
+        const envPath = require('path').resolve(process.cwd(), '.env');
+        if (fs.existsSync(envPath)) {
+          const envContent = fs.readFileSync(envPath, 'utf8');
+          const match = envContent.match(/GCLOUD_USER_CREDENTIALS=['"]?(\{.*?\})['"]?/);
+          if (match && match[1]) {
+            rawCreds = match[1];
+          }
+        }
+      } catch (e) {
+        console.error("Failed to read .env manually", e);
+      }
+    }
+
+    if (rawCreds) {
+      const creds = JSON.parse(rawCreds);
       const tokenResponse = await fetch("https://oauth2.googleapis.com/token", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -32,7 +50,7 @@ export async function runFirestoreQuotaScript() {
         throw new Error("Failed to refresh personal access token: " + JSON.stringify(tokenData));
       }
     } else {
-      throw new Error("GCLOUD_USER_CREDENTIALS environment variable is missing.");
+      throw new Error("GCLOUD_USER_CREDENTIALS environment variable is missing in both process.env and .env file.");
     }
 
     const projectId = process.env.FIREBASE_PROJECT_ID || 'eib-lms';
