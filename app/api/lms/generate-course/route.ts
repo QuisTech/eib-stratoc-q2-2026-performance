@@ -106,8 +106,8 @@ Requirements:
 
     const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
     
-    // Using Gemini 1.5 Flash as the quota limit has been increased
-    const aiModel = google("gemini-1.5-flash")
+    // Using Gemini 3.6 Flash as the quota limit has been increased
+    const aiModel = google("gemini-3.6-flash")
 
     const result = streamObject({
       model: aiModel,
