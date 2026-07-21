@@ -972,6 +972,19 @@ export async function adminUpdateUserName(userId: string, newName: string) {
   revalidatePath("/lms/admin")
 }
 
+export async function adminUpdateUserEmail(userId: string, newEmail: string) {
+  const user = await getSessionUser()
+  if (!user || !isSuperAdminEmail(user.email)) throw new Error("Forbidden")
+  
+  const { adminAuth } = await import("@/lib/firebase-admin")
+  await adminAuth.updateUser(userId, { email: newEmail.trim() })
+  await adminDb.collection("users").doc(userId).update({ email: newEmail.trim() })
+  
+  revalidateCacheTag(SESSION_USER_PROFILE_CACHE_TAG)
+  invalidateAdminCaches()
+  revalidatePath("/lms/admin")
+}
+
 export async function adminDeleteUser(userId: string) {
   const user = await getSessionUser()
   if (!user || !isSuperAdminEmail(user.email)) throw new Error("Forbidden")

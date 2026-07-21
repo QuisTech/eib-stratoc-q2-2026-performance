@@ -9,6 +9,7 @@ import { ResetQuizAttemptsButton } from "./reset-quiz-attempts-button"
 import { ResetPasswordButton } from "./reset-password-button"
 import { DeleteUserButton } from "./delete-user-button"
 import { EditNameButton } from "./edit-name-button"
+import { EditEmailButton } from "./edit-email-button"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 function initials(name: string) {
@@ -202,6 +203,7 @@ export function LearnerManagement({
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end">
                         <EditNameButton userId={l.id} userName={l.name} />
+                        <EditEmailButton userId={l.id} userEmail={l.email} />
                         <ResetQuizAttemptsButton userId={l.id} userName={l.name} enrolledCourses={l.enrolledCourses} />
                         <ResetPasswordButton userId={l.id} userName={l.name} />
                         {currentUserId !== l.id && <DeleteUserButton userId={l.id} userName={l.name} />}
