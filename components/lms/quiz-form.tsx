@@ -560,6 +560,11 @@ export function QuizForm({
         </>
       )}
       </>
+        <div className="mt-8 flex justify-center pb-8">
+          <Button asChild size="lg" className="w-full sm:w-auto font-medium shadow-sm">
+            <Link href={`/lms/${slug}`}>Return to Course Home</Link>
+          </Button>
+        </div>
       )}
       {!result && !isLockedOutByAttempts && !isLockedOutByTime && (
         <>

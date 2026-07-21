@@ -7,7 +7,9 @@ import { headers } from "next/headers"
 import {
   getCourseBySlug,
   getMyCourseLearningState,
+  getAdminCourseBySlug,
 } from "@/app/actions/lms"
+import { isSuperAdminEmail } from "@/lib/access-control"
 import { getLessons } from "@/lib/lms-content"
 import { Card, CardContent } from "@/components/ui/card"
 import { LessonCompleteButton } from "@/components/lms/lesson-complete-button"
@@ -49,9 +51,7 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
   const user = await getSessionUser();
   const session = user ? { user } : null
 
-  // Super Admins get the bleeding edge live data so they can test their edits immediately
-  const { getAdminCourseBySlug } = await import("@/app/actions/lms")
-  const isSuperAdmin = user && (await import("@/lib/access-control")).isSuperAdminEmail(user.email)
+  const isSuperAdmin = user && isSuperAdminEmail(user.email)
   const course = isSuperAdmin ? await getAdminCourseBySlug(slug) : await getCourseBySlug(slug)
   
   if (!course) notFound()
