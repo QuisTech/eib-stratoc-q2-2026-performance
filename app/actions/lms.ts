@@ -1,5 +1,6 @@
 "use server"
 
+import { cookies } from "next/headers"
 import { adminDb } from "@/lib/firebase-admin"
 import { FieldValue } from "firebase-admin/firestore"
 import {
@@ -147,7 +148,6 @@ function invalidateLearningState(userId: string, courseId?: number) {
 }
 
 async function markUserMutation() {
-  const { cookies } = await import("next/headers")
   const cookieStore = await cookies()
   cookieStore.set("lms_last_mutation", Date.now().toString(), { maxAge: 15 * 60 })
 }
@@ -502,7 +502,6 @@ export async function getMyCourseLearningState(courseId: number): Promise<MyCour
     const cached = await getCachedLearningState(userId, courseId)
     
     // Verify with distributed mutation cookie to avoid stale reads across serverless functions
-    const { cookies } = await import("next/headers")
     const cookieStore = await cookies()
     const lastMutation = Number(cookieStore.get("lms_last_mutation")?.value || 0)
     
