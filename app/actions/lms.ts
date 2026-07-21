@@ -47,9 +47,16 @@ function parseSafeDate(val: any): Date {
 }
 
 async function getUserId() {
-  const user = await getSessionUser()
-  if (!user) throw new Error("Unauthorized")
-  return user.id
+  try {
+    const user = await getSessionUser()
+    if (!user) throw new Error("Unauthorized")
+    return user.id
+  } catch (error) {
+    console.error("Failed to get user ID:", error)
+    // Return null instead of throwing, let the caller handle it?
+    // Wait, the user snippet throws the error
+    throw error
+  }
 }
 
 export async function promoteMeToAdmin() {
@@ -488,22 +495,20 @@ export type MyCourseLearningState = {
 }
 
 export async function getMyCourseLearningState(courseId: number): Promise<MyCourseLearningState> {
-  const userId = await getUserId()
-
-  // ── Check composite cache first (zero Firestore reads on hit) ──
-  const cached = await getCachedLearningState(userId, courseId)
-  
-  // Verify with distributed mutation cookie to avoid stale reads across serverless functions
-  const { cookies } = await import("next/headers")
-  const cookieStore = await cookies()
-  const lastMutation = Number(cookieStore.get("lms_last_mutation")?.value || 0)
-  
-  if (cached && (!lastMutation || cached.createdAt >= lastMutation)) {
-    return cached.data
-  }
-
-  
   try {
+    const userId = await getUserId()
+
+    // ── Check composite cache first (zero Firestore reads on hit) ──
+    const cached = await getCachedLearningState(userId, courseId)
+    
+    // Verify with distributed mutation cookie to avoid stale reads across serverless functions
+    const { cookies } = await import("next/headers")
+    const cookieStore = await cookies()
+    const lastMutation = Number(cookieStore.get("lms_last_mutation")?.value || 0)
+    
+    if (cached && (!lastMutation || cached.createdAt >= lastMutation)) {
+      return cached.data
+    }
     const enrollments = await getEnrollmentsByUser(userId)
     const rawEnrollment = (enrollments || []).find((e: any) => Number(e.courseId) === Number(courseId))
     const enrollment = rawEnrollment ? (toCacheSafeValue(rawEnrollment) as Enrollment) : null
@@ -549,7 +554,8 @@ export async function getMyCourseLearningState(courseId: number): Promise<MyCour
     setCachedLearningState(userId, courseId, state)
     return state
   } catch (error) {
-    console.error("Firestore error while loading course learning state; serving empty fallback.", error)
+    console.error("Failed to load course learning state:", error)
+    // Return a safe fallback instead of throwing
     return {
       enrollment: null,
       completedLessonKeys: [],

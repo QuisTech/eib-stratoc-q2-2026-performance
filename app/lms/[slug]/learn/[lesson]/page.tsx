@@ -74,8 +74,8 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
     )
     if (!isVisible) notFound()
     const learningState = await getMyCourseLearningState(course.id)
-    enrollment = learningState.enrollment
-    completedKeys = new Set(learningState.completedLessonKeys)
+    enrollment = learningState?.enrollment ?? null
+    completedKeys = new Set(learningState?.completedLessonKeys ?? [])
   }
 
   const canAccess = isFreePreview || !!enrollment

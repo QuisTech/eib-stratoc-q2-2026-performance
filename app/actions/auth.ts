@@ -101,7 +101,9 @@ export async function getSessionUser() {
       subsidiary: userData.subsidiary,
     }
   } catch (error) {
-    return null
+    console.error("Failed to get session user:", error)
+    // DON'T return null - throw a specific error
+    throw new Error("SESSION_LOAD_FAILED")
   }
 }
 

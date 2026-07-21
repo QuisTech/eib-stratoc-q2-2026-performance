@@ -52,13 +52,16 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
   }
 
   const learningState = await getMyCourseLearningState(course.id)
-  const enrollment = learningState.enrollment
-  if (!enrollment) redirect(`/lms/${slug}`)
+  const enrollment = learningState?.enrollment ?? null
+
+  if (!enrollment) {
+    redirect(`/lms/${slug}`)
+  }
 
   const lessons = getLessons(course)
-  const completed = new Set(learningState.completedLessonKeys)
-  const remaining = lessons.filter((l) => !completed.has(l.key))
-  const attempts = learningState.quizAttempts
+  const completed = new Set(learningState?.completedLessonKeys ?? [])
+  const remaining = lessons.filter((l, i) => i >= 2 && !completed.has(l.key))
+  const attempts = learningState?.quizAttempts ?? []
   const alreadyPassed = attempts.some((a) => a.passed)
   
   const policy = getQuizPolicy(course)
