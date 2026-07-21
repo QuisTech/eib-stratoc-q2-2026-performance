@@ -102,15 +102,17 @@ Requirements:
   }
 
   try {
+    const promptWithJsonInstruction = prompt + "\n\nCRITICAL: Output ONLY raw JSON matching the schema. Do NOT wrap your response in markdown code blocks (e.g. ```json). Do not add any conversational text before or after."
+
     const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
     
     // We default to Groq if available since the current Gemini quota is returning RESOURCE_EXHAUSTED
-    const aiModel = process.env.GROQ_API_KEY ? groq("llama-3.1-70b-versatile") : google("gemini-2.5-flash")
+    const aiModel = process.env.GROQ_API_KEY ? groq("llama-3.1-70b-versatile") : google("gemini-1.5-pro")
 
     const result = streamObject({
       model: aiModel,
       schema: courseSchema,
-      prompt: prompt,
+      prompt: promptWithJsonInstruction,
       temperature: 0.7,
       providerOptions: {
         google: {
