@@ -5,7 +5,7 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { isSuperAdminEmail } from "@/lib/access-control"
 
-import { updateCourse } from "@/app/actions/lms"
+import { updateCourse, getAdminCourseBySlug } from "@/app/actions/lms"
 import { ImageUploadField } from "@/components/lms/image-upload-field"
 
 
@@ -24,8 +24,6 @@ export default async function EditCoursePage({
   const role = session.user.role as string
   const isSuperAdmin = isSuperAdminEmail(session.user.email)
   if (!isSuperAdmin && role !== "group_head" && role !== "lead") redirect("/lms")
-
-  const { getAdminCourseBySlug } = await import("@/app/actions/lms")
   const course = await getAdminCourseBySlug(slug)
   if (!course) redirect("/lms/admin")
   if (!isSuperAdmin && course.authorId !== session.user.id) redirect("/lms/admin")
