@@ -107,7 +107,7 @@ Requirements:
     const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
     
     // We default to Groq if available since the current Gemini quota is returning RESOURCE_EXHAUSTED
-    const aiModel = process.env.GROQ_API_KEY ? groq("llama-3.1-70b-versatile") : google("gemini-1.5-pro")
+    const aiModel = process.env.GROQ_API_KEY ? groq("llama-3.1-70b-versatile") : google("gemini-3.6-flash")
 
     const result = streamObject({
       model: aiModel,
