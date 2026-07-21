@@ -79,9 +79,9 @@ type PendingRequest<T> = {
 const resultCache = new Map<string, CacheEntry<any>>();
 const pendingRequests = new Map<string, PendingRequest<any>>();
 
-const DEFAULT_CACHE_TTL_MS = 60000; // 1 minute default
-const USER_QUERY_TTL_MS = 15 * 60 * 1000; // 15 minutes for user-scoped queries
-const COLLECTION_QUERY_TTL_MS = 120000; // 2 minutes for full collection queries
+const DEFAULT_CACHE_TTL_MS = 5000; // 5 seconds for request deduplication
+const USER_QUERY_TTL_MS = 5000; // 5 seconds for user-scoped queries (prevents stale reads across distributed workers)
+const COLLECTION_QUERY_TTL_MS = 15000; // 15 seconds for full collection queries
 const DEBUG_FIRESTORE_CACHE = process.env.FIRESTORE_CACHE_DEBUG === "true";
 
 // Cache statistics for debugging
