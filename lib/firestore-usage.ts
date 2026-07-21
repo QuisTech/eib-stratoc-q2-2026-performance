@@ -138,6 +138,9 @@ async function fetchMetricCount(projectId: string, token: string, metricType: st
 
   if (!response.ok) {
     const details = await response.text()
+    if (response.status === 403 && details.includes("requires billing to be enabled")) {
+      throw new Error("This project is on the free plan. Google Cloud requires a billing account (credit card) to be linked to view usage metrics via the Service Account. You will not be charged if you stay under the free quota.")
+    }
     throw new Error(`Monitoring API request failed: ${response.status} ${details}`)
   }
 
