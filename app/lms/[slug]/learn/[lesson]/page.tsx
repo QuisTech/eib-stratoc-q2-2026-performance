@@ -122,9 +122,11 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
               const done = completedKeys.has(l.key)
               const active = l.key === lessonKey
               
-              // Lessons 4 and beyond are locked if any required previous lesson (from index 2) isn't done
+              const isLessonFreePreview = i < 2 || !!l.isPreview
               let isLocked = false
-              if (enrollment && i >= 3) {
+              if (!enrollment && !isLessonFreePreview) {
+                isLocked = true
+              } else if (enrollment && i >= 3) {
                 for (let j = 2; j < i; j++) {
                   if (!completedKeys.has(lessons[j].key)) {
                     isLocked = true
@@ -167,16 +169,26 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
               )
             })}
             <li>
-              <Link
-                href={`/lms/${slug}/quiz`}
-                className="flex items-start gap-2.5 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted"
-              >
-                <Lock className="mt-0.5 h-4 w-4 shrink-0" />
-                <span>
-                  <span className="block text-xs text-muted-foreground">Final</span>
-                  Assessment
-                </span>
-              </Link>
+              {(!enrollment || !lessons.every(l => completedKeys.has(l.key))) ? (
+                <div className="flex items-start gap-2.5 rounded-md px-3 py-2 text-sm text-muted-foreground opacity-50 cursor-not-allowed">
+                  <Lock className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>
+                    <span className="block text-xs text-muted-foreground">Final</span>
+                    Assessment
+                  </span>
+                </div>
+              ) : (
+                <Link
+                  href={`/lms/${slug}/quiz`}
+                  className="flex items-start gap-2.5 rounded-md px-3 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted"
+                >
+                  <Lock className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>
+                    <span className="block text-xs text-muted-foreground">Final</span>
+                    Assessment
+                  </span>
+                </Link>
+              )}
             </li>
           </ol>
         </aside>
