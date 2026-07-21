@@ -278,16 +278,24 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
           )}
 
           <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6">
-            {index > 0 ? (
+            <div className="flex items-center gap-4">
+              {index > 0 ? (
+                <Link
+                  href={`/lms/${slug}/learn/${lessons[index - 1].key}`}
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                >
+                  ← Previous lesson
+                </Link>
+              ) : (
+                <span />
+              )}
               <Link
-                href={`/lms/${slug}/learn/${lessons[index - 1].key}`}
-                className="text-sm text-muted-foreground hover:text-foreground"
+                href={`/lms/${slug}`}
+                className="text-sm text-muted-foreground hover:text-foreground hidden sm:inline-block"
               >
-                ← Previous lesson
+                Return to Course Home
               </Link>
-            ) : (
-              <span />
-            )}
+            </div>
             {enrollment ? (
               <LessonCompleteButton
                 courseId={course.id}
