@@ -386,7 +386,7 @@ export async function enrollInCourse(courseId: number) {
   }
   invalidateAdminCaches()
   revalidatePath("/lms")
-  revalidatePath("/lms/[slug]", "page")
+  revalidatePath("/lms/[slug]", "layout")
 }
 
 export async function unenrollFromCourse(courseId: number) {
@@ -415,7 +415,7 @@ export async function unenrollFromCourse(courseId: number) {
   await markUserMutation()
   invalidateAdminCaches()
   revalidatePath("/lms")
-  revalidatePath("/lms/[slug]", "page")
+  revalidatePath("/lms/[slug]", "layout")
 }
 
 export async function getMyLessonProgress(courseId: number): Promise<string[]> {
@@ -438,7 +438,7 @@ export async function completeLesson(courseId: number, lessonKey: string) {
   await markUserMutation()
   await recomputeCourseProgress(userId, courseId)
   revalidatePath("/lms")
-  revalidatePath("/lms/[slug]", "page")
+  revalidatePath("/lms/[slug]", "layout")
 }
 
 export async function getMyQuizAttempts(courseId: number): Promise<QuizAttempt[]> {
@@ -472,7 +472,7 @@ export async function submitQuiz(courseId: number, answers: any[], seed?: number
   invalidateLearningState(userId, courseId)
   await recomputeCourseProgress(userId, courseId)
   revalidatePath("/lms")
-  revalidatePath("/lms/[slug]", "page")
+  revalidatePath("/lms/[slug]", "layout")
   return result
 }
 
