@@ -1247,3 +1247,15 @@ export async function getAdminUserDetail(userId: string) {
     activity
   }
 }
+
+export async function adminUpdateUserRole(userId: string, newRole: string) {
+  const sessionUser = await getSessionUser()
+  if (!sessionUser) throw new Error("Unauthorized")
+
+  if (!isSuperAdminEmail(sessionUser.email)) {
+    throw new Error("Only Super Admins can update user roles.")
+  }
+
+  const { updateUserDoc } = await import("./auth")
+  await updateUserDoc(userId, { role: newRole })
+}
