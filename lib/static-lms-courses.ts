@@ -1,6 +1,10 @@
 import type { Course } from "@/lib/types"
 
-export type StaticLmsCourse = Omit<Course, "createdAt" | "updatedAt"> & {
+export type StaticLmsCourse = Omit<Course, "createdAt" | "updatedAt" | "initiative" | "videoUrl" | "imageUrl" | "customContent"> & {
+  initiative?: number | null
+  videoUrl?: string | null
+  imageUrl?: string | null
+  customContent?: string | null
   createdAt: string | Date
   updatedAt: string | Date
 }
@@ -1844,6 +1848,10 @@ export const STATIC_LMS_COURSE_DATA: StaticLmsCourse[] = [
 function hydrateCourse(course: StaticLmsCourse): Course {
   return {
     ...course,
+    initiative: course.initiative ?? null,
+    videoUrl: course.videoUrl ?? null,
+    imageUrl: course.imageUrl ?? null,
+    customContent: course.customContent ?? null,
     createdAt: course.createdAt instanceof Date ? course.createdAt : new Date(course.createdAt),
     updatedAt: course.updatedAt instanceof Date ? course.updatedAt : new Date(course.updatedAt),
   }

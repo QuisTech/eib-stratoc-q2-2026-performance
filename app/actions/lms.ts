@@ -97,60 +97,6 @@ function invalidateCache(key?: string) {
   else cache.clear()
 }
 
-// ── Composite learning state cache (15 min TTL) ──
-// Caches the fully-assembled MyCourseLearningState per user+course.
-// This is the key optimization: a user clicking through 8 lessons
-// only pays 1 Firestore read (the first page load). All subsequent
-// navigations read from this cache until it expires or is invalidated.
-const LEARNING_STATE_TTL_MS = 15 * 60 * 1000 // 15 minutes
-const learningStateCache = new Map<string, { data: any; expiresAt: number; createdAt: number }>()
-
-function getLearningStateCacheKey(userId: string, courseId: number) {
-  return `ls:${userId}:${courseId}`
-}
-
-async function getCachedLearningState(userId: string, courseId: number): Promise<any | null> {
-  const { cookies } = await import("next/headers")
-  const cookieStore = await cookies()
-  const lastMutation = Number(cookieStore.get("lms_last_mutation")?.value || 0)
-
-  const key = getLearningStateCacheKey(userId, courseId)
-  const entry = learningStateCache.get(key)
-  
-  if (entry && Date.now() < entry.expiresAt && entry.createdAt > lastMutation) {
-    return entry.data
-  }
-  
-  learningStateCache.delete(key)
-  return null
-}
-
-function setCachedLearningState(userId: string, courseId: number, state: any) {
-  const key = getLearningStateCacheKey(userId, courseId)
-  learningStateCache.set(key, { 
-    data: state, 
-    expiresAt: Date.now() + LEARNING_STATE_TTL_MS,
-    createdAt: Date.now()
-  })
-}
-
-function invalidateLearningState(userId: string, courseId?: number) {
-  if (courseId != null) {
-    learningStateCache.delete(getLearningStateCacheKey(userId, courseId))
-  } else {
-    // Invalidate all learning states for this user
-    for (const key of learningStateCache.keys()) {
-      if (key.startsWith(`ls:${userId}:`)) {
-        learningStateCache.delete(key)
-      }
-    }
-  }
-}
-
-async function markUserMutation() {
-  const cookieStore = await cookies()
-  cookieStore.set("lms_last_mutation", Date.now().toString(), { maxAge: 15 * 60 })
-}
 
 function isFirestoreQuotaError(error: unknown) {
   const err = error as { code?: string | number; message?: string; details?: string }
@@ -380,8 +326,8 @@ export async function enrollInCourse(courseId: number) {
       enrollmentCount: FieldValue.increment(1)
     }).catch(e => console.error("Failed to increment enrollmentCount", e))
     invalidateUserCourseCaches(userId, courseId)
-    invalidateLearningState(userId, courseId)
-    await markUserMutation()
+    revalidateCacheTag(`lms-state-${userId}-${courseId}`)
+
     await recomputeCourseProgress(userId, courseId)
   }
   invalidateAdminCaches()
@@ -411,8 +357,8 @@ export async function unenrollFromCourse(courseId: number) {
     enrollmentCount: FieldValue.increment(-1)
   }).catch(e => console.error("Failed to decrement enrollmentCount", e))
   invalidateUserCourseCaches(userId, courseId)
-  invalidateLearningState(userId, courseId)
-  await markUserMutation()
+  revalidateCacheTag(`lms-state-${userId}-${courseId}`)
+
   invalidateAdminCaches()
   revalidatePath("/lms")
   revalidatePath("/lms/[slug]", "layout")
@@ -434,8 +380,8 @@ export async function completeLesson(courseId: number, lessonKey: string) {
     completedAt: new Date()
   }, { merge: true })
   invalidateUserCourseCaches(userId, courseId)
-  invalidateLearningState(userId, courseId)
-  await markUserMutation()
+  revalidateCacheTag(`lms-state-${userId}-${courseId}`)
+
   await recomputeCourseProgress(userId, courseId)
   revalidatePath("/lms")
   revalidatePath("/lms/[slug]", "layout")
@@ -469,7 +415,7 @@ export async function submitQuiz(courseId: number, answers: any[], seed?: number
   })
 
   invalidateUserCourseCaches(userId, courseId)
-  invalidateLearningState(userId, courseId)
+  revalidateCacheTag(`lms-state-${userId}-${courseId}`)
   await recomputeCourseProgress(userId, courseId)
   revalidatePath("/lms")
   revalidatePath("/lms/[slug]", "layout")
@@ -498,64 +444,60 @@ export async function getMyCourseLearningState(courseId: number): Promise<MyCour
   try {
     const userId = await getUserId()
 
-    // ── Check composite cache first (zero Firestore reads on hit) ──
-    const cached = await getCachedLearningState(userId, courseId)
-    
-    // Verify with distributed mutation cookie to avoid stale reads across serverless functions
-    const cookieStore = await cookies()
-    const lastMutation = Number(cookieStore.get("lms_last_mutation")?.value || 0)
-    
-    if (cached && (!lastMutation || cached.createdAt >= lastMutation)) {
-      return cached.data
-    }
-    const enrollments = await getEnrollmentsByUser(userId)
-    const rawEnrollment = (enrollments || []).find((e: any) => Number(e.courseId) === Number(courseId))
-    const enrollment = rawEnrollment ? (toCacheSafeValue(rawEnrollment) as Enrollment) : null
+    // ── Distributed Next.js Data Cache (Zero Firestore reads on hit) ──
+    const getCachedState = unstable_cache(
+      async (uid: string, cid: number) => {
+        const enrollments = await getEnrollmentsByUser(uid)
+        const rawEnrollment = (enrollments || []).find((e: any) => Number(e.courseId) === Number(cid))
+        const enrollment = rawEnrollment ? (toCacheSafeValue(rawEnrollment) as Enrollment) : null
 
-    if (!enrollment) {
-      const emptyState: MyCourseLearningState = {
-        enrollment: null,
-        completedLessonKeys: [],
-        quizAttempts: [],
-        certificate: null,
+        if (!enrollment) {
+          // If not enrolled, return empty state.
+          // Note: Because we use revalidateTag on enrollment changes, it is now safe
+          // to cache the empty state, saving reads if they repeatedly view the course overview!
+          return {
+            enrollment: null,
+            completedLessonKeys: [],
+            quizAttempts: [],
+            certificate: null,
+          }
+        }
+
+        const [progress, attempts, certificates] = await Promise.all([
+          getLessonProgressByUser(uid, cid),
+          getQuizAttemptsByUser(uid, cid),
+          getCertificatesByUser(uid, cid),
+        ])
+
+        const quizAttempts = ((attempts || []).map((d: any) => ({
+          ...d,
+          createdAt: parseSafeDate(d.createdAt),
+        })) as QuizAttempt[]).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+
+        const certificate = certificates?.[0]
+          ? ({
+              ...certificates[0],
+              issuedAt: parseSafeDate(certificates[0].issuedAt),
+            } as Certificate)
+          : null
+
+        return {
+          enrollment,
+          completedLessonKeys: (progress || []).map((p: any) => p.lessonKey),
+          quizAttempts,
+          certificate,
+        }
+      },
+      [`ls-${userId}-${courseId}`],
+      {
+        tags: [`lms-state-${userId}-${courseId}`],
+        revalidate: 15 * 60, // 15 minutes globally
       }
-      // We deliberately DO NOT cache the empty state in the 15-minute cache.
-      // Caching an empty state aggressively leads to race conditions where a user
-      // enrolls but a background prefetch locks them out for 15 minutes.
-      return emptyState
-    }
+    )
 
-    const [progress, attempts, certificates] = await Promise.all([
-      getLessonProgressByUser(userId, courseId),
-      getQuizAttemptsByUser(userId, courseId),
-      getCertificatesByUser(userId, courseId),
-    ])
-
-    const quizAttempts = ((attempts || []).map((d: any) => ({
-      ...d,
-      createdAt: parseSafeDate(d.createdAt),
-    })) as QuizAttempt[]).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-
-    const certificate = certificates?.[0]
-      ? ({
-          ...certificates[0],
-          issuedAt: parseSafeDate(certificates[0].issuedAt),
-        } as Certificate)
-      : null
-
-    const state: MyCourseLearningState = {
-      enrollment,
-      completedLessonKeys: (progress || []).map((p: any) => p.lessonKey),
-      quizAttempts,
-      certificate,
-    }
-
-    // ── Save to composite cache ──
-    setCachedLearningState(userId, courseId, state)
-    return state
+    return await getCachedState(userId, courseId)
   } catch (error) {
     console.error("Failed to load course learning state:", error)
-    // Return a safe fallback instead of throwing
     return {
       enrollment: null,
       completedLessonKeys: [],
@@ -638,7 +580,7 @@ export async function recomputeCourseProgress(userId: string, courseId: number) 
     })
   }
   invalidateUserCourseCaches(userId, courseId)
-  invalidateLearningState(userId, courseId)
+  revalidateCacheTag(`lms-state-${userId}-${courseId}`)
 }
 
 export type LearnerReportRow = {
@@ -942,7 +884,7 @@ export async function autoEnrollOnboarding(subsidiary: string) {
           enrollmentCount: FieldValue.increment(1)
         }).catch(e => console.error("Failed to increment auto-enrollment count", e))
         invalidateUserCourseCaches(userId, courseId)
-        invalidateLearningState(userId, courseId)
+        revalidateCacheTag(`lms-state-${userId}-${courseId}`)
       }
     }
     invalidateAdminCaches()
