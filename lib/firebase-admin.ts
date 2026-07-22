@@ -67,7 +67,7 @@ export const adminAuth = authAdmin as Auth;
 // 3. Batching common patterns (e.g., user-scoped queries)
 
 type CacheEntry<T> = {
-  data: T | null;
+  data: T;
   expires: number;
 };
 
@@ -141,7 +141,7 @@ async function deduplicatedQuery<T>(
   key: string,
   fetcher: () => Promise<T>,
   ttlMs: number = DEFAULT_CACHE_TTL_MS
-): Promise<T | null> {
+): Promise<T> {
   const now = Date.now();
 
   // 1. Check if result is cached and not expired
