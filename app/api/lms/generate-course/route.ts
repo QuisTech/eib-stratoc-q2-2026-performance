@@ -99,7 +99,7 @@ Category: ${category}
 ${customInstructions}
 
 Requirements:
-1. Generate a comprehensive course structure with exactly 4 to 6 lessons.
+1. Generate a comprehensive course structure with EXACTLY 10 highly detailed lessons.
 2. You MUST generate a 5-question multiple choice quiz at the end.
 3. CRITICAL DEPTH REQUIREMENT: The content MUST be extremely detailed, expert-level, and highly technical or strategic depending on the topic. 
 4. DO NOT write generic fluff or basic definitions. Assume the learner already understands the basics. Dive straight into advanced concepts, case studies, specific methodologies, and real-world execution.
