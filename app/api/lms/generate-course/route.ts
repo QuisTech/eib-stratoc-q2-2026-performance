@@ -87,6 +87,7 @@ Requirements:
 - VOLUMINOUS REQUIREMENT: Provide highly voluminous, dense, and exceptionally long substantive paragraphs for each section. Maximize the breadth and depth of domains covered.
 - Include detailed sections with real, practical information and robust paragraphs.
 - Include key takeaways.
+- INTERACTIVE TABS REQUIREMENT: You MUST include an "interactiveTabs" array to create a "Deep Dive" tabbed UI for this lesson. This should contain 2-4 tabs exploring specific sub-topics, frameworks, or case studies in extreme detail.
 - All content must be relevant to the Nigerian corporate context.
 - CRITICAL: Do NOT use any subsidiary names. Use generic terms like "the organization".
 - Do NOT mention the European Investment Bank or the EU anywhere.${customInstructions}`
@@ -105,7 +106,8 @@ Requirements:
 4. DO NOT write generic fluff or basic definitions. Assume the learner already understands the basics. Dive straight into advanced concepts, case studies, specific methodologies, and real-world execution.
 5. VOLUMINOUS REQUIREMENT: Provide highly voluminous, dense, and exceptionally long substantive paragraphs for each section. Maximize the breadth and depth of domains covered.
 6. Include a 'knowledgeCheck' in at least 1 or 2 of the lessons.
-7. QUIZ ANTI-CHEAT REQUIREMENT: For all quiz questions, do NOT make the correct answer the longest option. All options MUST be approximately the exact same length and structure to prevent length-bias guessing. All distractors must be highly plausible, confusing, and require deep reasoning to distinguish.`
+7. QUIZ ANTI-CHEAT REQUIREMENT: For all quiz questions, do NOT make the correct answer the longest option. All options MUST be approximately the exact same length and structure to prevent length-bias guessing. All distractors must be highly plausible, confusing, and require deep reasoning to distinguish.
+8. INTERACTIVE TABS REQUIREMENT: For at least 3 to 4 lessons, include an "interactiveTabs" array to create a "Deep Dive" tabbed UI. This should contain 2-4 tabs exploring specific sub-topics, frameworks, or case studies in extreme detail.`
   }
 
   try {
@@ -123,7 +125,17 @@ Requirements:
           "body": ["Paragraph 1...", "Paragraph 2..."]
         }
       ],
-      "takeaways": ["Takeaway 1", "Takeaway 2"]
+      "takeaways": ["Takeaway 1", "Takeaway 2"],
+      "interactiveTabs": [
+        {
+          "tabTitle": "Tab 1 Title",
+          "content": "Deep dive content for Tab 1..."
+        },
+        {
+          "tabTitle": "Tab 2 Title",
+          "content": "Deep dive content for Tab 2..."
+        }
+      ]
     }
   ],
   "quiz": [
