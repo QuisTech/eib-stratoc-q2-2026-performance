@@ -67,20 +67,20 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
     if (streamError) setError(streamError.message)
   }, [streamError])
 
-  function handleGenerateWithGemini() {
+  async function handleGenerateWithGemini() {
     appendMode.current = "none"
     setError(null)
-    submit({
+    await submit({
       title: course.title,
       category: course.category || "General",
       customContext: customContext || undefined
     })
   }
 
-  function handleAppendWithGemini() {
+  async function handleAppendWithGemini() {
     appendMode.current = "lesson"
     setError(null)
-    submit({
+    await submit({
       title: course.title,
       category: course.category || "General",
       customContext: customContext || undefined,
@@ -89,10 +89,10 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
     })
   }
 
-  function handleAppendQuizWithGemini() {
+  async function handleAppendQuizWithGemini() {
     appendMode.current = "quiz"
     setError(null)
-    submit({
+    await submit({
       title: course.title,
       category: course.category || "General",
       customContext: customContext || undefined,
