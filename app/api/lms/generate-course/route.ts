@@ -1,7 +1,7 @@
 import { getSessionUser } from "@/app/actions/auth"
 import { headers } from "next/headers"
 import { isSuperAdminEmail } from "@/lib/access-control"
-import { streamObject } from "ai"
+import { generateText } from "ai"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { createGroq } from "@ai-sdk/groq"
 import { courseSchema } from "@/lib/lms-schema"
