@@ -102,7 +102,34 @@ Requirements:
   }
 
   try {
-    const promptWithJsonInstruction = prompt + "\n\nCRITICAL: Output ONLY raw JSON matching the schema. Do NOT wrap your response in markdown code blocks (e.g. ```json). Do not add any conversational text before or after."
+    const promptWithJsonInstruction = prompt + `\n\nCRITICAL: Output ONLY valid JSON. You MUST use this exact structure, including all keys and ensuring arrays are used where specified:
+{
+  "lessons": [
+    {
+      "key": "lesson-1-unique-id",
+      "title": "Lesson Title",
+      "minutes": 15,
+      "summary": "Short summary...",
+      "sections": [
+        {
+          "heading": "Section Heading",
+          "body": ["Paragraph 1...", "Paragraph 2..."]
+        }
+      ],
+      "takeaways": ["Takeaway 1", "Takeaway 2"]
+    }
+  ],
+  "quiz": [
+    {
+      "type": "multiple_choice",
+      "id": "q1",
+      "prompt": "Question prompt?",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correctIndex": 0,
+      "explanation": "Detailed explanation..."
+    }
+  ]
+}`
 
     const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
     
@@ -114,7 +141,7 @@ Requirements:
       schema: courseSchema,
       mode: "json",
       prompt: promptWithJsonInstruction,
-      temperature: 0.7,
+      temperature: 0.2, // Lower temperature to improve schema adherence
     })
 
     return result.toTextStreamResponse()
