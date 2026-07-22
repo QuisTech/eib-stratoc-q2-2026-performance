@@ -519,8 +519,9 @@ export async function getMyCourseLearningState(courseId: number): Promise<MyCour
         quizAttempts: [],
         certificate: null,
       }
-      // Cache empty state too — prevents re-querying for non-enrolled courses
-      setCachedLearningState(userId, courseId, emptyState)
+      // We deliberately DO NOT cache the empty state in the 15-minute cache.
+      // Caching an empty state aggressively leads to race conditions where a user
+      // enrolls but a background prefetch locks them out for 15 minutes.
       return emptyState
     }
 
