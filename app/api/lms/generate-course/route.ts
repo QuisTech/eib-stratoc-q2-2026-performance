@@ -64,6 +64,9 @@ Requirements:
 - Generate exactly 10 questions inside the "quiz" array. 
 - Do NOT generate any lessons.
 - Include a detailed explanation for every question.
+- CRITICAL ANTI-CHEAT REQUIREMENT: Do NOT make the correct answer the longest option. All options (A, B, C, D) MUST be approximately the exact same length and structure to prevent length-bias guessing.
+- DISTRACTOR QUALITY: All wrong options must be highly plausible, convincing, and confusing distractors that require deep conceptual understanding to distinguish. Do not use obvious throwaway answers.
+- The correct answer must require intelligent reasoning, not just recalling a basic definition.
 - All content must be relevant to the Nigerian corporate context.
 - CRITICAL: Do NOT use any subsidiary names. Use generic terms like "the organization".
 - Do NOT mention the European Investment Bank or the EU anywhere.${customInstructions}`
@@ -100,7 +103,8 @@ Requirements:
 3. CRITICAL DEPTH REQUIREMENT: The content MUST be extremely detailed, expert-level, and highly technical or strategic depending on the topic. 
 4. DO NOT write generic fluff or basic definitions. Assume the learner already understands the basics. Dive straight into advanced concepts, case studies, specific methodologies, and real-world execution.
 5. VOLUMINOUS REQUIREMENT: Provide highly voluminous, dense, and exceptionally long substantive paragraphs for each section. Maximize the breadth and depth of domains covered.
-6. Include a 'knowledgeCheck' in at least 1 or 2 of the lessons.`
+6. Include a 'knowledgeCheck' in at least 1 or 2 of the lessons.
+7. QUIZ ANTI-CHEAT REQUIREMENT: For all quiz questions, do NOT make the correct answer the longest option. All options MUST be approximately the exact same length and structure to prevent length-bias guessing. All distractors must be highly plausible, confusing, and require deep reasoning to distinguish.`
   }
 
   try {
