@@ -106,24 +106,15 @@ Requirements:
 
     const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
     
-    // Using Gemini 3.6 Flash as the quota limit has been increased
-    const aiModel = google("gemini-3.6-flash")
+    // Switch to Groq llama-3.3-70b-versatile with mode: 'json' as Gemini hit billing limit
+    const aiModel = groq("llama-3.3-70b-versatile")
 
     const result = streamObject({
       model: aiModel,
       schema: courseSchema,
+      mode: "json",
       prompt: promptWithJsonInstruction,
       temperature: 0.7,
-      providerOptions: {
-        google: {
-          safetySettings: [
-            { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
-            { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
-            { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
-            { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" },
-          ]
-        }
-      }
     })
 
     return result.toTextStreamResponse()
