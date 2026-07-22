@@ -1,7 +1,7 @@
 import { getSessionUser } from "@/app/actions/auth"
 import { headers } from "next/headers"
 import { isSuperAdminEmail } from "@/lib/access-control"
-import { generateText } from "ai"
+import { generateObject } from "ai"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { createGroq } from "@ai-sdk/groq"
 import { courseSchema } from "@/lib/lms-schema"
@@ -89,6 +89,7 @@ Requirements:
 - Include key takeaways.
 - All content must be relevant to the Nigerian corporate context.
 - CRITICAL: Do NOT use any subsidiary names. Use generic terms like "the organization".
+- Do NOT mention the European Investment Bank or the EU anywhere.${customInstructions}`
   } else {
     prompt = `${EIB_GROUP_CONTEXT}
 
@@ -142,27 +143,14 @@ Requirements:
     // Switch to Groq llama-3.3-70b-versatile as Gemini hit billing limit
     const aiModel = groq("llama-3.3-70b-versatile")
 
-    const result = await generateText({
+    const result = await generateObject({
       model: aiModel,
       prompt: promptWithJsonInstruction,
-      temperature: 0.5, // Allow richer vocabulary while keeping schema adherence
-      maxTokens: 8000,  // Maximize allowed tokens for voluminous generation
+      temperature: 0.3, // Slightly reduced temperature for better syntax adherence
+      output: 'no-schema',
     })
 
-    let cleaned = result.text.trim();
-    if (cleaned.startsWith("```")) {
-      cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, "").replace(/\n?```\s*$/, "");
-    }
-    
-    let parsed;
-    try {
-      parsed = JSON.parse(cleaned);
-    } catch (e: any) {
-      console.error("Failed to parse JSON from AI:", cleaned);
-      return new Response(JSON.stringify({ error: `Invalid JSON from AI: ${e.message}` }), { status: 500, headers: { 'Content-Type': 'application/json' } });
-    }
-
-    return new Response(JSON.stringify(parsed), { headers: { 'Content-Type': 'application/json' } })
+    return new Response(JSON.stringify(result.object), { headers: { 'Content-Type': 'application/json' } })
   } catch (err: any) {
     console.error("AI Generation Error:", err)
     return new Response(JSON.stringify({ error: err.message || "Failed to generate course content." }), { status: 500, headers: { 'Content-Type': 'application/json' } })
