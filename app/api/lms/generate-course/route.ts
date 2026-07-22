@@ -133,18 +133,29 @@ Requirements:
 
     const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
     
-    // Switch to Groq llama-3.3-70b-versatile with mode: 'json' as Gemini hit billing limit
+    // Switch to Groq llama-3.3-70b-versatile as Gemini hit billing limit
     const aiModel = groq("llama-3.3-70b-versatile")
 
-    const result = streamObject({
+    const result = await generateText({
       model: aiModel,
-      schema: courseSchema,
-      mode: "json",
       prompt: promptWithJsonInstruction,
       temperature: 0.2, // Lower temperature to improve schema adherence
     })
 
-    return result.toTextStreamResponse()
+    let cleaned = result.text.trim();
+    if (cleaned.startsWith("```")) {
+      cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, "").replace(/\n?```\s*$/, "");
+    }
+    
+    let parsed;
+    try {
+      parsed = JSON.parse(cleaned);
+    } catch (e: any) {
+      console.error("Failed to parse JSON from AI:", cleaned);
+      return new Response(JSON.stringify({ error: `Invalid JSON from AI: ${e.message}` }), { status: 500, headers: { 'Content-Type': 'application/json' } });
+    }
+
+    return new Response(JSON.stringify(parsed), { headers: { 'Content-Type': 'application/json' } })
   } catch (err: any) {
     console.error("AI Generation Error:", err)
     return new Response(JSON.stringify({ error: err.message || "Failed to generate course content." }), { status: 500, headers: { 'Content-Type': 'application/json' } })

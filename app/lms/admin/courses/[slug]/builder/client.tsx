@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { saveCustomCourseContent } from "@/app/actions/lms"
 import { ArrowLeft, Plus, Trash2, Save, Loader2, HelpCircle, Sparkles, Square } from "lucide-react"
-import { experimental_useObject as useObject } from "@ai-sdk/react"
+
 import Link from "next/link"
 import { GraphicBuilder } from "@/components/lms/graphic-builder"
 import { courseSchema } from "@/lib/lms-schema"
@@ -32,83 +32,82 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
 
   const appendMode = useRef<"none" | "lesson" | "quiz">("none")
 
-  const { object, submit, isLoading, stop, error: streamError } = useObject({
-    api: "/api/lms/generate-course",
-    schema: courseSchema,
-    onFinish: ({ object }) => {
-      // @ts-ignore - error is dynamically added to schema for debugging
-      if (object?.error) {
-        // @ts-ignore
-        setError(`Server Error: ${object.error}`)
-        return
+  const [isGenerating, setIsGenerating] = useState(false)
+  
+  async function submitGeneration(payload: any, mode: "none" | "lesson" | "quiz") {
+    setIsGenerating(true)
+    setError(null)
+    appendMode.current = mode
+    
+    try {
+      const response = await fetch("/api/lms/generate-course", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      
+      const data = await response.json()
+      
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to generate content.")
       }
-
-      if (!object?.lessons?.length && !object?.quiz?.length) {
-        setError("AI returned an empty response. The content may have been blocked by safety filters or there is a configuration error.")
-        return
+      
+      if (data.error) {
+        throw new Error(`Server Error: ${data.error}`)
       }
-
-      if (object?.lessons && appendMode.current === "lesson") {
-        setLessons((prev) => [...prev, ...object.lessons!])
-      } else if (object?.quiz && appendMode.current === "quiz") {
-        setQuiz((prev) => [...prev, ...object.quiz!])
-      } else if (appendMode.current === "none") {
-        if (object?.lessons) setLessons(object.lessons)
-        if (object?.quiz) setQuiz(object.quiz)
+      
+      if (!data.lessons?.length && !data.quiz?.length) {
+        throw new Error("AI returned an empty response. The content may have been blocked by safety filters or there is a configuration error.")
       }
-    },
-    onError: (err) => {
-      console.error("useObject error:", err)
-      setError(err?.message || "AI Stream Error: Failed to generate content.")
+      
+      if (data.lessons && mode === "lesson") {
+        setLessons((prev) => [...prev, ...data.lessons])
+      } else if (data.quiz && mode === "quiz") {
+        setQuiz((prev) => [...prev, ...data.quiz])
+      } else if (mode === "none") {
+        if (data.lessons) setLessons(data.lessons)
+        if (data.quiz) setQuiz(data.quiz)
+      }
+    } catch (err: any) {
+      console.error("Generation error:", err)
+      setError(err.message || "Failed to generate content.")
+    } finally {
+      setIsGenerating(false)
     }
-  })
-
-  useEffect(() => {
-    if (streamError) setError(streamError.message)
-  }, [streamError])
+  }
 
   async function handleGenerateWithGemini() {
-    appendMode.current = "none"
-    setError(null)
-    await submit({
+    await submitGeneration({
       title: course.title,
       category: course.category || "General",
       customContext: customContext || undefined
-    })
+    }, "none")
   }
 
   async function handleAppendWithGemini() {
-    appendMode.current = "lesson"
-    setError(null)
-    await submit({
+    await submitGeneration({
       title: course.title,
       category: course.category || "General",
       customContext: customContext || undefined,
       existingLessons: lessons,
       action: "append_lesson"
-    })
+    }, "lesson")
   }
 
   async function handleAppendQuizWithGemini() {
-    appendMode.current = "quiz"
-    setError(null)
-    await submit({
+    await submitGeneration({
       title: course.title,
       category: course.category || "General",
       customContext: customContext || undefined,
       existingQuiz: quiz,
       action: "append_quiz"
-    })
+    }, "quiz")
   }
 
   // Determine what to display while generating vs resting
-  const displayLessons = isLoading && object?.lessons 
-    ? (appendMode.current === "lesson" ? [...lessons, ...object.lessons] : object.lessons)
-    : lessons
-
-  const displayQuiz = isLoading && object?.quiz 
-    ? (appendMode.current === "quiz" ? [...quiz, ...object.quiz] : object.quiz)
-    : quiz
+  const displayLessons = lessons
+  const displayQuiz = quiz
+  const isLoading = isGenerating
 
   async function handleSave() {
     setLoading(true)
