@@ -79,12 +79,12 @@ Your task is to generate EXACTLY ONE highly detailed, rich, and substantive NEW 
 
 Requirements:
 - Generate exactly ONE lesson inside the "lessons" array. Do NOT generate a quiz.
-- Content MUST be exceptionally rich, actionable, and substantive. Provide deep explanations.
+- CRITICAL DEPTH REQUIREMENT: Content MUST be exceptionally rich, expert-level, actionable, and highly technical or strategic depending on the topic. Provide deep, granular explanations.
+- DO NOT write generic fluff or basic definitions. Assume the learner already understands the basics. Dive straight into advanced concepts, case studies, specific methodologies, and real-world execution.
 - Include detailed sections with real, practical information and robust paragraphs.
 - Include key takeaways.
 - All content must be relevant to the Nigerian corporate context.
 - CRITICAL: Do NOT use any subsidiary names. Use generic terms like "the organization".
-- Do NOT mention the European Investment Bank or the EU anywhere.${customInstructions}`
   } else {
     prompt = `${EIB_GROUP_CONTEXT}
 
@@ -94,11 +94,12 @@ Category: ${category}
 ${customInstructions}
 
 Requirements:
-1. Generate a comprehensive course structure.
-2. You MUST generate 4 to 6 lessons.
-3. You MUST generate a 5-question multiple choice quiz at the end.
-4. Ensure the content is substantive but concise. Provide solid paragraphs for each section.
-5. Include a 'knowledgeCheck' in at least 1 or 2 of the lessons.`
+1. Generate a comprehensive course structure with exactly 4 to 6 lessons.
+2. You MUST generate a 5-question multiple choice quiz at the end.
+3. CRITICAL DEPTH REQUIREMENT: The content MUST be extremely detailed, expert-level, and highly technical or strategic depending on the topic. 
+4. DO NOT write generic fluff or basic definitions. Assume the learner already understands the basics. Dive straight into advanced concepts, case studies, specific methodologies, and real-world execution.
+5. Provide dense, highly substantive paragraphs for each section.
+6. Include a 'knowledgeCheck' in at least 1 or 2 of the lessons.`
   }
 
   try {
@@ -139,7 +140,7 @@ Requirements:
     const result = await generateText({
       model: aiModel,
       prompt: promptWithJsonInstruction,
-      temperature: 0.2, // Lower temperature to improve schema adherence
+      temperature: 0.5, // Allow richer vocabulary while keeping schema adherence
     })
 
     let cleaned = result.text.trim();
