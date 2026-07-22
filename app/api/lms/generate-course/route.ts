@@ -81,6 +81,7 @@ Requirements:
 - Generate exactly ONE lesson inside the "lessons" array. Do NOT generate a quiz.
 - CRITICAL DEPTH REQUIREMENT: Content MUST be exceptionally rich, expert-level, actionable, and highly technical or strategic depending on the topic. Provide deep, granular explanations.
 - DO NOT write generic fluff or basic definitions. Assume the learner already understands the basics. Dive straight into advanced concepts, case studies, specific methodologies, and real-world execution.
+- VOLUMINOUS REQUIREMENT: Provide highly voluminous, dense, and exceptionally long substantive paragraphs for each section. Maximize the breadth and depth of domains covered.
 - Include detailed sections with real, practical information and robust paragraphs.
 - Include key takeaways.
 - All content must be relevant to the Nigerian corporate context.
@@ -98,7 +99,7 @@ Requirements:
 2. You MUST generate a 5-question multiple choice quiz at the end.
 3. CRITICAL DEPTH REQUIREMENT: The content MUST be extremely detailed, expert-level, and highly technical or strategic depending on the topic. 
 4. DO NOT write generic fluff or basic definitions. Assume the learner already understands the basics. Dive straight into advanced concepts, case studies, specific methodologies, and real-world execution.
-5. Provide dense, highly substantive paragraphs for each section.
+5. VOLUMINOUS REQUIREMENT: Provide highly voluminous, dense, and exceptionally long substantive paragraphs for each section. Maximize the breadth and depth of domains covered.
 6. Include a 'knowledgeCheck' in at least 1 or 2 of the lessons.`
   }
 
@@ -141,6 +142,7 @@ Requirements:
       model: aiModel,
       prompt: promptWithJsonInstruction,
       temperature: 0.5, // Allow richer vocabulary while keeping schema adherence
+      maxTokens: 8000,  // Maximize allowed tokens for voluminous generation
     })
 
     let cleaned = result.text.trim();
