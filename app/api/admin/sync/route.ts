@@ -52,8 +52,12 @@ export async function POST(req: Request) {
         }))
 
         staticData.sort((a, b) => {
-          const cat = a.category.localeCompare(b.category)
-          return cat !== 0 ? cat : a.title.localeCompare(b.title)
+          const catA = a.category || ""
+          const catB = b.category || ""
+          const titleA = a.title || ""
+          const titleB = b.title || ""
+          const cat = catA.localeCompare(catB)
+          return cat !== 0 ? cat : titleA.localeCompare(titleB)
         })
 
         const fileContent = `import type { Course } from "@/lib/types"
@@ -76,8 +80,12 @@ function hydrateCourse(course: StaticLmsCourse): Course {
 
 export function getStaticLmsCourses(): Course[] {
   return STATIC_LMS_COURSE_DATA.map(hydrateCourse).sort((a, b) => {
-    const category = a.category.localeCompare(b.category)
-    return category !== 0 ? category : a.title.localeCompare(b.title)
+    const catA = a.category || ""
+    const catB = b.category || ""
+    const titleA = a.title || ""
+    const titleB = b.title || ""
+    const category = catA.localeCompare(catB)
+    return category !== 0 ? category : titleA.localeCompare(titleB)
   })
 }
 

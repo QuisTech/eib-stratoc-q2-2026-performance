@@ -1852,8 +1852,12 @@ function hydrateCourse(course: StaticLmsCourse): Course {
 
 export function getStaticLmsCourses(): Course[] {
   return STATIC_LMS_COURSE_DATA.map(hydrateCourse).sort((a, b) => {
-    const category = a.category.localeCompare(b.category)
-    return category !== 0 ? category : a.title.localeCompare(b.title)
+    const catA = a.category || ""
+    const catB = b.category || ""
+    const titleA = a.title || ""
+    const titleB = b.title || ""
+    const category = catA.localeCompare(catB)
+    return category !== 0 ? category : titleA.localeCompare(titleB)
   })
 }
 
