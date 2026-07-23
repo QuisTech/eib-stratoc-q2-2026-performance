@@ -73,14 +73,14 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
   let waitHoursLeft = 0
   
   if (!alreadyPassed && attempts.length > 0) {
-    const lastAttempt = attempts.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0]
-    const timeSinceMs = Date.now() - lastAttempt.createdAt.getTime()
+    const lastAttempt = attempts.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0]
+    const timeSinceMs = Date.now() - new Date(lastAttempt.createdAt).getTime()
     const hoursSince = timeSinceMs / (1000 * 60 * 60)
     
     if (hoursSince < policy.waitPeriodHours) {
       isLockedOutByTime = true
       waitHoursLeft = Math.ceil(policy.waitPeriodHours - hoursSince)
-      lockoutUntil = new Date(lastAttempt.createdAt.getTime() + policy.waitPeriodHours * 60 * 60 * 1000)
+      lockoutUntil = new Date(new Date(lastAttempt.createdAt).getTime() + policy.waitPeriodHours * 60 * 60 * 1000)
     }
   }
 
