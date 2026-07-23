@@ -219,7 +219,7 @@ export async function getCourses(): Promise<Course[]> {
   }
 }
 
-async function getAdminCourses(): Promise<Course[]> {
+export async function getAdminCourses(): Promise<Course[]> {
   const staticCourses = getStaticLmsCourses()
   let liveCourses: Course[] = []
 
@@ -332,7 +332,7 @@ export async function enrollInCourse(courseId: number) {
   }
   invalidateAdminCaches()
   revalidatePath("/lms")
-  revalidatePath("/lms/[slug]", "layout")
+  revalidatePath("/lms", "layout")
 }
 
 export async function unenrollFromCourse(courseId: number) {
@@ -361,7 +361,7 @@ export async function unenrollFromCourse(courseId: number) {
 
   invalidateAdminCaches()
   revalidatePath("/lms")
-  revalidatePath("/lms/[slug]", "layout")
+  revalidatePath("/lms", "layout")
 }
 
 export async function getMyLessonProgress(courseId: number): Promise<string[]> {
@@ -384,7 +384,7 @@ export async function completeLesson(courseId: number, lessonKey: string) {
 
   await recomputeCourseProgress(userId, courseId)
   revalidatePath("/lms")
-  revalidatePath("/lms/[slug]", "layout")
+  revalidatePath("/lms", "layout")
 }
 
 export async function getMyQuizAttempts(courseId: number): Promise<QuizAttempt[]> {
@@ -418,7 +418,7 @@ export async function submitQuiz(courseId: number, answers: any[], seed?: number
   revalidateCacheTag(`lms-state-${userId}-${courseId}`)
   await recomputeCourseProgress(userId, courseId)
   revalidatePath("/lms")
-  revalidatePath("/lms/[slug]", "layout")
+  revalidatePath("/lms", "layout")
   return result
 }
 
@@ -440,54 +440,53 @@ export type MyCourseLearningState = {
   certificate: Certificate | null
 }
 
+async function fetchLearningState(uid: string, cid: number): Promise<MyCourseLearningState> {
+  const enrollments = await getEnrollmentsByUser(uid)
+  const rawEnrollment = (enrollments || []).find((e: any) => Number(e.courseId) === Number(cid))
+  const enrollment = rawEnrollment ? (toCacheSafeValue(rawEnrollment) as Enrollment) : null
+
+  if (!enrollment) {
+    return {
+      enrollment: null,
+      completedLessonKeys: [],
+      quizAttempts: [],
+      certificate: null,
+    }
+  }
+
+  const [progress, attempts, certificates] = await Promise.all([
+    getLessonProgressByUser(uid, cid),
+    getQuizAttemptsByUser(uid, cid),
+    getCertificatesByUser(uid, cid),
+  ])
+
+  const quizAttempts = ((attempts || []).map((d: any) => ({
+    ...d,
+    createdAt: parseSafeDate(d.createdAt),
+  })) as QuizAttempt[]).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+
+  const certificate = certificates?.[0]
+    ? ({
+        ...certificates[0],
+        issuedAt: parseSafeDate(certificates[0].issuedAt),
+      } as Certificate)
+    : null
+
+  return {
+    enrollment,
+    completedLessonKeys: (progress || []).map((p: any) => p.lessonKey),
+    quizAttempts,
+    certificate,
+  }
+}
+
 export async function getMyCourseLearningState(courseId: number): Promise<MyCourseLearningState> {
   try {
     const userId = await getUserId()
 
     // ── Distributed Next.js Data Cache (Zero Firestore reads on hit) ──
     const getCachedState = unstable_cache(
-      async (uid: string, cid: number) => {
-        const enrollments = await getEnrollmentsByUser(uid)
-        const rawEnrollment = (enrollments || []).find((e: any) => Number(e.courseId) === Number(cid))
-        const enrollment = rawEnrollment ? (toCacheSafeValue(rawEnrollment) as Enrollment) : null
-
-        if (!enrollment) {
-          // If not enrolled, return empty state.
-          // Note: Because we use revalidateTag on enrollment changes, it is now safe
-          // to cache the empty state, saving reads if they repeatedly view the course overview!
-          return {
-            enrollment: null,
-            completedLessonKeys: [],
-            quizAttempts: [],
-            certificate: null,
-          }
-        }
-
-        const [progress, attempts, certificates] = await Promise.all([
-          getLessonProgressByUser(uid, cid),
-          getQuizAttemptsByUser(uid, cid),
-          getCertificatesByUser(uid, cid),
-        ])
-
-        const quizAttempts = ((attempts || []).map((d: any) => ({
-          ...d,
-          createdAt: parseSafeDate(d.createdAt),
-        })) as QuizAttempt[]).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-
-        const certificate = certificates?.[0]
-          ? ({
-              ...certificates[0],
-              issuedAt: parseSafeDate(certificates[0].issuedAt),
-            } as Certificate)
-          : null
-
-        return {
-          enrollment,
-          completedLessonKeys: (progress || []).map((p: any) => p.lessonKey),
-          quizAttempts,
-          certificate,
-        }
-      },
+      fetchLearningState,
       [`ls-${userId}-${courseId}`],
       {
         tags: [`lms-state-${userId}-${courseId}`],

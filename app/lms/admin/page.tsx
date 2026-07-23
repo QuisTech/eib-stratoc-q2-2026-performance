@@ -175,7 +175,8 @@ export default async function AdminPage({
             </Card>
           </section>
 
-          <section className="grid gap-4 md:grid-cols-2">
+          <section className="grid gap-4 md:grid-cols-3">
+            {/* Existing - Create New Course */}
             <Link href="/lms/admin/courses/new" className="block">
               <Card className="transition-colors hover:bg-muted/40">
                 <CardHeader>
@@ -188,6 +189,21 @@ export default async function AdminPage({
                 </CardContent>
               </Card>
             </Link>
+            
+            {/* NEW - Manage Courses (the missing piece) */}
+            <Link href="/lms/admin/courses" className="block">
+              <Card className="transition-colors hover:bg-muted/40">
+                <CardHeader>
+                  <CardTitle className="text-base">Manage Courses</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">
+                    Edit, duplicate, or delete existing courses. Quota-friendly view.
+                  </p>
+                </CardContent>
+              </Card>
+            </Link>
+
             <Link href="/lms/admin/sync" className="block">
               <Card className="transition-colors hover:bg-muted/40">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0">

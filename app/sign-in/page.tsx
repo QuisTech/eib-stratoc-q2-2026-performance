@@ -9,7 +9,10 @@ export const metadata: Metadata = {
   description: "Sign in to the EIB Group Learning Management System.",
 }
 
-export default function SignInPage() {
+export default async function SignInPage() {
+  const user = await getSessionUser();
+  if (user) redirect("/lms")
+
   return (
     <main className="flex min-h-[calc(100vh-4rem)] items-center justify-center px-4 py-10">
       <AuthForm mode="sign-in" />
