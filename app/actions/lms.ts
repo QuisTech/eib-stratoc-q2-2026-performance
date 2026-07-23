@@ -595,7 +595,7 @@ export type LearnerReportRow = {
   latestCertificateAt: Date | null
   latestEnrollmentAt: Date | null
   avgProgress: number
-  enrolledCourses: { courseId: number; title: string }[]
+  enrolledCourses: { courseId: number; title: string; slug: string; status: string; progress: number; certificateId?: string }[]
   joinedAt: Date
 }
 
@@ -670,6 +670,7 @@ export async function getAdminReport(): Promise<AdminReport> {
   }
 
   const courseTitle = new Map(allAvailableCourses.map((c) => [c.id, c.title]))
+  const courseSlug = new Map(allAvailableCourses.map((c) => [c.id, c.slug]))
   const coursePrice = new Map(allAvailableCourses.map((c) => [c.id, c.priceNaira]))
   
   const ids = learnerRows.map((u) => u.id)
@@ -709,10 +710,17 @@ export async function getAdminReport(): Promise<AdminReport> {
     const inProgress = list.filter((e) => e.status === "in_progress").length
     const avgProgress = list.length > 0 ? Math.round(list.reduce((s, e) => s + e.progress, 0) / list.length) : 0
     
-    const enrolledCourses = list.map((e) => ({
-      courseId: e.courseId,
-      title: courseTitle.get(e.courseId) ?? `Course #${e.courseId}`
-    }))
+    const enrolledCourses = list.map((e) => {
+      const cert = allCerts.find(c => c.userId === u.id && c.courseId === e.courseId)
+      return {
+        courseId: e.courseId,
+        title: courseTitle.get(e.courseId) ?? `Course #${e.courseId}`,
+        slug: courseSlug.get(e.courseId) ?? "",
+        status: e.status,
+        progress: e.progress,
+        certificateId: cert?.id ? String(cert.id) : undefined
+      }
+    })
 
     return {
       id: u.id,
@@ -983,9 +991,9 @@ export async function exportAdminCSV(): Promise<string> {
     if (learner.enrolledCourses.length === 0) {
       csv += `"${learner.name}","${learner.email}","${sub}","(No enrollments)","N/A","0",""\n`
     } else {
-      // In a real app we'd fetch individual status. We just mock it here to save code space.
       for (const course of learner.enrolledCourses) {
-        csv += `"${learner.name}","${learner.email}","${sub}","${course.title}","Unknown","${learner.avgProgress}",""\n`
+        const certLink = course.certificateId ? `${baseUrl}/lms/${course.slug}/certificate?userId=${learner.id}` : ""
+        csv += `"${learner.name}","${learner.email}","${sub}","${course.title}","${course.status}","${course.progress}","${certLink}"\n`
       }
     }
   }
