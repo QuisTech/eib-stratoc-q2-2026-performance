@@ -79,7 +79,7 @@ export function LearnerManagement({
     if (sortBy === "most_certs") {
       return (b.certificates || 0) - (a.certificates || 0)
     }
-    return (a.name || "").localeCompare(b.name || "")
+    return (a.name || "").trim().localeCompare((b.name || "").trim())
   })
 
   return (
