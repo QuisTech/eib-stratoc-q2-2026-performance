@@ -139,12 +139,20 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
         <Card className="mt-6 border-l-4" style={{ borderLeftColor: "var(--chart-1)" }}>
           <CardContent className="flex flex-wrap items-center justify-between gap-3 p-4">
             <p className="text-sm font-medium">You have already passed this assessment.</p>
-            <Link
-              href={`/lms/${slug}/certificate`}
-              className={buttonVariants({ size: "sm" })}
-            >
-              <Award className="mr-2 h-4 w-4" /> View certificate
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                href={`/lms/${slug}`}
+                className={buttonVariants({ variant: "outline", size: "sm" })}
+              >
+                Return to Course Home
+              </Link>
+              <Link
+                href={`/lms/${slug}/certificate`}
+                className={buttonVariants({ size: "sm" })}
+              >
+                <Award className="mr-2 h-4 w-4" /> View certificate
+              </Link>
+            </div>
           </CardContent>
         </Card>
       )}

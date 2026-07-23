@@ -406,7 +406,7 @@ export function QuizForm({
                   href={`/lms/${slug}`}
                   className={buttonVariants({ variant: "outline", size: "lg" })}
                 >
-                  Back to course
+                  Return to Course Home
                 </Link>
               </div>
             ) : (
