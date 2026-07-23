@@ -455,18 +455,7 @@ export default async function AdminPage({
 
 
 
-      {canManageCourses && (
-        <section>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Course Management</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CourseManagement courses={report.allCourses} userRole={report.viewerRole} userEmail={session.user.email} />
-            </CardContent>
-          </Card>
-        </section>
-      )}
+
     </main>
   )
   } catch (err: any) {
