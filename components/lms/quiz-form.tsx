@@ -288,7 +288,20 @@ export function QuizForm({
 
     const handlePopState = () => {
       // If the user tries to use the browser back button while the quiz is active
-      submit(true)
+      const now = Date.now()
+      if (now - lastLossRef.current < 2000) return 
+      lastLossRef.current = now
+
+      tabSwitchCountRef.current += 1
+      const count = tabSwitchCountRef.current
+
+      if (count === 1) {
+        setShowWarningModal(true)
+        // Push the state back so they don't actually leave the page
+        window.history.pushState(null, '', window.location.href)
+      } else if (count >= 2) {
+        submit(true) // Force auto-submit
+      }
     }
 
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
