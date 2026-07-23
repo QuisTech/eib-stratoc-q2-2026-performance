@@ -80,7 +80,9 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
     await submitGeneration({
       title: course.title,
       category: course.category || "General",
-      customContext: customContext || undefined
+      customContext: customContext || undefined,
+      existingLessons: lessons,
+      existingQuiz: quiz
     }, "none")
   }
 
@@ -90,6 +92,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
       category: course.category || "General",
       customContext: customContext || undefined,
       existingLessons: lessons,
+      existingQuiz: quiz,
       action: "append_lesson"
     }, "lesson")
   }
@@ -99,6 +102,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
       title: course.title,
       category: course.category || "General",
       customContext: customContext || undefined,
+      existingLessons: lessons,
       existingQuiz: quiz,
       action: "append_quiz"
     }, "quiz")

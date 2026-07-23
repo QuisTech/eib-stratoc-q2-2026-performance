@@ -51,13 +51,20 @@ export async function POST(req: Request) {
 
   if (isAppendQuizMode) {
     const existingCount = existingQuiz?.length || 0
+    const existingLessonContext = existingLessons && existingLessons.length > 0 
+      ? `The course currently has the following lessons:\n` + existingLessons.map((l: any) => `- ${l.title}: ${l.summary || 'No summary'}`).join("\n") 
+      : "The course currently has no lessons."
+
     prompt = `${EIB_GROUP_CONTEXT}
 
 You are a corporate training expert creating curriculum for the Nigerian conglomerate described above.
 The course is titled "${title}" in the category of "${category}".
 
 The admin already has ${existingCount} quiz questions and wants to expand their Item Pool.
-Your task is to generate EXACTLY 10 NEW highly detailed, challenging multiple-choice questions for the course.
+${existingLessonContext}
+
+Your task is to generate EXACTLY 10 NEW highly detailed, challenging multiple-choice questions for the course. 
+CRITICAL: The questions MUST strictly align with the topics, concepts, and content of the existing lessons provided above. Do NOT go off-tangent into generic business operations unless covered in the lessons.
 Ensure they test genuine understanding and are completely unique from standard trivia.
 
 Requirements:
@@ -71,14 +78,24 @@ Requirements:
 - CRITICAL: Do NOT use any subsidiary names. Use generic terms like "the organization".
 - Do NOT mention the European Investment Bank or the EU anywhere.${customInstructions}`
   } else if (isAppendMode) {
-    const existingTitles = existingLessons.map((l: any) => l.title).join(", ")
+    const existingLessonContext = existingLessons && existingLessons.length > 0 
+      ? existingLessons.map((l: any) => `- ${l.title}: ${l.summary || 'No summary'}`).join("\n") 
+      : "None"
+    const existingQuizContext = existingQuiz && existingQuiz.length > 0
+      ? `The course also currently has the following quiz questions:\n` + existingQuiz.map((q: any) => `- ${q.prompt}`).join("\n")
+      : ""
+
     prompt = `${EIB_GROUP_CONTEXT}
 
 You are a corporate training expert creating curriculum for the Nigerian conglomerate described above.
 The course is titled "${title}" in the category of "${category}".
 
-The admin has already generated ${existingLessons.length} lessons: [${existingTitles}].
-Your task is to generate EXACTLY ONE highly detailed, rich, and substantive NEW lesson that logically follows the existing ones to continue the curriculum.
+The admin has already generated the following lessons:
+${existingLessonContext}
+
+${existingQuizContext}
+
+Your task is to generate EXACTLY ONE highly detailed, rich, and substantive NEW lesson that logically follows the existing ones to continue the curriculum. If there are existing quiz questions, ensure your lesson content helps cover those topics where relevant.
 
 Requirements:
 - Generate exactly ONE lesson inside the "lessons" array. Do NOT generate a quiz.
@@ -92,16 +109,23 @@ Requirements:
 - CRITICAL: Do NOT use any subsidiary names. Use generic terms like "the organization".
 - Do NOT mention the European Investment Bank or the EU anywhere.${customInstructions}`
   } else {
+    const existingLessonContext = existingLessons && existingLessons.length > 0 
+      ? `\n\nExisting Lessons to build upon:\n` + existingLessons.map((l: any) => `- ${l.title}: ${l.summary || 'No summary'}`).join("\n") 
+      : ""
+    const existingQuizContext = existingQuiz && existingQuiz.length > 0
+      ? `\n\nExisting Quiz Questions to cover:\n` + existingQuiz.map((q: any) => `- ${q.prompt}`).join("\n")
+      : ""
+
     prompt = `${EIB_GROUP_CONTEXT}
 
 You are generating a full course curriculum.
 Course Title: ${title}
 Category: ${category}
-${customInstructions}
+${customInstructions}${existingLessonContext}${existingQuizContext}
 
 Requirements:
 1. Generate a comprehensive course structure with EXACTLY 10 highly detailed lessons.
-2. You MUST generate a 5-question multiple choice quiz at the end.
+2. You MUST generate a 5-question multiple choice quiz at the end. Make sure the quiz questions directly test the material taught in the lessons.
 3. CRITICAL DEPTH REQUIREMENT: The content MUST be extremely detailed, expert-level, and highly technical or strategic depending on the topic. 
 4. DO NOT write generic fluff or basic definitions. Assume the learner already understands the basics. Dive straight into advanced concepts, case studies, specific methodologies, and real-world execution.
 5. VOLUMINOUS REQUIREMENT: Provide highly voluminous, dense, and exceptionally long substantive paragraphs for each section. Maximize the breadth and depth of domains covered.
