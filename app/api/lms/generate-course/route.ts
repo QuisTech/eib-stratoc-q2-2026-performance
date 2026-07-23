@@ -99,6 +99,10 @@ ${existingQuizContext}
 
 Your task is to generate EXACTLY ONE highly detailed, rich, and substantive NEW lesson that logically follows the existing ones to continue the curriculum. If there are existing quiz questions, ensure your lesson content helps cover those topics where relevant.
 
+EXTREME DIRECTIVE: The new lesson MUST STRICTLY align with the specific technical or thematic depth of the existing lessons provided above. 
+Do NOT generate content about general business strategy, ROI, Nigerian regulations, corporate integration, or facility surveillance unless explicitly relevant to the established curriculum. 
+If the existing lessons are about technical engineering (e.g. aerodynamics, PID control, sensors), your new lesson MUST be purely about technical engineering.
+
 Requirements:
 - Generate exactly ONE lesson inside the "lessons" array. Do NOT generate a quiz.
 - CRITICAL DEPTH REQUIREMENT: Content MUST be exceptionally rich, expert-level, actionable, and highly technical or strategic depending on the topic. Provide deep, granular explanations.
