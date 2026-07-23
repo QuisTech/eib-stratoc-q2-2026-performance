@@ -52,7 +52,7 @@ export async function POST(req: Request) {
   if (isAppendQuizMode) {
     const existingCount = existingQuiz?.length || 0
     const existingLessonContext = existingLessons && existingLessons.length > 0 
-      ? `The course currently has the following lessons:\n` + existingLessons.map((l: any) => `- ${l.title}: ${l.summary || 'No summary'}`).join("\n") 
+      ? `The course currently has the following lessons:\n` + existingLessons.map((l: any) => `- ${l.title}: ${l.summary || 'No summary'}\n  Key Takeaways: ${l.takeaways?.join(', ') || 'None'}`).join("\n") 
       : "The course currently has no lessons."
 
     prompt = `${EIB_GROUP_CONTEXT}
@@ -64,7 +64,9 @@ The admin already has ${existingCount} quiz questions and wants to expand their 
 ${existingLessonContext}
 
 Your task is to generate EXACTLY 10 NEW highly detailed, challenging multiple-choice questions for the course. 
-CRITICAL: The questions MUST strictly align with the topics, concepts, and content of the existing lessons provided above. Do NOT go off-tangent into generic business operations unless covered in the lessons.
+EXTREME DIRECTIVE: The questions MUST STRICTLY AND ONLY test the actual subject matter and concepts taught in the existing lessons provided above. 
+Do NOT generate questions about general business strategy, ROI, Nigerian regulations, corporate integration, or facility surveillance unless explicitly mentioned in the lesson summaries. 
+If the lessons are about technical engineering (e.g. aerodynamics, PID control, sensors), your questions MUST be about technical engineering.
 Ensure they test genuine understanding and are completely unique from standard trivia.
 
 Requirements:
@@ -79,7 +81,7 @@ Requirements:
 - Do NOT mention the European Investment Bank or the EU anywhere.${customInstructions}`
   } else if (isAppendMode) {
     const existingLessonContext = existingLessons && existingLessons.length > 0 
-      ? existingLessons.map((l: any) => `- ${l.title}: ${l.summary || 'No summary'}`).join("\n") 
+      ? existingLessons.map((l: any) => `- ${l.title}: ${l.summary || 'No summary'}\n  Key Takeaways: ${l.takeaways?.join(', ') || 'None'}`).join("\n") 
       : "None"
     const existingQuizContext = existingQuiz && existingQuiz.length > 0
       ? `The course also currently has the following quiz questions:\n` + existingQuiz.map((q: any) => `- ${q.prompt}`).join("\n")
@@ -110,7 +112,7 @@ Requirements:
 - Do NOT mention the European Investment Bank or the EU anywhere.${customInstructions}`
   } else {
     const existingLessonContext = existingLessons && existingLessons.length > 0 
-      ? `\n\nExisting Lessons to build upon:\n` + existingLessons.map((l: any) => `- ${l.title}: ${l.summary || 'No summary'}`).join("\n") 
+      ? `\n\nExisting Lessons to build upon:\n` + existingLessons.map((l: any) => `- ${l.title}: ${l.summary || 'No summary'}\n  Key Takeaways: ${l.takeaways?.join(', ') || 'None'}`).join("\n") 
       : ""
     const existingQuizContext = existingQuiz && existingQuiz.length > 0
       ? `\n\nExisting Quiz Questions to cover:\n` + existingQuiz.map((q: any) => `- ${q.prompt}`).join("\n")
