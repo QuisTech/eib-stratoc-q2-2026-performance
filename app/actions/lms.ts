@@ -205,18 +205,28 @@ async function assertCanManageTargetUser(
 
 export async function getCourses(): Promise<Course[]> {
   const staticCourses = getStaticLmsCourses()
-  if (staticCourses.length > 0) return staticCourses
+  let liveCourses: Course[] = []
 
   const cached = getCached<Course[]>("courses")
-  if (cached) return cached
-  try {
-    const courses = await getCachedCoursesFromFirestore()
-    setCache("courses", courses)
-    return courses
-  } catch (error) {
-    console.error("Firestore error while loading LMS courses; serving empty catalog fallback.", error)
-    return []
+  if (cached) {
+    liveCourses = cached
+  } else {
+    try {
+      liveCourses = await getCachedCoursesFromFirestore()
+      setCache("courses", liveCourses)
+    } catch (error) {
+      console.error("Firestore error while loading LMS courses.", error)
+    }
   }
+
+  const merged = new Map<string, Course>()
+  for (const course of staticCourses) {
+    merged.set(course.slug || String(course.id), course)
+  }
+  for (const course of liveCourses) {
+    merged.set(course.slug || String(course.id), toCacheSafeValue(course) as Course)
+  }
+  return [...merged.values()].filter(c => !(c as any).isDeleted)
 }
 
 export async function getAdminCourses(): Promise<Course[]> {
@@ -227,48 +237,42 @@ export async function getAdminCourses(): Promise<Course[]> {
     liveCourses = await getCachedCoursesFromFirestore()
   } catch (error) {
     console.error("Firestore error while loading admin LMS courses; serving static catalog only.", error)
-    return staticCourses
   }
-
-  if (staticCourses.length === 0) return liveCourses
 
   const merged = new Map<string, Course>()
   for (const course of staticCourses) {
     merged.set(course.slug || String(course.id), course)
   }
   for (const course of liveCourses) {
-    const key = course.slug || String(course.id)
-    if (!merged.has(key)) merged.set(key, toCacheSafeValue(course) as Course)
+    merged.set(course.slug || String(course.id), toCacheSafeValue(course) as Course)
   }
-  return [...merged.values()]
+  return [...merged.values()].filter(c => !(c as any).isDeleted)
 }
 
 export async function getCourseBySlug(slug: string): Promise<Course | null> {
-  const staticCourse = getStaticLmsCourseBySlug(slug)
-  if (staticCourse) return staticCourse
-
-  try {
-    const snap = await adminDb.collection("courses").where("slug", "==", slug).limit(1).get()
-    return snap.empty ? null : (toCacheSafeValue(snap.docs[0].data()) as Course)
-  } catch (error) {
-    if (isFirestoreQuotaError(error)) {
-      console.error(`Firestore quota exhausted while loading LMS course slug "${slug}".`, error)
-      return null
-    }
-    throw error
-  }
-}
-
-export async function getAdminCourseBySlug(slug: string): Promise<Course | null> {
-  // Always fetch fresh data from Firestore for the admin builder so changes are immediately visible
+  let liveCourse: Course | null = null
   try {
     const snap = await adminDb.collection("courses").where("slug", "==", slug).limit(1).get()
     if (!snap.empty) {
-      return toCacheSafeValue(snap.docs[0].data()) as Course
+      liveCourse = toCacheSafeValue(snap.docs[0].data()) as Course
     }
   } catch (error) {
-    console.warn("Failed to fetch live admin course from Firestore, falling back to static.", error)
+    if (isFirestoreQuotaError(error)) {
+      console.error(`Firestore quota exhausted while loading LMS course slug "${slug}".`, error)
+    } else {
+      throw error
+    }
   }
+
+  if (liveCourse) {
+    if ((liveCourse as any).isDeleted) return null
+    return liveCourse
+  }
+
+  return getStaticLmsCourseBySlug(slug) || null
+}
+
+export async function getAdminCourseBySlug(slug: string): Promise<Course | null> {
   return getCourseBySlug(slug)
 }
 
@@ -1013,7 +1017,8 @@ export async function deleteCourse(slug: string) {
 
   // 2. Perform batched deletions of all related documents to optimize Firestore writes
   const batch = adminDb.batch()
-  batch.delete(adminDb.collection("courses").doc(String(course.id)))
+  const courseRef = adminDb.collection("courses").doc(String(course.id))
+  batch.set(courseRef, { isDeleted: true, id: course.id, slug: course.slug }, { merge: true })
 
   enrollmentsSnap.docs.forEach(doc => batch.delete(doc.ref))
 
