@@ -16,7 +16,7 @@ export default async function BriefingsPage() {
 
   const userRole = session.user.role || "learner"
   const userSubsidiary = session.user.subsidiary || null
-  const isSuperAdmin = checkIsSuperAdmin(session.user.email)
+  const isSuperAdmin = checkIsSuperAdmin(session.user)
   const isManager = isSuperAdmin || userRole === "lead" || userRole === "group_head" || userRole === "group_head_standard"
 
   if (!isManager) {

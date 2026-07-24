@@ -92,7 +92,7 @@ export default async function UserDetailPage({ params }: { params: Promise<Param
     if (!session?.user) redirect("/sign-in")
 
     const role = (session.user as { role?: string }).role ?? "learner"
-    const isSuperAdmin = checkIsSuperAdmin(session.user.email)
+    const isSuperAdmin = checkIsSuperAdmin(session.user)
     if (!isSuperAdmin && role !== "group_head" && role !== "lead" && role !== "group_head_standard") {
       redirect("/lms")
     }

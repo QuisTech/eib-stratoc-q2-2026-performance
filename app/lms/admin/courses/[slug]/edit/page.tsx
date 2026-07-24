@@ -22,7 +22,7 @@ export default async function EditCoursePage({
   if (!session?.user) redirect("/sign-in")
 
   const role = session.user.role as string
-  const isSuperAdmin = checkIsSuperAdmin(session.user.email)
+  const isSuperAdmin = checkIsSuperAdmin(session.user)
   if (!isSuperAdmin && role !== "group_head" && role !== "lead") redirect("/lms")
   const course = await getAdminCourseBySlug(slug)
   if (!course) redirect("/lms/admin")

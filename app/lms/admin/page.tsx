@@ -37,7 +37,7 @@ export default async function AdminPage({
     if (!session?.user) redirect("/sign-in")
 
     const role = (session.user as { role?: string }).role ?? "learner"
-    const isSuperAdmin = checkIsSuperAdmin(session.user.email)
+    const isSuperAdmin = checkIsSuperAdmin(session.user)
     const orgWide = isSuperAdmin
     const canManageCourses = isSuperAdmin || role === "group_head" || role === "lead"
 
