@@ -159,13 +159,23 @@ Requirements:
       "interactiveTabs": [
         {
           "tabTitle": "Tab 1 Title",
-          "content": "Deep dive content for Tab 1..."
+          "content": "Detailed, highly voluminous markdown content spanning multiple paragraphs. Do NOT write just one sentence. Go extremely deep into the technical execution and details for this tab..."
         },
         {
           "tabTitle": "Tab 2 Title",
-          "content": "Deep dive content for Tab 2..."
+          "content": "Detailed, highly voluminous markdown content spanning multiple paragraphs..."
         }
-      ]
+      ],
+      "knowledgeCheck": {
+        "type": "matching",
+        "id": "kc-1",
+        "prompt": "Match the following concepts",
+        "pairs": [
+          { "left": "Concept A", "right": "Definition A" },
+          { "left": "Concept B", "right": "Definition B" }
+        ],
+        "explanation": "Detailed explanation..."
+      }
     }
   ],
   "quiz": [
