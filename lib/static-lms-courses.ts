@@ -1769,8 +1769,8 @@ export const STATIC_LMS_COURSE_DATA: StaticLmsCourse[] = [
     "updatedAt": "2026-07-24T12:58:33.253Z"
   },
   {
-    "title": "The Complete Drone Technology Masterclass",
-    "description": "Learn Drone Flying, Mapping, GIS, AI, FPV, Photogrammetry, Thermal Imaging, LiDAR, Enterprise Operations, Programming, and Drone Business—all in one comprehensive course.",
+    "title": "Advanced Drone Engineering & Technology Masterclass",
+    "description": "Master the aerospace engineering, aerodynamics, and control systems behind modern drone technology. Dive deep into PID/MPC flight algorithms, avionics integration, sensor data fusion (LiDAR/Photogrammetry), advanced power propulsion, and autonomous navigation architectures in this highly technical, industrial-standard masterclass.",
     "category": "Technical",
     "level": "Beginner",
     "format": "Online",
