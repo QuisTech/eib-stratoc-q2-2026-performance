@@ -1,6 +1,7 @@
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import { getSessionUser } from "@/app/actions/auth"
+import { isSuperAdmin } from "@/lib/access-control"
 
 export default async function AdminLayout({
   children,
@@ -12,15 +13,17 @@ export default async function AdminLayout({
 
   const allowedEmails = [
     "michael.marquis@eibgroup.com",
+    "training@eibstratoc.com",
     "chairman@eibgroup.com",
     "evp-ops-admin@eibgroup.com",
     "evp-finance-commercial@eibgroup.com"
   ]
 
   // Lock down the 90-day plan and strategy pages so ONLY the Group Head and top executives can view them.
-  if (!session?.user || !allowedEmails.includes(session.user.email)) {
+  if (!session?.user || (!allowedEmails.includes(session.user.email) && !isSuperAdmin(session.user))) {
     redirect("/lms")
   }
 
   return <>{children}</>
 }
+
