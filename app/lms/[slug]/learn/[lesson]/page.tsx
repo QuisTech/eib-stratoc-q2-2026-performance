@@ -9,7 +9,7 @@ import {
   getMyCourseLearningState,
   getAdminCourseBySlug,
 } from "@/app/actions/lms"
-import { isSuperAdminEmail } from "@/lib/access-control"
+import { isSuperAdmin as checkIsSuperAdmin } from "@/lib/access-control"
 import { getLessons } from "@/lib/lms-content"
 import { Card, CardContent } from "@/components/ui/card"
 import { LessonCompleteButton } from "@/components/lms/lesson-complete-button"
@@ -51,7 +51,7 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
   const user = await getSessionUser();
   const session = user ? { user } : null
 
-  const isSuperAdmin = user && isSuperAdminEmail(user.email)
+  const isSuperAdmin = user && checkIsSuperAdmin(user)
   const course = isSuperAdmin ? await getAdminCourseBySlug(slug) : await getCourseBySlug(slug)
   
   if (!course) notFound()

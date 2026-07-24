@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation"
 import { Edit, BookOpen, Filter, Copy, Loader2, Trash2 } from "lucide-react"
 import { formatNaira } from "@/lib/utils"
 import { duplicateCourseAsLMS, deleteCourse } from "@/app/actions/lms"
-import { isSuperAdminEmail } from "@/lib/access-control"
+import { isSuperAdmin as checkIsSuperAdmin } from "@/lib/access-control"
 
 export function CourseManagement({ courses, userRole, userEmail }: { courses: any[]; userRole: string; userEmail?: string }) {
   const [filter, setFilter] = useState("All")
@@ -14,7 +14,7 @@ export function CourseManagement({ courses, userRole, userEmail }: { courses: an
   const [duplicateError, setDuplicateError] = useState<string | null>(null)
   const [duplicateSuccess, setDuplicateSuccess] = useState<string | null>(null)
   const router = useRouter()
-  const isSuperAdmin = isSuperAdminEmail(userEmail)
+  const isSuperAdmin = checkIsSuperAdmin(userEmail)
 
   // Extract unique subsidiaries
   const subsidiariesSet = new Set<string>()

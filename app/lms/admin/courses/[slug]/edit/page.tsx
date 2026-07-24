@@ -3,7 +3,7 @@ import { headers } from "next/headers"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
-import { isSuperAdminEmail } from "@/lib/access-control"
+import { isSuperAdmin as checkIsSuperAdmin } from "@/lib/access-control"
 
 import { updateCourse, getAdminCourseBySlug } from "@/app/actions/lms"
 import { ImageUploadField } from "@/components/lms/image-upload-field"
@@ -22,7 +22,7 @@ export default async function EditCoursePage({
   if (!session?.user) redirect("/sign-in")
 
   const role = session.user.role as string
-  const isSuperAdmin = isSuperAdminEmail(session.user.email)
+  const isSuperAdmin = checkIsSuperAdmin(session.user.email)
   if (!isSuperAdmin && role !== "group_head" && role !== "lead") redirect("/lms")
   const course = await getAdminCourseBySlug(slug)
   if (!course) redirect("/lms/admin")

@@ -1,6 +1,6 @@
 import { getSessionUser } from "@/app/actions/auth"
 import { headers } from "next/headers"
-import { isSuperAdminEmail } from "@/lib/access-control"
+import { isSuperAdmin as checkIsSuperAdmin } from "@/lib/access-control"
 import { generateObject } from "ai"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { createGroq } from "@ai-sdk/groq"

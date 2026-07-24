@@ -3,7 +3,7 @@ import { redirect } from "next/navigation"
 import { headers } from "next/headers"
 import { getCourses } from "@/app/actions/lms"
 import { isCourseVisibleToUser } from "@/lib/utils"
-import { isSuperAdminEmail } from "@/lib/access-control"
+import { isSuperAdmin as checkIsSuperAdmin } from "@/lib/access-control"
 import { FileText, Download } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 
@@ -16,7 +16,7 @@ export default async function BriefingsPage() {
 
   const userRole = session.user.role || "learner"
   const userSubsidiary = session.user.subsidiary || null
-  const isSuperAdmin = isSuperAdminEmail(session.user.email)
+  const isSuperAdmin = checkIsSuperAdmin(session.user.email)
   const isManager = isSuperAdmin || userRole === "lead" || userRole === "group_head" || userRole === "group_head_standard"
 
   if (!isManager) {

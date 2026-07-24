@@ -11,7 +11,7 @@ import { ArrowLeft, Users, BookOpen, GraduationCap, Award, Server } from "lucide
 import { ExportCsvButton } from "./export-csv-button"
 import { LearnerManagement } from "./learner-management"
 import { CourseManagement } from "./course-management"
-import { isSuperAdminEmail } from "@/lib/access-control"
+import { isSuperAdmin as checkIsSuperAdmin } from "@/lib/access-control"
 import { getCacheStats } from "@/lib/firebase-admin"
 import { getFirestoreUsageSummary } from "@/lib/firestore-usage"
 import { FirestoreQuotaButton } from "./firestore-quota-button"
@@ -37,7 +37,7 @@ export default async function AdminPage({
     if (!session?.user) redirect("/sign-in")
 
     const role = (session.user as { role?: string }).role ?? "learner"
-    const isSuperAdmin = isSuperAdminEmail(session.user.email)
+    const isSuperAdmin = checkIsSuperAdmin(session.user.email)
     const orgWide = isSuperAdmin
     const canManageCourses = isSuperAdmin || role === "group_head" || role === "lead"
 

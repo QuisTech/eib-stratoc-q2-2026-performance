@@ -11,7 +11,7 @@ import { autoEnrollOnboarding } from "@/app/actions/lms"
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth"
 import { auth } from "@/lib/firebase"
 import { createSessionCookie, createUserProfile } from "@/app/actions/auth"
-import { isSuperAdminEmail } from "@/lib/access-control"
+import { isSuperAdmin as checkIsSuperAdmin } from "@/lib/access-control"
 
 const SUBSIDIARY_GROUPS = {
   "Group Leadership": [
@@ -64,7 +64,7 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
 
     try {
       if (isSignUp) {
-        if (role === "group_head" && !isSuperAdminEmail(email)) {
+        if (role === "group_head" && !checkIsSuperAdmin({ email, role })) {
           throw new Error("LMS Admin oversight is restricted. Only the Group Head of Training & OD may register with this role.")
         }
         if (role === "group_head" && accessCode.trim().toUpperCase() !== "EIB-GH-2026") {

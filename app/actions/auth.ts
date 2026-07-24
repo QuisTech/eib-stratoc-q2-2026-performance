@@ -1,7 +1,7 @@
 "use server"
 
 import { adminAuth, adminDb } from "@/lib/firebase-admin"
-import { isSuperAdminEmail } from "@/lib/access-control"
+import { isSuperAdmin as checkIsSuperAdmin } from "@/lib/access-control"
 import { cookies } from "next/headers"
 import { revalidateTag, unstable_cache } from "next/cache"
 
@@ -49,7 +49,7 @@ function sessionUserFromClaims(decodedClaims: { uid: string; email?: string; nam
     id: decodedClaims.uid,
     name: fallbackName,
     email,
-    role: isSuperAdminEmail(email) ? "admin" : "learner",
+    role: checkIsSuperAdmin(email) ? "admin" : "learner",
     subsidiary: null,
     isProfileFallback: true,
   }

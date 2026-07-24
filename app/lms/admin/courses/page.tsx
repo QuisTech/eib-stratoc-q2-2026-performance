@@ -2,7 +2,7 @@ import { getSessionUser } from "@/app/actions/auth"
 import { redirect } from "next/navigation"
 import Link from "next/link"
 import { ArrowLeft, Plus } from "lucide-react"
-import { isSuperAdminEmail } from "@/lib/access-control"
+import { isSuperAdmin as checkIsSuperAdmin } from "@/lib/access-control"
 import { getAdminCourses } from "@/app/actions/lms"
 import { CourseManagement } from "../course-management"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,7 +15,7 @@ export default async function CourseManagementPage() {
   if (!user) redirect("/sign-in")
 
   const role = user.role ?? "learner"
-  const isSuperAdmin = isSuperAdminEmail(user.email)
+  const isSuperAdmin = checkIsSuperAdmin(user)
   const canManageCourses = isSuperAdmin || role === "group_head" || role === "lead"
 
   if (!canManageCourses) {

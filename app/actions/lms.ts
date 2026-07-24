@@ -19,7 +19,7 @@ import type { Course, Enrollment, QuizAttempt, Certificate, User } from "@/lib/t
 import { getLessons, gradeQuiz } from "@/lib/lms-content"
 import { revalidatePath, revalidateTag, unstable_cache } from "next/cache"
 import { isCourseVisibleToUser } from "@/lib/utils"
-import { isSuperAdminEmail } from "@/lib/access-control"
+import { isSuperAdmin as checkIsSuperAdmin } from "@/lib/access-control"
 import {
   getStaticLmsCourseById,
   getStaticLmsCourseBySlug,
@@ -62,7 +62,7 @@ async function getUserId() {
 
 export async function promoteMeToAdmin() {
   const user = await getSessionUser()
-  if (user && isSuperAdminEmail(user.email)) {
+  if (user && checkIsSuperAdmin(user)) {
     await adminDb.collection("users").doc(user.id).update({ role: "admin" })
     revalidateCacheTag(SESSION_USER_PROFILE_CACHE_TAG)
   }
@@ -186,7 +186,7 @@ async function assertCanManageTargetUser(
   viewer: { id: string; email: string; role?: string; subsidiary?: string | null },
   targetUserId: string
 ) {
-  if (isSuperAdminEmail(viewer.email)) return
+  if (checkIsSuperAdmin(viewer)) return
 
   const target = await getUserById(targetUserId)
   if (!target) throw new Error("User not found")
@@ -633,7 +633,7 @@ export async function getAdminReport(): Promise<AdminReport> {
   const viewer = await getSessionUser()
   if (!viewer) throw new Error("Unauthorized")
   const role = viewer.role ?? "learner"
-  const isSuperAdmin = isSuperAdminEmail(viewer.email)
+  const isSuperAdmin = checkIsSuperAdmin(viewer)
   const orgWide = isSuperAdmin
   if (!isSuperAdmin && role !== "lead" && role !== "group_head" && role !== "group_head_standard") throw new Error("Forbidden")
 
@@ -785,7 +785,7 @@ export async function getAdminReport(): Promise<AdminReport> {
 export async function createCourse(data: any) {
   const user = await getSessionUser()
   if (!user) throw new Error("Unauthorized")
-  if (!isSuperAdminEmail(user.email) && user.role !== "group_head" && user.role !== "lead") throw new Error("Forbidden")
+  if (!checkIsSuperAdmin(user) && user.role !== "group_head" && user.role !== "lead") throw new Error("Forbidden")
 
   const slug = data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
   const existing = await getCourseBySlug(slug)
@@ -815,7 +815,7 @@ export async function updateCourse(slug: string, data: any) {
 
   const existing = await getCourseBySlug(slug)
   if (!existing) throw new Error("Course not found")
-  if (!isSuperAdminEmail(user.email) && existing.authorId !== user.id) throw new Error("Forbidden")
+  if (!checkIsSuperAdmin(user) && existing.authorId !== user.id) throw new Error("Forbidden")
 
   const newSlug = data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
   await adminDb.collection("courses").doc(String(existing.id)).update({
@@ -838,7 +838,7 @@ export async function saveCustomCourseContent(slug: string, content: string) {
 
   const existing = await getCourseBySlug(slug)
   if (!existing) throw new Error("Course not found")
-  if (!isSuperAdminEmail(user.email) && existing.authorId !== user.id) throw new Error("Forbidden")
+  if (!checkIsSuperAdmin(user) && existing.authorId !== user.id) throw new Error("Forbidden")
 
   await adminDb.collection("courses").doc(String(existing.id)).update({ customContent: content })
   invalidateCache("courses")
@@ -851,8 +851,8 @@ export async function saveCustomCourseContent(slug: string, content: string) {
 export async function setInitialRole(userId: string, requestedRole: string) {
   const user = await getSessionUser()
   if (!user) throw new Error("Unauthorized")
-  if (!isSuperAdminEmail(user.email) && user.id !== userId) throw new Error("Forbidden")
-  if (!isSuperAdminEmail(user.email) && requestedRole !== "learner") throw new Error("Forbidden")
+  if (!checkIsSuperAdmin(user) && user.id !== userId) throw new Error("Forbidden")
+  if (!checkIsSuperAdmin(user) && requestedRole !== "learner") throw new Error("Forbidden")
 
   const validRoles = ["learner", "lead", "group_head"]
   if (!validRoles.includes(requestedRole)) return
@@ -911,7 +911,7 @@ export async function autoEnrollOnboarding(subsidiary: string) {
 
 export async function adminResetUserPassword(userId: string) {
   const user = await getSessionUser()
-  if (!isSuperAdminEmail(user?.email)) throw new Error("Forbidden")
+  if (!checkIsSuperAdmin(user)) throw new Error("Forbidden")
 
   // Passwords are now managed by Firebase Auth
   const defaultPass = process.env.DEFAULT_RESET_PASSWORD || "ChangeMeImmediately123!"
@@ -924,7 +924,7 @@ export async function adminResetUserPassword(userId: string) {
 
 export async function adminUpdateUserName(userId: string, newName: string) {
   const user = await getSessionUser()
-  if (!user || !isSuperAdminEmail(user.email)) throw new Error("Forbidden")
+  if (!user || !checkIsSuperAdmin(user)) throw new Error("Forbidden")
   await adminDb.collection("users").doc(userId).update({ name: newName.trim() })
   revalidateCacheTag(SESSION_USER_PROFILE_CACHE_TAG)
   invalidateAdminCaches()
@@ -933,7 +933,7 @@ export async function adminUpdateUserName(userId: string, newName: string) {
 
 export async function adminUpdateUserEmail(userId: string, newEmail: string) {
   const user = await getSessionUser()
-  if (!user || !isSuperAdminEmail(user.email)) throw new Error("Forbidden")
+  if (!user || !checkIsSuperAdmin(user)) throw new Error("Forbidden")
   
   const { adminAuth } = await import("@/lib/firebase-admin")
   await adminAuth.updateUser(userId, { email: newEmail.trim() })
@@ -946,7 +946,7 @@ export async function adminUpdateUserEmail(userId: string, newEmail: string) {
 
 export async function adminDeleteUser(userId: string) {
   const user = await getSessionUser()
-  if (!user || !isSuperAdminEmail(user.email)) throw new Error("Forbidden")
+  if (!user || !checkIsSuperAdmin(user)) throw new Error("Forbidden")
   if (user.id === userId) throw new Error("Cannot delete yourself")
 
   const { adminAuth } = await import("@/lib/firebase-admin")
@@ -971,7 +971,7 @@ export async function adminDeleteUser(userId: string) {
 
 export async function adminResetQuizAttempts(userId: string, courseId: number) {
   const user = await getSessionUser()
-  if (!user || (!isSuperAdminEmail(user.email) && user.role !== "group_head" && user.role !== "lead")) throw new Error("Forbidden")
+  if (!user || (!checkIsSuperAdmin(user) && user.role !== "group_head" && user.role !== "lead")) throw new Error("Forbidden")
   await assertCanManageTargetUser(user, userId)
   
   const snap = await adminDb.collection("quizAttempts")
@@ -988,7 +988,7 @@ export async function adminResetQuizAttempts(userId: string, courseId: number) {
 
 export async function exportAdminCSV(): Promise<string> {
   const user = await getSessionUser()
-  if (!user || !isSuperAdminEmail(user.email)) throw new Error("Forbidden")
+  if (!user || !checkIsSuperAdmin(user)) throw new Error("Forbidden")
 
   const report = await getAdminReport()
   let csv = "Name,Email,Subsidiary,Course,Status,Progress (%),Certificate Link\n"
@@ -1011,7 +1011,7 @@ export async function exportAdminCSV(): Promise<string> {
 
 export async function deleteCourse(slug: string) {
   const user = await getSessionUser()
-  if (!isSuperAdminEmail(user?.email)) throw new Error("Forbidden")
+  if (!checkIsSuperAdmin(user)) throw new Error("Forbidden")
 
   const course = await getCourseBySlug(slug)
   if (!course) return
@@ -1053,7 +1053,7 @@ export async function deleteCourse(slug: string) {
 
 export async function duplicateCourseAsLMS(slug: string) {
   const user = await getSessionUser()
-  if (!user || !isSuperAdminEmail(user.email)) throw new Error("Forbidden")
+  if (!user || !checkIsSuperAdmin(user)) throw new Error("Forbidden")
 
   const course = await getCourseBySlug(slug)
   if (!course) throw new Error("Course not found")
@@ -1084,7 +1084,7 @@ export async function getAdminUserDetail(userId: string) {
 
   const userData = await getUserById(userId)
   if (!userData) throw new Error("User not found")
-  if (!isSuperAdminEmail(viewer.email)) {
+  if (!checkIsSuperAdmin(viewer)) {
     const role = viewer.role ?? "learner"
     if (role !== "lead" && role !== "group_head" && role !== "group_head_standard") throw new Error("Forbidden")
 
@@ -1212,7 +1212,7 @@ export async function adminUpdateUserRole(userId: string, newRole: string) {
   const sessionUser = await getSessionUser()
   if (!sessionUser) throw new Error("Unauthorized")
 
-  if (!isSuperAdminEmail(sessionUser.email)) {
+  if (!checkIsSuperAdmin(sessionUser)) {
     throw new Error("Only Super Admins can update user roles.")
   }
 

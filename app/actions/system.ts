@@ -1,11 +1,11 @@
 "use server"
 
 import { getSessionUser } from "./auth"
-import { isSuperAdminEmail } from "@/lib/access-control"
+import { isSuperAdmin as checkIsSuperAdmin } from "@/lib/access-control"
 
 export async function runFirestoreQuotaScript() {
   const user = await getSessionUser()
-  if (!user || !isSuperAdminEmail(user.email)) {
+  if (!user || !checkIsSuperAdmin(user)) {
     throw new Error("Unauthorized")
   }
 

@@ -5,7 +5,7 @@ import type { Enrollment } from "@/lib/db/schema"
 import type { Course } from "@/lib/types"
 import { CourseCard } from "@/components/lms/course-card"
 import { formatNaira } from "@/lib/utils"
-import { isSuperAdminEmail } from "@/lib/access-control"
+import { isSuperAdmin as checkIsSuperAdmin } from "@/lib/access-control"
 
 type CourseCatalogProps = {
   courses: Course[]
@@ -27,7 +27,7 @@ export function CourseCatalog({
   const [filterSubsidiary, setFilterSubsidiary] = useState<string>("All")
   const [filterCategory, setFilterCategory] = useState<string>("All")
   const [groupingMode, setGroupingMode] = useState<"subsidiary" | "category">("subsidiary")
-  const canUseGlobalCatalogControls = isSuperAdminEmail(userEmail)
+  const canUseGlobalCatalogControls = checkIsSuperAdmin({ email: userEmail, role: userRole })
 
   const enrollMap = useMemo(() => {
     const map = new Map<number, Enrollment>()

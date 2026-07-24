@@ -9,7 +9,7 @@ import {
   getAdminCourseBySlug,
 } from "@/app/actions/lms"
 import { getLessons } from "@/lib/lms-content"
-import { isSuperAdminEmail } from "@/lib/access-control"
+import { isSuperAdmin as checkIsSuperAdmin } from "@/lib/access-control"
 import { formatNaira, isCourseVisibleToUser, formatCourseSubsidiaries } from "@/lib/utils"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -66,7 +66,7 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
   const signedIn = Boolean(session?.user)
 
   // Super Admins get the bleeding edge live data so they can test their edits immediately
-  const isSuperAdmin = user && isSuperAdminEmail(user.email)
+  const isSuperAdmin = user && checkIsSuperAdmin(user)
   const course = isSuperAdmin ? await getAdminCourseBySlug(slug) : await getCourseBySlug(slug)
   
   if (!course) notFound()

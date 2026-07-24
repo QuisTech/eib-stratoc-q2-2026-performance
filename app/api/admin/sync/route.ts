@@ -1,5 +1,5 @@
 import { getSessionUser } from "@/app/actions/auth"
-import { isSuperAdminEmail } from "@/lib/access-control"
+import { isSuperAdmin as checkIsSuperAdmin } from "@/lib/access-control"
 import { adminDb } from "@/lib/firebase-admin"
 import { exec } from "child_process"
 import { promisify } from "util"
@@ -16,7 +16,7 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 })
   }
 
-  const isSuperAdmin = isSuperAdminEmail(user.email)
+  const isSuperAdmin = checkIsSuperAdmin(user)
   if (!isSuperAdmin && user.role !== "admin" && user.role !== "super_admin" && user.role !== "group_head" && user.role !== "lead") {
     return new Response(JSON.stringify({ error: "Forbidden: Admin access required" }), { status: 403 })
   }
