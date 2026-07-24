@@ -434,7 +434,12 @@ export async function getMyCertificateForCourse(courseId: number): Promise<Certi
 export async function getCertificateForCourse(courseId: number, targetUserId?: string): Promise<Certificate | null> {
   const uid = targetUserId || await getUserId()
   const certificates = await getCertificatesByUser(uid, courseId)
-  return (certificates || []).length > 0 ? (certificates[0] as Certificate) : null
+  if (!certificates || certificates.length === 0) return null;
+  const cert = certificates[0];
+  return {
+    ...cert,
+    issuedAt: parseSafeDate(cert.issuedAt)
+  } as Certificate;
 }
 
 export type MyCourseLearningState = {
