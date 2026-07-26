@@ -45,12 +45,14 @@ export default async function CertificatePage({
   if (!certificate) redirect(`/lms/${slug}`)
 
   let certName = session?.user?.name || session?.user?.email || "Learner"
+  let certEmail = session?.user?.email || ""
   if (targetUserId && targetUserId !== session?.user?.id) {
     const { adminDb } = await import("@/lib/firebase-admin")
     const doc = await adminDb.collection("users").doc(targetUserId).get()
     if (doc.exists) {
       const targetUser = doc.data() as { name: string, email: string }
       certName = targetUser.name || targetUser.email || "Learner"
+      certEmail = targetUser.email || ""
     }
   }
 
@@ -76,11 +78,24 @@ export default async function CertificatePage({
 
       {/* Certificate */}
       <article className="avoid-break relative overflow-hidden rounded-lg border-2 border-blue-800/30 bg-white p-8 shadow-sm md:p-14 text-slate-900">
+        {/* Watermark */}
+        <div 
+          className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center -rotate-[30deg]"
+          style={{ WebkitPrintColorAdjust: "exact", colorAdjust: "exact" }}
+        >
+          <div className="flex flex-col items-center gap-10 text-center">
+            {Array.from({ length: 20 }).map((_, i) => (
+              <p key={i} className="text-3xl font-bold whitespace-nowrap text-slate-900/10 dark:text-slate-900/10">
+                {certEmail} • {new Date(certificate.issuedAt).toLocaleString()}
+              </p>
+            ))}
+          </div>
+        </div>
         <div
-          className="pointer-events-none absolute inset-3 rounded-md border border-slate-200"
+          className="pointer-events-none absolute inset-3 rounded-md border border-slate-200 z-10"
           aria-hidden
         />
-        <div className="relative flex flex-col items-center text-center">
+        <div className="relative z-20 flex flex-col items-center text-center">
           <span className="flex h-14 w-14 items-center justify-center rounded-md bg-blue-800 text-white">
             <ShieldCheck className="h-7 w-7" />
           </span>

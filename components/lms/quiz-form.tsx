@@ -377,17 +377,15 @@ export function QuizForm({
       onCopy={(e) => e.preventDefault()}
       onContextMenu={(e) => e.preventDefault()}
     >
-      {result?.passed && (
-        <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden opacity-[0.03] dark:opacity-[0.05]">
-          <div className="flex flex-wrap gap-8 w-[200%] h-[200%] -translate-x-1/4 -translate-y-1/4 -rotate-12">
-            {Array.from({ length: 150 }).map((_, i) => (
-              <span key={i} className="text-xl font-bold whitespace-nowrap">
-                {userEmail} • {new Date().toLocaleDateString()}
-              </span>
-            ))}
-          </div>
+      <div className="absolute inset-0 z-50 pointer-events-none overflow-hidden opacity-10 dark:opacity-20">
+        <div className="flex flex-wrap gap-8 w-[200%] h-[200%] -translate-x-1/4 -translate-y-1/4 -rotate-12">
+          {Array.from({ length: 150 }).map((_, i) => (
+            <span key={i} className="text-xl font-bold whitespace-nowrap text-foreground">
+              {userEmail} • {new Date().toLocaleString()}
+            </span>
+          ))}
         </div>
-      )}
+      </div>
       <div className="z-10 flex flex-col gap-5">
       {result && (
         <Card
@@ -439,8 +437,7 @@ export function QuizForm({
         </Card>
       )}
 
-      {/* ZERO LEAKAGE POLICY: If they failed, we DO NOT show the questions or answers. */}
-      {result && !result.passed ? null : (
+      {/* Show question review for both passed and failed results */}
         <>
           {shuffled.length === 0 && !isLockedOutByAttempts && !isLockedOutByTime && (
             <p className="text-sm text-muted-foreground">No questions available.</p>
@@ -573,7 +570,7 @@ export function QuizForm({
         </>
       )}
       </>
-      )}
+
 
       {result && (
         <div className="mt-8 flex justify-center pb-8">

@@ -817,10 +817,8 @@ export async function updateCourse(slug: string, data: any) {
   if (!existing) throw new Error("Course not found")
   if (!checkIsSuperAdmin(user) && existing.authorId !== user.id) throw new Error("Forbidden")
 
-  const newSlug = data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
   await adminDb.collection("courses").doc(String(existing.id)).update({
     ...data,
-    slug: newSlug,
     isBriefing: !!data.isBriefing,
     updatedAt: new Date()
   })

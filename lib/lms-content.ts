@@ -203,7 +203,9 @@ function sanitizeCustomCourseData(data: any): any[] {
 export function getLessons(course: Course): Lesson[] {
   if (course.customContent) {
     try {
-      const parsed = JSON.parse(course.customContent)
+      const parsed = typeof course.customContent === "string" 
+        ? JSON.parse(course.customContent) 
+        : course.customContent;
       return sanitizeCustomCourseData(parsed)
     } catch (e) {
       console.error("Failed to parse custom lessons for", course.slug, e)
