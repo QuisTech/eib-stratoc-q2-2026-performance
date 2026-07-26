@@ -80,12 +80,12 @@ export default async function CertificatePage({
       <article className="avoid-break relative overflow-hidden rounded-lg border-2 border-blue-800/30 bg-white p-8 shadow-sm md:p-14 text-slate-900">
         {/* Watermark */}
         <div 
-          className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center -rotate-[30deg]"
-          style={{ WebkitPrintColorAdjust: "exact", colorAdjust: "exact" }}
+          className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center overflow-hidden"
+          style={{ WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" }}
         >
-          <div className="flex flex-col items-center gap-10 text-center">
+          <div className="flex flex-col items-center gap-10 text-center -rotate-[30deg] opacity-10 print:opacity-[0.15]">
             {Array.from({ length: 20 }).map((_, i) => (
-              <p key={i} className="text-3xl font-bold whitespace-nowrap text-slate-900/10 dark:text-slate-900/10">
+              <p key={i} className="text-3xl font-bold whitespace-nowrap text-black">
                 {certEmail} • {new Date(certificate.issuedAt).toLocaleString()}
               </p>
             ))}
