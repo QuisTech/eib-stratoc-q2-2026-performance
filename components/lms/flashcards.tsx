@@ -53,10 +53,10 @@ function Flashcard({ index, text }: { index: number; text: string }) {
             <Icon className="w-12 h-12 opacity-80" strokeWidth={1.5} />
             <div className="fr-view"><p>Key Concept {index}</p></div>
           </div>
-          <div className="flashcard-side-flip flex flex-col items-center gap-3">
+          <div className="flashcard-side-flip flex flex-col items-center gap-2 w-full px-4">
             <button
               aria-label="Click to flip"
-              className="flashcard-side-flip__btn flashcard-side-flip__btn--prefers-keyboard text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors animate-pulse"
+              className="w-full flex flex-col items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors animate-pulse"
               tabIndex={isFlipped ? -1 : 0}
               type="button"
               onClick={handleFlip}
@@ -70,8 +70,8 @@ function Flashcard({ index, text }: { index: number; text: string }) {
               <svg aria-hidden="true" fill="currentColor" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 17" className="flashcard-side-flip__icon">
                 <path d="M19.347 8.275l1.88 1.714a.727.727 0 0 0 .98-1.074l-3.225-2.941a.727.727 0 0 0-1.027.047l-2.94 3.224a.727.727 0 0 0 1.075.98l1.802-1.976a6.545 6.545 0 0 1-11.56 4.288.727.727 0 1 0-1.114.935 8 8 0 0 0 14.129-5.197zm-16.039.162l-1.79-1.633a.727.727 0 1 0-.98 1.074l3.223 2.94c.297.272.757.25 1.028-.046l2.94-3.224a.727.727 0 0 0-1.075-.98L4.768 8.636a6.545 6.545 0 0 1 11.555-4.482.727.727 0 1 0 1.114-.936A8 8 0 0 0 3.308 8.437z" fillRule="nonzero"></path>
               </svg>
+              <span className="text-base font-bold text-primary">👆 Click to flip</span>
             </button>
-            <div aria-hidden="true" className="flashcard-side-flip__tooltip text-base font-bold text-primary animate-pulse whitespace-nowrap">👆 Click to flip</div>
           </div>
         </div>
       </div>
@@ -90,10 +90,10 @@ function Flashcard({ index, text }: { index: number; text: string }) {
               <div className="fr-view"><p>{text}</p></div>
             </div>
           </div>
-          <div className="flashcard-side-flip flex flex-col items-center gap-3">
+          <div className="flashcard-side-flip flex flex-col items-center gap-2 w-full px-4">
             <button
               aria-label="Click to flip"
-              className="flashcard-side-flip__btn flashcard-side-flip__btn--prefers-keyboard text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors animate-pulse"
+              className="w-full flex flex-col items-center gap-2 text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors animate-pulse"
               tabIndex={isFlipped ? 0 : -1}
               type="button"
               onClick={handleFlip}
@@ -107,8 +107,8 @@ function Flashcard({ index, text }: { index: number; text: string }) {
               <svg aria-hidden="true" fill="currentColor" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 17" className="flashcard-side-flip__icon">
                 <path d="M19.347 8.275l1.88 1.714a.727.727 0 0 0 .98-1.074l-3.225-2.941a.727.727 0 0 0-1.027.047l-2.94 3.224a.727.727 0 0 0 1.075.98l1.802-1.976a6.545 6.545 0 0 1-11.56 4.288.727.727 0 1 0-1.114.935 8 8 0 0 0 14.129-5.197zm-16.039.162l-1.79-1.633a.727.727 0 1 0-.98 1.074l3.223 2.94c.297.272.757.25 1.028-.046l2.94-3.224a.727.727 0 0 0-1.075-.98L4.768 8.636a6.545 6.545 0 0 1 11.555-4.482.727.727 0 1 0 1.114-.936A8 8 0 0 0 3.308 8.437z" fillRule="nonzero"></path>
               </svg>
+              <span className="text-base font-bold text-primary">👆 Click to flip</span>
             </button>
-            <div aria-hidden="true" className="flashcard-side-flip__tooltip text-base font-bold text-primary animate-pulse whitespace-nowrap">👆 Click to flip</div>
           </div>
         </div>
       </div>
