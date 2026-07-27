@@ -16,7 +16,7 @@ import { LessonCompleteButton } from "@/components/lms/lesson-complete-button"
 import { Flashcards } from "@/components/lms/flashcards"
 import { ScormAccordion } from "@/components/lms/scorm-accordion"
 import { LabeledGraphic } from "@/components/lms/labeled-graphic"
-import { KnowledgeMatch } from "@/components/lms/knowledge-match"
+import { KnowledgeCheckSection } from "@/components/lms/knowledge-check-section"
 import { InteractiveTabs } from "@/components/lms/interactive-tabs"
 import { ArrowLeft, CheckCircle2, Circle, Clock, Lightbulb, Lock, Paperclip } from "lucide-react"
 import { isCourseVisibleToUser } from "@/lib/utils"
@@ -268,15 +268,7 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
           )}
 
           {lesson.knowledgeCheck && (
-            <div id="knowledge-check-section" className="mt-12 scroll-mt-24">
-              <KnowledgeMatch question={lesson.knowledgeCheck} onPassed={(passed) => {
-                // Store passed state in a data attribute for the button to read
-                const section = document.getElementById("knowledge-check-section")
-                if (section) {
-                  section.dataset.passed = "true"
-                }
-              }} />
-            </div>
+            <KnowledgeCheckSection question={lesson.knowledgeCheck} />
           )}
 
           {Array.isArray(lesson.interactiveTabs) && lesson.interactiveTabs.length > 0 && (
