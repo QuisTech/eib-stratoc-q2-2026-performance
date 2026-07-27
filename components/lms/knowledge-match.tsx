@@ -12,7 +12,7 @@ type MatchingQuestion = {
   explanation: string
 }
 
-export function KnowledgeMatch({ question }: { question: MatchingQuestion }) {
+export function KnowledgeMatch({ question, onPassed }: { question: MatchingQuestion; onPassed?: (passed: boolean) => void }) {
   const [answers, setAnswers] = useState<{ left: string; right: string }[]>([])
   const [shuffledLeft, setShuffledLeft] = useState<string[]>([])
   const [shuffledRight, setShuffledRight] = useState<string[]>([])
@@ -115,6 +115,11 @@ export function KnowledgeMatch({ question }: { question: MatchingQuestion }) {
       pairResults[a.left] = isCorrect
       if (!isCorrect) isAllCorrect = false
     })
+    
+    // Notify parent component when passed
+    if (isAllCorrect && onPassed) {
+      onPassed(true)
+    }
   }
 
   return (

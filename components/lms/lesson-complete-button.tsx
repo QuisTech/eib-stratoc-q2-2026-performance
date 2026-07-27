@@ -26,15 +26,18 @@ export function LessonCompleteButton({
   const router = useRouter()
 
   function handleComplete() {
-    // Temporarily disable knowledge check requirement to isolate the issue
-    // if (hasKnowledgeCheck && !alreadyComplete && !isPassed) {
-    //   const el = document.getElementById("knowledge-check-section")
-    //   if (el) {
-    //     el.scrollIntoView({ behavior: "smooth" })
-    //   }
-    //   setError("Please pass the Knowledge Check above to proceed.")
-    //   return
-    // }
+    if (hasKnowledgeCheck && !alreadyComplete) {
+      const section = document.getElementById("knowledge-check-section")
+      const knowledgeCheckPassed = section?.dataset.passed === "true"
+      
+      if (!knowledgeCheckPassed) {
+        if (section) {
+          section.scrollIntoView({ behavior: "smooth" })
+        }
+        setError("Please pass the Knowledge Check above to proceed.")
+        return
+      }
+    }
     
     setError(null)
     startTransition(async () => {

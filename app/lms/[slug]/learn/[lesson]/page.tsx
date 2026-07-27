@@ -269,7 +269,13 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
 
           {lesson.knowledgeCheck && (
             <div id="knowledge-check-section" className="mt-12 scroll-mt-24">
-              <KnowledgeMatch question={lesson.knowledgeCheck} />
+              <KnowledgeMatch question={lesson.knowledgeCheck} onPassed={(passed) => {
+                // Store passed state in a data attribute for the button to read
+                const section = document.getElementById("knowledge-check-section")
+                if (section) {
+                  section.dataset.passed = "true"
+                }
+              }} />
             </div>
           )}
 
