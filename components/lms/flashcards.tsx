@@ -29,8 +29,16 @@ function Flashcard({ index, text }: { index: number; text: string }) {
 
   return (
     <li
-      className={`flashcard flashcard--large ${isFlipped ? "flashcard--flipped" : ""}`}
+      className={`flashcard flashcard--large ${isFlipped ? "flashcard--flipped" : ""} cursor-pointer hover:shadow-lg transition-shadow duration-200`}
       role="listitem"
+      onClick={handleFlip}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault()
+          handleFlip(e)
+        }
+      }}
+      tabIndex={0}
     >
       {/* FRONT OF CARD */}
       <div
@@ -48,7 +56,7 @@ function Flashcard({ index, text }: { index: number; text: string }) {
           <div className="flashcard-side-flip">
             <button
               aria-label="Click to flip"
-              className="flashcard-side-flip__btn flashcard-side-flip__btn--prefers-keyboard text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors"
+              className="flashcard-side-flip__btn flashcard-side-flip__btn--prefers-keyboard text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors animate-pulse"
               tabIndex={isFlipped ? -1 : 0}
               type="button"
               onClick={handleFlip}
@@ -63,7 +71,7 @@ function Flashcard({ index, text }: { index: number; text: string }) {
                 <path d="M19.347 8.275l1.88 1.714a.727.727 0 0 0 .98-1.074l-3.225-2.941a.727.727 0 0 0-1.027.047l-2.94 3.224a.727.727 0 0 0 1.075.98l1.802-1.976a6.545 6.545 0 0 1-11.56 4.288.727.727 0 1 0-1.114.935 8 8 0 0 0 14.129-5.197zm-16.039.162l-1.79-1.633a.727.727 0 1 0-.98 1.074l3.223 2.94c.297.272.757.25 1.028-.046l2.94-3.224a.727.727 0 0 0-1.075-.98L4.768 8.636a6.545 6.545 0 0 1 11.555-4.482.727.727 0 1 0 1.114-.936A8 8 0 0 0 3.308 8.437z" fillRule="nonzero"></path>
               </svg>
             </button>
-            <div aria-hidden="true" className="flashcard-side-flip__tooltip">Click to flip</div>
+            <div aria-hidden="true" className="flashcard-side-flip__tooltip font-semibold text-primary">👆 Click to flip</div>
           </div>
         </div>
       </div>
@@ -85,7 +93,7 @@ function Flashcard({ index, text }: { index: number; text: string }) {
           <div className="flashcard-side-flip">
             <button
               aria-label="Click to flip"
-              className="flashcard-side-flip__btn flashcard-side-flip__btn--prefers-keyboard text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors"
+              className="flashcard-side-flip__btn flashcard-side-flip__btn--prefers-keyboard text-slate-500 dark:text-slate-400 hover:text-primary dark:hover:text-primary transition-colors animate-pulse"
               tabIndex={isFlipped ? 0 : -1}
               type="button"
               onClick={handleFlip}
@@ -100,7 +108,7 @@ function Flashcard({ index, text }: { index: number; text: string }) {
                 <path d="M19.347 8.275l1.88 1.714a.727.727 0 0 0 .98-1.074l-3.225-2.941a.727.727 0 0 0-1.027.047l-2.94 3.224a.727.727 0 0 0 1.075.98l1.802-1.976a6.545 6.545 0 0 1-11.56 4.288.727.727 0 1 0-1.114.935 8 8 0 0 0 14.129-5.197zm-16.039.162l-1.79-1.633a.727.727 0 1 0-.98 1.074l3.223 2.94c.297.272.757.25 1.028-.046l2.94-3.224a.727.727 0 0 0-1.075-.98L4.768 8.636a6.545 6.545 0 0 1 11.555-4.482.727.727 0 1 0 1.114-.936A8 8 0 0 0 3.308 8.437z" fillRule="nonzero"></path>
               </svg>
             </button>
-            <div aria-hidden="true" className="flashcard-side-flip__tooltip">Click to flip</div>
+            <div aria-hidden="true" className="flashcard-side-flip__tooltip font-semibold text-primary">👆 Click to flip</div>
           </div>
         </div>
       </div>
