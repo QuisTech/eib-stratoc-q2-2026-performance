@@ -18,7 +18,6 @@ import { ScormAccordion } from "@/components/lms/scorm-accordion"
 import { LabeledGraphic } from "@/components/lms/labeled-graphic"
 import { KnowledgeMatch } from "@/components/lms/knowledge-match"
 import { InteractiveTabs } from "@/components/lms/interactive-tabs"
-import { KnowledgeCheckProvider } from "@/components/lms/knowledge-check-context"
 import { ArrowLeft, CheckCircle2, Circle, Clock, Lightbulb, Lock, Paperclip } from "lucide-react"
 import { isCourseVisibleToUser } from "@/lib/utils"
 
@@ -195,7 +194,6 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
         </aside>
 
         {/* Lesson content */}
-        <KnowledgeCheckProvider>
         <article>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent-foreground">
             Lesson {index + 1} of {lessons.length}
@@ -329,7 +327,6 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
             )}
           </div>
         </article>
-        </KnowledgeCheckProvider>
       </div>
     </main>
   )

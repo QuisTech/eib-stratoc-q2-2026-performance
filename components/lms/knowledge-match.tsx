@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { CheckCircle2, XCircle, Lightbulb, RotateCcw } from "lucide-react"
-import { useKnowledgeCheck } from "@/components/lms/knowledge-check-context"
 
 type MatchingQuestion = {
   id: string
@@ -19,7 +18,6 @@ export function KnowledgeMatch({ question }: { question: MatchingQuestion }) {
   const [shuffledRight, setShuffledRight] = useState<string[]>([])
   const [isSubmitted, setIsSubmitted] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
-  const { setIsPassed } = useKnowledgeCheck()
 
   const buildShuffled = () => {
     const lefts = question.pairs.map(p => p.left)
@@ -118,10 +116,6 @@ export function KnowledgeMatch({ question }: { question: MatchingQuestion }) {
       if (!isCorrect) isAllCorrect = false
     })
   }
-
-  useEffect(() => {
-    setIsPassed(isSubmitted && isAllCorrect)
-  }, [isSubmitted, isAllCorrect])
 
   return (
     <Card className={`mt-6 mb-8 border-l-4 ${isSubmitted ? (isAllCorrect ? "border-[var(--chart-1)]" : "border-destructive") : "border-primary"}`}>

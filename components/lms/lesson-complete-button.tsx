@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { completeLesson } from "@/app/actions/lms"
 import { Loader2, CheckCircle2, ArrowRight } from "lucide-react"
-import { useKnowledgeCheck } from "@/components/lms/knowledge-check-context"
 
 export function LessonCompleteButton({
   courseId,
@@ -25,17 +24,17 @@ export function LessonCompleteButton({
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
-  const { isPassed } = useKnowledgeCheck()
 
   function handleComplete() {
-    if (hasKnowledgeCheck && !alreadyComplete && !isPassed) {
-      const el = document.getElementById("knowledge-check-section")
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth" })
-      }
-      setError("Please pass the Knowledge Check above to proceed.")
-      return
-    }
+    // Temporarily disable knowledge check requirement to isolate the issue
+    // if (hasKnowledgeCheck && !alreadyComplete && !isPassed) {
+    //   const el = document.getElementById("knowledge-check-section")
+    //   if (el) {
+    //     el.scrollIntoView({ behavior: "smooth" })
+    //   }
+    //   setError("Please pass the Knowledge Check above to proceed.")
+    //   return
+    // }
     
     setError(null)
     startTransition(async () => {
