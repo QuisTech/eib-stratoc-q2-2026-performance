@@ -41,7 +41,7 @@ export function KnowledgeMatch({ question }: { question: MatchingQuestion }) {
     setShuffledLeft(lefts)
     setShuffledRight(rights)
     setIsMounted(true)
-  }, [question])
+  }, []) // Only run once on mount
 
   if (!isMounted) return null
 
@@ -121,7 +121,7 @@ export function KnowledgeMatch({ question }: { question: MatchingQuestion }) {
 
   useEffect(() => {
     setIsPassed(isSubmitted && isAllCorrect)
-  }, [isSubmitted, isAllCorrect, setIsPassed])
+  }, [isSubmitted, isAllCorrect])
 
   return (
     <Card className={`mt-6 mb-8 border-l-4 ${isSubmitted ? (isAllCorrect ? "border-[var(--chart-1)]" : "border-destructive") : "border-primary"}`}>
