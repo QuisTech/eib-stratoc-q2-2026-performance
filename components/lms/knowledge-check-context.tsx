@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, useState } from "react"
+import React, { createContext, useContext, useState, useCallback } from "react"
 
 interface KnowledgeCheckContextType {
   isPassed: boolean
@@ -14,8 +14,13 @@ const KnowledgeCheckContext = createContext<KnowledgeCheckContextType>({
 
 export function KnowledgeCheckProvider({ children }: { children: React.ReactNode }) {
   const [isPassed, setIsPassed] = useState(false)
+  
+  const handleSetIsPassed = useCallback((val: boolean) => {
+    setIsPassed(val)
+  }, [])
+  
   return (
-    <KnowledgeCheckContext.Provider value={{ isPassed, setIsPassed }}>
+    <KnowledgeCheckContext.Provider value={{ isPassed, setIsPassed: handleSetIsPassed }}>
       {children}
     </KnowledgeCheckContext.Provider>
   )
