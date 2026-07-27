@@ -47,9 +47,9 @@ export default async function AdminPage({
     }
 
     const params = await Promise.resolve(searchParams)
-    if (isSuperAdmin && params?.full !== "1") {
-      const firestoreUsage = await getFirestoreUsageSummary()
-      const cacheStats = getCacheStats()
+    if (params?.full !== "1") {
+      const firestoreUsage = isSuperAdmin ? await getFirestoreUsageSummary() : null
+      const cacheStats = isSuperAdmin ? getCacheStats() : null
 
       return (
         <main className="mx-auto max-w-7xl px-4 py-8 md:px-6 md:py-10">
@@ -79,82 +79,84 @@ export default async function AdminPage({
             </p>
           </header>
 
-          <section className="mb-8 grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(260px,1fr)]">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Firestore usage today</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {firestoreUsage.available ? (
-                  <div className="grid gap-4 md:grid-cols-3">
-                    {[
-                      { label: "Reads", metric: firestoreUsage.reads },
-                      { label: "Writes", metric: firestoreUsage.writes },
-                      { label: "Deletes", metric: firestoreUsage.deletes },
-                    ].map(({ label, metric }) => (
-                      <div key={label} className="rounded-md border p-4">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-sm font-medium">{label}</span>
-                          <span className="text-xs text-muted-foreground">{metric.percent}%</span>
+          {isSuperAdmin && (
+            <section className="mb-8 grid gap-4 lg:grid-cols-[minmax(0,2fr)_minmax(260px,1fr)]">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Firestore usage today</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {firestoreUsage?.available ? (
+                    <div className="grid gap-4 md:grid-cols-3">
+                      {[
+                        { label: "Reads", metric: firestoreUsage.reads },
+                        { label: "Writes", metric: firestoreUsage.writes },
+                        { label: "Deletes", metric: firestoreUsage.deletes },
+                      ].map(({ label, metric }) => (
+                        <div key={label} className="rounded-md border p-4">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-sm font-medium">{label}</span>
+                            <span className="text-xs text-muted-foreground">{metric.percent}%</span>
+                          </div>
+                          <p className="mt-2 text-2xl font-bold tabular-nums">
+                            {metric.count.toLocaleString()}
+                          </p>
+                          <Progress value={Math.min(metric.percent, 100)} className="mt-3 h-1.5" />
+                          <p className="mt-2 text-xs text-muted-foreground">
+                            of {metric.quota.toLocaleString()} free daily quota
+                          </p>
                         </div>
-                        <p className="mt-2 text-2xl font-bold tabular-nums">
-                          {metric.count.toLocaleString()}
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      <div className="rounded-md border border-destructive/30 bg-destructive/5 p-4 text-sm">
+                        <p className="font-medium text-destructive">Usage metrics unavailable</p>
+                        <p className="mt-2 text-muted-foreground">
+                          {firestoreUsage?.error ||
+                            "Google Monitoring API requires billing for in-app usage metrics. You can bypass this using the server command below."}
                         </p>
-                        <Progress value={Math.min(metric.percent, 100)} className="mt-3 h-1.5" />
-                        <p className="mt-2 text-xs text-muted-foreground">
-                          of {metric.quota.toLocaleString()} free daily quota
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div className="mt-6 flex flex-col items-start gap-2 border-t pt-4">
+                    <FirestoreQuotaButton />
+                    <p className="text-xs text-muted-foreground">
+                      Lagos reset window: {formatTime(firestoreUsage?.resetAt || "")} to{" "}
+                      {formatTime(firestoreUsage?.measuredAt || "")}.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Firestore cache</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    {[
+                      { label: "Hits", value: cacheStats?.hits ?? 0 },
+                      { label: "Misses", value: cacheStats?.misses ?? 0 },
+                      { label: "Pending", value: cacheStats?.pending ?? 0 },
+                      { label: "Errors", value: cacheStats?.errors ?? 0 },
+                    ].map((item) => (
+                      <div key={item.label} className="rounded-md border p-3">
+                        <p className="text-xs text-muted-foreground">{item.label}</p>
+                        <p className="mt-1 text-xl font-semibold tabular-nums">
+                          {item.value.toLocaleString()}
                         </p>
                       </div>
                     ))}
                   </div>
-                ) : (
-                  <div className="flex flex-col gap-3">
-                    <div className="rounded-md border border-destructive/30 bg-destructive/5 p-4 text-sm">
-                      <p className="font-medium text-destructive">Usage metrics unavailable</p>
-                      <p className="mt-2 text-muted-foreground">
-                        {firestoreUsage.error ||
-                          "Google Monitoring API requires billing for in-app usage metrics. You can bypass this using the server command below."}
-                      </p>
-                    </div>
-                  </div>
-                )}
-                
-                <div className="mt-6 flex flex-col items-start gap-2 border-t pt-4">
-                  <FirestoreQuotaButton />
-                  <p className="text-xs text-muted-foreground">
-                    Lagos reset window: {formatTime(firestoreUsage.resetAt)} to{" "}
-                    {formatTime(firestoreUsage.measuredAt)}.
+                  <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
+                    These counters reset when the server process restarts.
                   </p>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Firestore cache</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  {[
-                    { label: "Hits", value: cacheStats.hits },
-                    { label: "Misses", value: cacheStats.misses },
-                    { label: "Pending", value: cacheStats.pending },
-                    { label: "Errors", value: cacheStats.errors },
-                  ].map((item) => (
-                    <div key={item.label} className="rounded-md border p-3">
-                      <p className="text-xs text-muted-foreground">{item.label}</p>
-                      <p className="mt-1 text-xl font-semibold tabular-nums">
-                        {item.value.toLocaleString()}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-                <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-                  These counters reset when the server process restarts.
-                </p>
-              </CardContent>
-            </Card>
-          </section>
+                </CardContent>
+              </Card>
+            </section>
+          )}
 
           <section className="mb-8">
             <Card className="border-primary/30 bg-primary/5">
