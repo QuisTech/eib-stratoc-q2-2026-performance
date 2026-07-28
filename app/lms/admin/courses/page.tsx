@@ -16,7 +16,7 @@ export default async function CourseManagementPage() {
 
   const role = user.role ?? "learner"
   const isSuperAdmin = checkIsSuperAdmin(user)
-  const canManageCourses = isSuperAdmin || role === "group_head" || role === "lead"
+  const canManageCourses = isSuperAdmin || role === "group_head" || role === "lead" || role === "group_head_standard"
 
   if (!canManageCourses) {
     redirect("/lms")

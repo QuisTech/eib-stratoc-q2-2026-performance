@@ -231,10 +231,14 @@ export async function getCourses(): Promise<Course[]> {
 
 export async function getAdminCourses(): Promise<Course[]> {
   const staticCourses = getStaticLmsCourses()
+  console.log(`Static courses count: ${staticCourses.length}`)
+  
   let liveCourses: Course[] = []
 
   try {
     liveCourses = await getCachedCoursesFromFirestore()
+    console.log(`Live courses from Firestore count: ${liveCourses.length}`)
+    console.log(`Live courses slugs: ${liveCourses.map(c => c.slug).join(', ')}`)
   } catch (error) {
     console.error("Firestore error while loading admin LMS courses; serving static catalog only.", error)
   }
@@ -246,7 +250,12 @@ export async function getAdminCourses(): Promise<Course[]> {
   for (const course of liveCourses) {
     merged.set(course.slug || String(course.id), toCacheSafeValue(course) as Course)
   }
-  return [...merged.values()].filter(c => !(c as any).isDeleted)
+  
+  const result = [...merged.values()].filter(c => !(c as any).isDeleted)
+  console.log(`Total merged courses count: ${result.length}`)
+  console.log(`Total merged courses slugs: ${result.map(c => c.slug).join(', ')}`)
+  
+  return result
 }
 
 export async function getCourseBySlug(slug: string): Promise<Course | null> {
