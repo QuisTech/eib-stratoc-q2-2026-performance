@@ -160,6 +160,33 @@ const getCachedAdminSourceData = unstable_cache(
   { tags: [ADMIN_SOURCE_CACHE_TAG], revalidate: 30 * 60 }
 )
 
+const getCachedCourseBySlug = unstable_cache(
+  async (slug: string) => {
+    let liveCourse: Course | null = null
+    try {
+      const snap = await adminDb.collection("courses").where("slug", "==", slug).limit(1).get()
+      if (!snap.empty) {
+        liveCourse = toCacheSafeValue(snap.docs[0].data()) as Course
+      }
+    } catch (error) {
+      if (isFirestoreQuotaError(error)) {
+        console.error(`Firestore quota exhausted while loading LMS course slug "${slug}".`, error)
+      } else {
+        throw error
+      }
+    }
+
+    if (liveCourse) {
+      if ((liveCourse as any).isDeleted) return null
+      return liveCourse
+    }
+
+    return getStaticLmsCourseBySlug(slug) || null
+  },
+  ["lms-course-by-slug-v1"],
+  { tags: [COURSE_CACHE_TAG], revalidate: 60 * 60 }
+)
+
 function invalidateAdminCaches() {
   invalidateCache("all_users")
   invalidateCache("all_enrollments")
@@ -231,14 +258,10 @@ export async function getCourses(): Promise<Course[]> {
 
 export async function getAdminCourses(): Promise<Course[]> {
   const staticCourses = getStaticLmsCourses()
-  console.log(`Static courses count: ${staticCourses.length}`)
-  
   let liveCourses: Course[] = []
 
   try {
     liveCourses = await getCachedCoursesFromFirestore()
-    console.log(`Live courses from Firestore count: ${liveCourses.length}`)
-    console.log(`Live courses slugs: ${liveCourses.map(c => c.slug).join(', ')}`)
   } catch (error) {
     console.error("Firestore error while loading admin LMS courses; serving static catalog only.", error)
   }
@@ -250,52 +273,11 @@ export async function getAdminCourses(): Promise<Course[]> {
   for (const course of liveCourses) {
     merged.set(course.slug || String(course.id), toCacheSafeValue(course) as Course)
   }
-  
-  const result = [...merged.values()].filter(c => !(c as any).isDeleted)
-  console.log(`Total merged courses count: ${result.length}`)
-  console.log(`Total merged courses slugs: ${result.map(c => c.slug).join(', ')}`)
-  
-  return result
+  return [...merged.values()].filter(c => !(c as any).isDeleted)
 }
 
 export async function getCourseBySlug(slug: string): Promise<Course | null> {
-  console.log(`getCourseBySlug called with slug: ${slug}`)
-  let liveCourse: Course | null = null
-  try {
-    const snap = await adminDb.collection("courses").where("slug", "==", slug).limit(1).get()
-    console.log(`Firestore query for slug "${slug}" returned ${snap.size} results`)
-    if (!snap.empty) {
-      liveCourse = toCacheSafeValue(snap.docs[0].data()) as Course
-      console.log(`Found course in Firestore with slug: ${liveCourse.slug}`)
-    } else {
-      console.log(`No course found in Firestore with slug: ${slug}`)
-    }
-  } catch (error) {
-    if (isFirestoreQuotaError(error)) {
-      console.error(`Firestore quota exhausted while loading LMS course slug "${slug}".`, error)
-    } else {
-      console.error(`Error querying Firestore for slug "${slug}":`, error)
-      throw error
-    }
-  }
-
-  if (liveCourse) {
-    if ((liveCourse as any).isDeleted) {
-      console.log(`Course ${slug} is marked as deleted`)
-      return null
-    }
-    console.log(`Returning live course for slug: ${slug}`)
-    return liveCourse
-  }
-
-  console.log(`No live course found, checking static courses for slug: ${slug}`)
-  const staticCourse = getStaticLmsCourseBySlug(slug)
-  if (staticCourse) {
-    console.log(`Found static course for slug: ${slug}`)
-  } else {
-    console.log(`No static course found for slug: ${slug}`)
-  }
-  return staticCourse || null
+  return getCachedCourseBySlug(slug)
 }
 
 export async function getAdminCourseBySlug(slug: string): Promise<Course | null> {
@@ -814,11 +796,9 @@ export async function createCourse(data: any) {
   if (!checkIsSuperAdmin(user) && user.role !== "group_head" && user.role !== "lead") throw new Error("Forbidden")
 
   const slug = data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
-  console.log(`Creating course with slug: ${slug} from title: ${data.title}`)
   
   const existing = await getCourseBySlug(slug)
   if (existing) {
-    console.error(`Course with slug ${slug} already exists`)
     throw new Error("A course with this title already exists!")
   }
 
@@ -834,17 +814,13 @@ export async function createCourse(data: any) {
     updatedAt: new Date()
   }
   
-  console.log(`Writing course to database with ID: ${id}, slug: ${slug}`)
   await adminDb.collection("courses").doc(String(id)).set(courseData)
-  console.log(`Course written successfully to database`)
 
   invalidateCache("courses")
   revalidateCacheTag(COURSE_CACHE_TAG)
   revalidateCacheTag(ADMIN_SOURCE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
-  
-  console.log(`Course creation complete for slug: ${slug}`)
 }
 
 export async function updateCourse(slug: string, data: any) {
