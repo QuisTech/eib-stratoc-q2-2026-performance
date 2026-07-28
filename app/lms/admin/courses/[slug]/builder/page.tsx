@@ -19,7 +19,7 @@ export default async function CourseBuilderPage({
 
   const role = session.user.role as string
   const isSuperAdmin = checkIsSuperAdmin(session.user)
-  if (!isSuperAdmin && role !== "group_head" && role !== "lead") redirect("/lms")
+  if (!isSuperAdmin && role !== "group_head" && role !== "lead" && role !== "group_head_standard") redirect("/lms")
 
   const course = await getAdminCourseBySlug(slug)
   if (!course) redirect("/lms/admin")
