@@ -828,6 +828,7 @@ export async function createCourse(data: any) {
     id,
     slug,
     isBriefing: !!data.isBriefing,
+    isDeleted: false,
     authorId: user.id,
     createdAt: new Date(),
     updatedAt: new Date()
