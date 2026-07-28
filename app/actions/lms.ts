@@ -259,26 +259,43 @@ export async function getAdminCourses(): Promise<Course[]> {
 }
 
 export async function getCourseBySlug(slug: string): Promise<Course | null> {
+  console.log(`getCourseBySlug called with slug: ${slug}`)
   let liveCourse: Course | null = null
   try {
     const snap = await adminDb.collection("courses").where("slug", "==", slug).limit(1).get()
+    console.log(`Firestore query for slug "${slug}" returned ${snap.size} results`)
     if (!snap.empty) {
       liveCourse = toCacheSafeValue(snap.docs[0].data()) as Course
+      console.log(`Found course in Firestore with slug: ${liveCourse.slug}`)
+    } else {
+      console.log(`No course found in Firestore with slug: ${slug}`)
     }
   } catch (error) {
     if (isFirestoreQuotaError(error)) {
       console.error(`Firestore quota exhausted while loading LMS course slug "${slug}".`, error)
     } else {
+      console.error(`Error querying Firestore for slug "${slug}":`, error)
       throw error
     }
   }
 
   if (liveCourse) {
-    if ((liveCourse as any).isDeleted) return null
+    if ((liveCourse as any).isDeleted) {
+      console.log(`Course ${slug} is marked as deleted`)
+      return null
+    }
+    console.log(`Returning live course for slug: ${slug}`)
     return liveCourse
   }
 
-  return getStaticLmsCourseBySlug(slug) || null
+  console.log(`No live course found, checking static courses for slug: ${slug}`)
+  const staticCourse = getStaticLmsCourseBySlug(slug)
+  if (staticCourse) {
+    console.log(`Found static course for slug: ${slug}`)
+  } else {
+    console.log(`No static course found for slug: ${slug}`)
+  }
+  return staticCourse || null
 }
 
 export async function getAdminCourseBySlug(slug: string): Promise<Course | null> {
