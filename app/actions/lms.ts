@@ -69,12 +69,7 @@ export async function promoteMeToAdmin() {
 }
 
 async function getCourseById(courseId: number): Promise<Course | null> {
-  const staticCourse = getStaticLmsCourseById(courseId)
-  if (staticCourse) return staticCourse
-  if (hasStaticLmsCourses() && !ALLOW_FIRESTORE_COURSE_FALLBACK) return null
-
-  const doc = await adminDb.collection("courses").doc(String(courseId)).get()
-  return doc.exists ? (doc.data() as Course) : null
+  return getCachedCourseById(courseId)
 }
 
 // ── In-memory TTL cache to prevent Firestore quota exhaustion ──
@@ -184,6 +179,33 @@ const getCachedCourseBySlug = unstable_cache(
     return getStaticLmsCourseBySlug(slug) || null
   },
   ["lms-course-by-slug-v1"],
+  { tags: [COURSE_CACHE_TAG], revalidate: 60 * 60 }
+)
+
+const getCachedCourseById = unstable_cache(
+  async (courseId: number) => {
+    const staticCourse = getStaticLmsCourseById(courseId)
+    if (staticCourse) return staticCourse
+    if (hasStaticLmsCourses() && !ALLOW_FIRESTORE_COURSE_FALLBACK) return null
+
+    try {
+      const doc = await adminDb.collection("courses").doc(String(courseId)).get()
+      if (doc.exists) {
+        const course = doc.data() as Course
+        if ((course as any).isDeleted) return null
+        return course
+      }
+    } catch (error) {
+      if (isFirestoreQuotaError(error)) {
+        console.error(`Firestore quota exhausted while loading course by ID ${courseId}.`, error)
+      } else {
+        throw error
+      }
+    }
+
+    return null
+  },
+  ["lms-course-by-id-v1"],
   { tags: [COURSE_CACHE_TAG], revalidate: 60 * 60 }
 )
 

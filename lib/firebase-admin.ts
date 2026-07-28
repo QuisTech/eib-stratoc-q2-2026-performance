@@ -80,8 +80,8 @@ const resultCache = new Map<string, CacheEntry<any>>();
 const pendingRequests = new Map<string, PendingRequest<any>>();
 
 const DEFAULT_CACHE_TTL_MS = 5000; // 5 seconds for request deduplication
-const USER_QUERY_TTL_MS = 50; // 50ms for user-scoped queries to prevent stale reads after mutations
-const COLLECTION_QUERY_TTL_MS = 15000; // 15 seconds for full collection queries
+const USER_QUERY_TTL_MS = 5 * 60 * 1000; // 5 minutes for user-scoped queries (with proper invalidation on mutations)
+const COLLECTION_QUERY_TTL_MS = 30 * 60 * 1000; // 30 minutes for full collection queries (with proper invalidation)
 const DEBUG_FIRESTORE_CACHE = process.env.FIRESTORE_CACHE_DEBUG === "true";
 
 // Cache statistics for debugging
