@@ -788,11 +788,16 @@ export async function createCourse(data: any) {
   if (!checkIsSuperAdmin(user) && user.role !== "group_head" && user.role !== "lead") throw new Error("Forbidden")
 
   const slug = data.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')
+  console.log(`Creating course with slug: ${slug} from title: ${data.title}`)
+  
   const existing = await getCourseBySlug(slug)
-  if (existing) throw new Error("A course with this title already exists!")
+  if (existing) {
+    console.error(`Course with slug ${slug} already exists`)
+    throw new Error("A course with this title already exists!")
+  }
 
   const id = Date.now()
-  await adminDb.collection("courses").doc(String(id)).set({
+  const courseData = {
     ...data,
     id,
     slug,
@@ -800,13 +805,19 @@ export async function createCourse(data: any) {
     authorId: user.id,
     createdAt: new Date(),
     updatedAt: new Date()
-  })
+  }
+  
+  console.log(`Writing course to database with ID: ${id}, slug: ${slug}`)
+  await adminDb.collection("courses").doc(String(id)).set(courseData)
+  console.log(`Course written successfully to database`)
 
   invalidateCache("courses")
   revalidateCacheTag(COURSE_CACHE_TAG)
   revalidateCacheTag(ADMIN_SOURCE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
+  
+  console.log(`Course creation complete for slug: ${slug}`)
 }
 
 export async function updateCourse(slug: string, data: any) {
