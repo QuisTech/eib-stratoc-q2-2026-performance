@@ -25,8 +25,14 @@ export default async function EditCoursePage({
   const isSuperAdmin = checkIsSuperAdmin(session.user)
   if (!isSuperAdmin && role !== "group_head" && role !== "lead" && role !== "group_head_standard") redirect("/lms")
   const course = await getAdminCourseBySlug(slug)
-  if (!course) redirect("/lms/admin")
-  if (!isSuperAdmin && course.authorId !== session.user.id) redirect("/lms/admin")
+  if (!course) {
+    console.error(`Course not found for slug: ${slug}`)
+    redirect("/lms/admin")
+  }
+  if (!isSuperAdmin && course.authorId !== session.user.id) {
+    console.error(`User ${session.user.id} not authorized to edit course ${slug} owned by ${course.authorId}`)
+    redirect("/lms/admin")
+  }
 
   async function handleUpdate(formData: FormData) {
     "use server"
