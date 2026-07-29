@@ -64,6 +64,7 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
   const isFreePreview = index < 2 || !!lesson.isPreview
   let enrollment: Enrollment | null = null
   let completedKeys = new Set<string>()
+  let quotaExhausted = false
 
   if (session?.user) {
     const isVisible = isCourseVisibleToUser(
@@ -73,12 +74,24 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
       session.user.email || null
     )
     if (!isVisible) notFound()
-    const learningState = await getMyCourseLearningState(course.id)
-    enrollment = learningState?.enrollment ?? null
-    completedKeys = new Set(learningState?.completedLessonKeys ?? [])
+    try {
+      const learningState = await getMyCourseLearningState(course.id)
+      enrollment = learningState?.enrollment ?? null
+      completedKeys = new Set(learningState?.completedLessonKeys ?? [])
+    } catch (error) {
+      // Detect Firestore quota exhaustion
+      if (error && typeof error === 'object' && 'code' in error && (error.code === 8 || error.code === 'resource-exhausted')) {
+        quotaExhausted = true
+        console.log("Firestore quota exhausted - allowing full lesson access")
+      } else {
+        throw error
+      }
+    }
   }
 
-  const canAccess = isFreePreview || !!enrollment
+  // When quotas are exhausted, allow access to all lessons without enrollment
+  // When quotas are available, enforce 2-lesson preview + enrollment requirement
+  const canAccess = quotaExhausted || isFreePreview || !!enrollment
   if (!canAccess) {
     if (!session?.user) redirect(`/sign-in`)
     else redirect(`/lms/${slug}`)
@@ -86,7 +99,8 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
 
   // Enforce sequential progression for Lesson 4 (index 3) onwards
   // Lessons 1 and 2 are free previews, so they are exempt from strict completion locks.
-  if (enrollment && index >= 3) {
+  // Skip progression enforcement when quotas are exhausted
+  if (!quotaExhausted && enrollment && index >= 3) {
     let firstLockedIndex = -1
     for (let i = 2; i < index; i++) {
       if (!completedKeys.has(lessons[i].key)) {
