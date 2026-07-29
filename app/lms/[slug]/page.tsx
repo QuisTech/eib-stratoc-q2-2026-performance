@@ -88,15 +88,17 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
   let learningState = null
   let enrollment = null
   let enrolled = false
+  let enrollmentLoaded = false
 
   if (signedIn) {
     try {
       learningState = await getMyCourseLearningState(course.id)
       enrollment = learningState?.enrollment ?? null
       enrolled = Boolean(enrollment)
+      enrollmentLoaded = true
     } catch (error) {
-      // Ignore enrollment errors - allow lesson access anyway
-      console.log("Could not load enrollment state, allowing lesson access")
+      // If enrollment fails to load (quota exhausted), allow full access
+      console.log("Could not load enrollment state (quota exhausted) - allowing full lesson access")
     }
   }
 
@@ -165,8 +167,10 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
               {(lessons || []).map((l, i) => {
                 if (!l) return null
                 const done = l.key ? completedKeys.has(l.key) : false
-                // Allow access to all lessons without enrollment requirement
-                const canAccess = true
+                const isFreePreview = i < 2 || !!l.isPreview
+                // If enrollment loaded successfully, enforce 2-lesson preview + enrollment requirement
+                // If enrollment failed to load (quota exhausted), allow full access
+                const canAccess = !enrollmentLoaded || enrolled || isFreePreview
                 return (
                   <li key={l.key || `lesson-${i}`}>
                     <Card className="avoid-break">
@@ -188,11 +192,16 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
                                 className="font-medium hover:text-primary flex items-center gap-2"
                               >
                                 {l.title || 'Untitled Lesson'}
+                                {!enrolled && enrollmentLoaded && isFreePreview && (
+                                  <Badge variant="default" className="text-xs font-bold uppercase tracking-widest px-2 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white border-none shadow-sm shadow-emerald-500/20">Free Preview</Badge>
+                                )}
                               </Link>
                             ) : (
                               <p className="font-medium">{l.title || 'Untitled Lesson'}</p>
                             )}
                             <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                              {!enrolled && enrollmentLoaded && !isFreePreview && <Lock className="h-3 w-3" />}
+                              {!enrolled && enrollmentLoaded && isFreePreview && <Unlock className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />}
                               ~{l.minutes || 0}m
                             </span>
                           </div>

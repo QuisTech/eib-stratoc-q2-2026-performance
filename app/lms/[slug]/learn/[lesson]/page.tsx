@@ -65,6 +65,7 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
   const isFreePreview = index < 2 || !!lesson.isPreview
   let enrollment: Enrollment | null = null
   let completedKeys = new Set<string>()
+  let enrollmentLoaded = false
 
   if (session?.user) {
     const isVisible = isCourseVisibleToUser(
@@ -78,21 +79,34 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
       const learningState = await getMyCourseLearningState(course.id)
       enrollment = learningState?.enrollment ?? null
       completedKeys = new Set(learningState?.completedLessonKeys ?? [])
+      enrollmentLoaded = true
     } catch (error) {
-      // Ignore enrollment errors - allow lesson access anyway
-      console.log("Could not load enrollment state, allowing lesson access")
+      // If enrollment fails to load (quota exhausted), allow full access
+      console.log("Could not load enrollment state (quota exhausted) - allowing full lesson access")
     }
   }
 
-  // Allow access to all lessons without enrollment requirement
-  const canAccess = true
+  // If enrollment loaded successfully, enforce 2-lesson preview + enrollment requirement
+  // If enrollment failed to load (quota exhausted), allow full access
+  const canAccess = !enrollmentLoaded || isFreePreview || !!enrollment
   if (!canAccess) {
     if (!session?.user) redirect(`/sign-in`)
     else redirect(`/lms/${slug}`)
   }
 
-  // Skip sequential progression enforcement - allow free navigation
-  // Remove enrollment requirement for lesson access
+  // Skip sequential progression when enrollment failed to load (quota exhausted)
+  if (enrollmentLoaded && enrollment && index >= 3) {
+    let firstLockedIndex = -1
+    for (let i = 2; i < index; i++) {
+      if (!completedKeys.has(lessons[i].key)) {
+        firstLockedIndex = i
+        break
+      }
+    }
+    if (firstLockedIndex !== -1) {
+      redirect(`/lms/${slug}/learn/${lessons[firstLockedIndex].key}`)
+    }
+  }
 
   const isLast = index === lessons.length - 1
   const nextHref = isLast ? `/lms/${slug}/quiz` : `/lms/${slug}/learn/${lessons[index + 1].key}`
