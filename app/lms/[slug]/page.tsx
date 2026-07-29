@@ -88,7 +88,6 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
   let learningState = null
   let enrollment = null
   let enrolled = false
-  let quotaExhausted = false
 
   if (signedIn) {
     try {
@@ -96,12 +95,8 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
       enrollment = learningState?.enrollment ?? null
       enrolled = Boolean(enrollment)
     } catch (error) {
-      if (isFirestoreQuotaError(error)) {
-        quotaExhausted = true
-        console.log("Firestore quota exhausted - allowing full lesson access")
-      } else {
-        throw error
-      }
+      // Ignore enrollment errors - allow lesson access anyway
+      console.log("Could not load enrollment state, allowing lesson access")
     }
   }
 
@@ -170,9 +165,8 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
               {(lessons || []).map((l, i) => {
                 if (!l) return null
                 const done = l.key ? completedKeys.has(l.key) : false
-                const isFreePreview = i < 2 || !!l.isPreview
-                // When quotas are exhausted, allow access to all lessons without enrollment
-                const canAccess = quotaExhausted || enrolled || isFreePreview
+                // Allow access to all lessons without enrollment requirement
+                const canAccess = true
                 return (
                   <li key={l.key || `lesson-${i}`}>
                     <Card className="avoid-break">
@@ -194,16 +188,11 @@ export default async function CourseDetailPage({ params }: { params: Promise<Par
                                 className="font-medium hover:text-primary flex items-center gap-2"
                               >
                                 {l.title || 'Untitled Lesson'}
-                                {!enrolled && !quotaExhausted && isFreePreview && (
-                                  <Badge variant="default" className="text-xs font-bold uppercase tracking-widest px-2 py-0.5 bg-emerald-600 hover:bg-emerald-700 text-white border-none shadow-sm shadow-emerald-500/20">Free Preview</Badge>
-                                )}
                               </Link>
                             ) : (
                               <p className="font-medium">{l.title || 'Untitled Lesson'}</p>
                             )}
                             <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                              {!enrolled && !quotaExhausted && !isFreePreview && <Lock className="h-3 w-3" />}
-                              {!enrolled && !quotaExhausted && isFreePreview && <Unlock className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />}
                               ~{l.minutes || 0}m
                             </span>
                           </div>

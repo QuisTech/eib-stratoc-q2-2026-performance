@@ -65,7 +65,6 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
   const isFreePreview = index < 2 || !!lesson.isPreview
   let enrollment: Enrollment | null = null
   let completedKeys = new Set<string>()
-  let quotaExhausted = false
 
   if (session?.user) {
     const isVisible = isCourseVisibleToUser(
@@ -80,39 +79,20 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
       enrollment = learningState?.enrollment ?? null
       completedKeys = new Set(learningState?.completedLessonKeys ?? [])
     } catch (error) {
-      // Detect Firestore quota exhaustion using proper error checking
-      if (isFirestoreQuotaError(error)) {
-        quotaExhausted = true
-        console.log("Firestore quota exhausted - allowing full lesson access")
-      } else {
-        throw error
-      }
+      // Ignore enrollment errors - allow lesson access anyway
+      console.log("Could not load enrollment state, allowing lesson access")
     }
   }
 
-  // When quotas are exhausted, allow access to all lessons without enrollment
-  // When quotas are available, enforce 2-lesson preview + enrollment requirement
-  const canAccess = quotaExhausted || isFreePreview || !!enrollment
+  // Allow access to all lessons without enrollment requirement
+  const canAccess = true
   if (!canAccess) {
     if (!session?.user) redirect(`/sign-in`)
     else redirect(`/lms/${slug}`)
   }
 
-  // Enforce sequential progression for Lesson 4 (index 3) onwards
-  // Lessons 1 and 2 are free previews, so they are exempt from strict completion locks.
-  // Skip progression enforcement when quotas are exhausted
-  if (!quotaExhausted && enrollment && index >= 3) {
-    let firstLockedIndex = -1
-    for (let i = 2; i < index; i++) {
-      if (!completedKeys.has(lessons[i].key)) {
-        firstLockedIndex = i
-        break
-      }
-    }
-    if (firstLockedIndex !== -1) {
-      redirect(`/lms/${slug}/learn/${lessons[firstLockedIndex].key}`)
-    }
-  }
+  // Skip sequential progression enforcement - allow free navigation
+  // Remove enrollment requirement for lesson access
 
   const isLast = index === lessons.length - 1
   const nextHref = isLast ? `/lms/${slug}/quiz` : `/lms/${slug}/learn/${lessons[index + 1].key}`
