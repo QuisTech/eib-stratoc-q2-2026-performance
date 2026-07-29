@@ -93,7 +93,7 @@ function invalidateCache(key?: string) {
 }
 
 
-function isFirestoreQuotaError(error: unknown) {
+export function isFirestoreQuotaError(error: unknown) {
   const err = error as { code?: string | number; message?: string; details?: string }
   const text = `${err?.message ?? ""} ${err?.details ?? ""}`
   return (

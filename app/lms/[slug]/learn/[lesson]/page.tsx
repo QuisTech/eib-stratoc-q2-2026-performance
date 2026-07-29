@@ -8,6 +8,7 @@ import {
   getCourseBySlug,
   getMyCourseLearningState,
   getAdminCourseBySlug,
+  isFirestoreQuotaError,
 } from "@/app/actions/lms"
 import { isSuperAdmin as checkIsSuperAdmin } from "@/lib/access-control"
 import { getLessons } from "@/lib/lms-content"
@@ -79,8 +80,8 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
       enrollment = learningState?.enrollment ?? null
       completedKeys = new Set(learningState?.completedLessonKeys ?? [])
     } catch (error) {
-      // Detect Firestore quota exhaustion
-      if (error && typeof error === 'object' && 'code' in error && (error.code === 8 || error.code === 'resource-exhausted')) {
+      // Detect Firestore quota exhaustion using proper error checking
+      if (isFirestoreQuotaError(error)) {
         quotaExhausted = true
         console.log("Firestore quota exhausted - allowing full lesson access")
       } else {
