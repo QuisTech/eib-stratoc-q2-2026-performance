@@ -8,7 +8,6 @@ import {
   getCourseBySlug,
   getMyCourseLearningState,
   getAdminCourseBySlug,
-  isFirestoreQuotaError,
 } from "@/app/actions/lms"
 import { isSuperAdmin as checkIsSuperAdmin } from "@/lib/access-control"
 import { getLessons } from "@/lib/lms-content"
@@ -79,7 +78,7 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
       const learningState = await getMyCourseLearningState(course.id)
       enrollment = learningState?.enrollment ?? null
       completedKeys = new Set(learningState?.completedLessonKeys ?? [])
-      enrollmentLoaded = true
+      enrollmentLoaded = !learningState?.quotaExhausted
     } catch (error) {
       // If enrollment fails to load (quota exhausted), allow full access
       console.log("Could not load enrollment state (quota exhausted) - allowing full lesson access")

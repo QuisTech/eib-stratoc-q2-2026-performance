@@ -93,7 +93,7 @@ function invalidateCache(key?: string) {
 }
 
 
-export function isFirestoreQuotaError(error: unknown) {
+function isFirestoreQuotaError(error: unknown) {
   const err = error as { code?: string | number; message?: string; details?: string }
   const text = `${err?.message ?? ""} ${err?.details ?? ""}`
   return (
@@ -477,6 +477,7 @@ export type MyCourseLearningState = {
   completedLessonKeys: string[]
   quizAttempts: QuizAttempt[]
   certificate: Certificate | null
+  quotaExhausted?: boolean
 }
 
 async function fetchLearningState(uid: string, cid: number): Promise<MyCourseLearningState> {
@@ -541,6 +542,7 @@ export async function getMyCourseLearningState(courseId: number): Promise<MyCour
       completedLessonKeys: [],
       quizAttempts: [],
       certificate: null,
+      quotaExhausted: isFirestoreQuotaError(error),
     }
   }
 }

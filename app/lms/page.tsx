@@ -54,7 +54,7 @@ export default async function LmsPage() {
   const userEmail = session.user.email || null
 
   const visibleCourses = courses.filter((c) =>
-    !c.isBriefing && 
+    !c.isBriefing &&
     isCourseVisibleToUser(c.subsidiaries, userSubsidiary, userRole, userEmail)
   )
 
