@@ -107,13 +107,18 @@ export async function POST(req: Request) {
     if (!existsSync(localUploadDir)) {
       await mkdir(localUploadDir, { recursive: true })
     }
+    
+    // Create directory if it doesn't exist
+    if (!existsSync(localUploadDir)) {
+      await mkdir(localUploadDir, { recursive: true })
+    }
 
     // Save file locally
     const localFilePath = path.join(localUploadDir, filename)
     await writeFile(localFilePath, buffer)
 
     // Use local URL if GitHub failed, otherwise use CDN URL
-    const finalUrl = githubSuccess ? publicUrl : `/uploads/${isDocument ? 'documents' : 'images'}/${filename}`
+    const finalUrl = githubSuccess ? publicUrl : `/api/uploads/${isDocument ? 'documents' : 'images'}/${filename}`
 
     return NextResponse.json({
       success: true,
