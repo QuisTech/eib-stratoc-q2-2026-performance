@@ -140,13 +140,16 @@ const getCachedCoursesFromFirestore = unstable_cache(
       const data = toCacheSafeValue(doc.data()) as any
       const slug = (data.slug || "").toLowerCase()
       const title = (data.title || "").toLowerCase()
+      const desc = (data.description || "")
 
-      if (
-        data.isDeleted ||
+      const isLongDescriptionCourse =
         slug === "construction-project-management" ||
-        slug === "construction-project-managemeny" ||
-        title === "construction project management"
-      ) {
+        (title === "construction project management" && slug !== "construction-project-managemeny") ||
+        desc.includes("•\tUnderstand") ||
+        desc.startsWith("Construction Project Management, Business Development") ||
+        (data.durationHours >= 40 && title.includes("construction project management"))
+
+      if (data.isDeleted || isLongDescriptionCourse) {
         toPurgeDocRefs.push(doc.ref)
       } else {
         docs.push(data as Course)
@@ -162,7 +165,7 @@ const getCachedCoursesFromFirestore = unstable_cache(
 
     return docs
   },
-  ["lms-courses-v3"],
+  ["lms-courses-v4"],
   { tags: [COURSE_CACHE_TAG], revalidate: 60 * 60 }
 )
 
@@ -308,7 +311,16 @@ export async function getCourses(): Promise<Course[]> {
     const isDel = (c as any).isDeleted
     const slug = (c.slug || "").toLowerCase()
     const title = (c.title || "").toLowerCase()
-    return !isDel && slug !== "construction-project-management" && slug !== "construction-project-managemeny" && title !== "construction project management"
+    const desc = (c.description || "")
+
+    const isLongDescriptionCourse =
+      slug === "construction-project-management" ||
+      (title === "construction project management" && slug !== "construction-project-managemeny") ||
+      desc.includes("•\tUnderstand") ||
+      desc.startsWith("Construction Project Management, Business Development") ||
+      ((c as any).durationHours >= 40 && title.includes("construction project management"))
+
+    return !isDel && !isLongDescriptionCourse
   })
 }
 
@@ -333,7 +345,16 @@ export async function getAdminCourses(): Promise<Course[]> {
     const isDel = (c as any).isDeleted
     const slug = (c.slug || "").toLowerCase()
     const title = (c.title || "").toLowerCase()
-    return !isDel && slug !== "construction-project-management" && slug !== "construction-project-managemeny" && title !== "construction project management"
+    const desc = (c.description || "")
+
+    const isLongDescriptionCourse =
+      slug === "construction-project-management" ||
+      (title === "construction project management" && slug !== "construction-project-managemeny") ||
+      desc.includes("•\tUnderstand") ||
+      desc.startsWith("Construction Project Management, Business Development") ||
+      ((c as any).durationHours >= 40 && title.includes("construction project management"))
+
+    return !isDel && !isLongDescriptionCourse
   })
 }
 
