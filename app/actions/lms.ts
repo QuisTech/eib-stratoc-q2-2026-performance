@@ -25,9 +25,18 @@ import {
   getStaticLmsCourseBySlug,
   getStaticLmsCourses,
   hasStaticLmsCourses,
-  markStaticLmsCourseDeleted,
-  removeStaticLmsCourseCompletely,
 } from "@/lib/static-lms-courses"
+import * as StaticLmsModule from "@/lib/static-lms-courses"
+
+const markStaticLmsCourseDeleted =
+  typeof (StaticLmsModule as any).markStaticLmsCourseDeleted === "function"
+    ? (StaticLmsModule as any).markStaticLmsCourseDeleted
+    : (_id: string | number) => {}
+
+const removeStaticLmsCourseCompletely =
+  typeof (StaticLmsModule as any).removeStaticLmsCourseCompletely === "function"
+    ? (StaticLmsModule as any).removeStaticLmsCourseCompletely
+    : (_id: string | number) => {}
 
 const COURSE_CACHE_TAG = "lms-courses"
 const ADMIN_SOURCE_CACHE_TAG = "lms-admin-source"
