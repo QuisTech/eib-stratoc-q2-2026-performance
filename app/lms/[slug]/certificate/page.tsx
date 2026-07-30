@@ -83,23 +83,21 @@ export default async function CertificatePage({
           className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center overflow-hidden"
           style={{ WebkitPrintColorAdjust: "exact", printColorAdjust: "exact" }}
         >
-          <div className="flex flex-col items-center gap-10 text-center -rotate-[30deg] opacity-10 print:opacity-[0.15]">
-            {Array.from({ length: 20 }).map((_, i) => (
-              <p key={i} className="text-3xl font-bold whitespace-nowrap text-black">
-                {certEmail} • {new Date(certificate.issuedAt).toLocaleString()}
-              </p>
-            ))}
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img 
+            src="/eiblogo_blue.png" 
+            alt="" 
+            className="h-96 w-96 object-contain opacity-[0.05] print:opacity-[0.06]"
+          />
         </div>
         <div
           className="pointer-events-none absolute inset-3 rounded-md border border-slate-200 z-10"
           aria-hidden
         />
         <div className="relative z-20 flex flex-col items-center text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-md bg-blue-800 text-white">
-            <ShieldCheck className="h-7 w-7" />
-          </span>
-          <p className="mt-4 font-heading text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/eiblogo_blue.png" alt="EIB Group" className="h-14 w-auto mb-3" />
+          <p className="font-heading text-sm font-semibold uppercase tracking-[0.3em] text-slate-500">
             EIB Group
           </p>
           <p className="text-xs uppercase tracking-[0.2em] text-slate-500">
@@ -137,8 +135,6 @@ export default async function CertificatePage({
             )}
           </div>
 
-
-
           <div className="mt-10 grid w-full max-w-lg gap-6 sm:grid-cols-2">
             <div className="border-t border-slate-200 pt-2 text-center">
               <p className="text-sm font-medium">{issued}</p>
@@ -152,9 +148,12 @@ export default async function CertificatePage({
             </div>
           </div>
 
-          <p className="mt-8 flex items-center gap-2 text-xs text-slate-500">
-            <Award className="h-4 w-4 text-blue-800" />
-            Verified record · EIB Group Learning Management System
+          <p className="mt-8 flex items-center justify-center gap-1.5 text-xs font-medium text-slate-500">
+            <Award className="h-4 w-4 text-blue-800 shrink-0" />
+            <span>Verified record · EIB Group Learning Management System</span>
+          </p>
+          <p className="mt-2 max-w-xl text-center text-[10px] leading-relaxed text-slate-400">
+            Official Credential of EIB Group Training &amp; Organizational Development. Property of EIB Group. Unauthorized duplication or alteration is strictly prohibited and verifiable online.
           </p>
         </div>
       </article>
