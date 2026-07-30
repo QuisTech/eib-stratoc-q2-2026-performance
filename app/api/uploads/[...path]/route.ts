@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { readFile, stat } from "fs/promises"
+import { createReadStream, stat } from "fs"
 import { existsSync } from "fs"
 import path from "path"
 
@@ -19,13 +19,9 @@ export async function GET(
       return NextResponse.json({ error: "File not found" }, { status: 404 })
     }
 
-    // Check file size
+    // Get file stats
     const stats = await stat(fullPath)
     console.log("File stats:", { size: stats.size, isFile: stats.isFile() })
-
-    // Read file
-    const fileBuffer = await readFile(fullPath)
-    console.log("File read successfully, size:", fileBuffer.length)
 
     // Determine content type based on file extension
     const ext = path.extname(fullPath).toLowerCase()
@@ -43,14 +39,20 @@ export async function GET(
     const contentType = contentTypes[ext] || 'application/octet-stream'
     console.log("Content type:", contentType)
 
-    // Return file with appropriate headers
-    return new NextResponse(fileBuffer, {
+    // Create a readable stream
+    const fileStream = createReadStream(fullPath)
+
+    // Create a new Response with the stream
+    const response = new NextResponse(fileStream as any, {
       headers: {
         'Content-Type': contentType,
         'Content-Disposition': `inline; filename="${path.basename(fullPath)}"`,
+        'Content-Length': stats.size.toString(),
         'Cache-Control': 'public, max-age=31536000, immutable',
       },
     })
+
+    return response
   } catch (error) {
     console.error("File serving error:", error)
     return NextResponse.json({ error: "Internal server error" }, { status: 500 })
