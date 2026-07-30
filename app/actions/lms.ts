@@ -133,9 +133,36 @@ function toCacheSafeValue(value: any): any {
 const getCachedCoursesFromFirestore = unstable_cache(
   async () => {
     const snap = await adminDb.collection("courses").orderBy("category").orderBy("title").get()
-    return snap.docs.map((d: any) => toCacheSafeValue(d.data()) as Course)
+    const docs: Course[] = []
+    const toPurgeDocRefs: any[] = []
+
+    for (const doc of snap.docs) {
+      const data = toCacheSafeValue(doc.data()) as any
+      const slug = (data.slug || "").toLowerCase()
+      const title = (data.title || "").toLowerCase()
+
+      if (
+        data.isDeleted ||
+        slug === "construction-project-management" ||
+        slug === "construction-project-managemeny" ||
+        title === "construction project management"
+      ) {
+        toPurgeDocRefs.push(doc.ref)
+      } else {
+        docs.push(data as Course)
+      }
+    }
+
+    // Clean up unwanted/deleted documents from Firestore in background
+    if (toPurgeDocRefs.length > 0) {
+      const batch = adminDb.batch()
+      toPurgeDocRefs.forEach((ref) => batch.delete(ref))
+      batch.commit().catch((err) => console.error("Error purging deleted courses from Firestore:", err))
+    }
+
+    return docs
   },
-  ["lms-courses-v1"],
+  ["lms-courses-v3"],
   { tags: [COURSE_CACHE_TAG], revalidate: 60 * 60 }
 )
 
@@ -277,7 +304,12 @@ export async function getCourses(): Promise<Course[]> {
   for (const course of liveCourses) {
     merged.set(course.slug || String(course.id), toCacheSafeValue(course) as Course)
   }
-  return [...merged.values()].filter(c => !(c as any).isDeleted)
+  return [...merged.values()].filter(c => {
+    const isDel = (c as any).isDeleted
+    const slug = (c.slug || "").toLowerCase()
+    const title = (c.title || "").toLowerCase()
+    return !isDel && slug !== "construction-project-management" && slug !== "construction-project-managemeny" && title !== "construction project management"
+  })
 }
 
 export async function getAdminCourses(): Promise<Course[]> {
@@ -297,7 +329,12 @@ export async function getAdminCourses(): Promise<Course[]> {
   for (const course of liveCourses) {
     merged.set(course.slug || String(course.id), toCacheSafeValue(course) as Course)
   }
-  return [...merged.values()].filter(c => !(c as any).isDeleted)
+  return [...merged.values()].filter(c => {
+    const isDel = (c as any).isDeleted
+    const slug = (c.slug || "").toLowerCase()
+    const title = (c.title || "").toLowerCase()
+    return !isDel && slug !== "construction-project-management" && slug !== "construction-project-managemeny" && title !== "construction project management"
+  })
 }
 
 export async function getCourseBySlug(slug: string): Promise<Course | null> {
