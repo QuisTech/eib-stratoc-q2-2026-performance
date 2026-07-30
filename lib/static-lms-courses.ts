@@ -1178,6 +1178,7 @@ export const STATIC_LMS_COURSE_DATA: StaticLmsCourse[] = [
     "imageUrl": "https://cdn.jsdelivr.net/gh/QuisTech/eib-lms-images@main/course-images/migrated-1784510986540-4hm245.png",
     "enrollmentCount": 11,
     "updatedAt": "2026-07-30T10:39:20.976Z"
+  },
   {
     "category": "Project Management",
     "level": "Intermediate",
@@ -1199,8 +1200,6 @@ export const STATIC_LMS_COURSE_DATA: StaticLmsCourse[] = [
     "updatedAt": "2026-07-29T23:53:11.910Z"
   },
   {
-=======
->>>>>>> dfb2be9 (feat(lms): hard delete construction project management course and implement soft & hard delete options in admin UI)
     "title": "Construction Project Management",
     "description": "Construction Project Management, Business Development, Quantity Surveying, Site Supervision, and Organizational Capacity Development Programme",
     "category": "Project Management",
