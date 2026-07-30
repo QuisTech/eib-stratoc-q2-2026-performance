@@ -79,14 +79,30 @@ function hydrateCourse(course: StaticLmsCourse): Course {
 }
 
 export function getStaticLmsCourses(): Course[] {
-  return STATIC_LMS_COURSE_DATA.map(hydrateCourse).sort((a, b) => {
-    const catA = a.category || ""
-    const catB = b.category || ""
-    const titleA = a.title || ""
-    const titleB = b.title || ""
-    const category = catA.localeCompare(catB)
-    return category !== 0 ? category : titleA.localeCompare(titleB)
-  })
+  return STATIC_LMS_COURSE_DATA.filter((item) => !(item as any).isDeleted)
+    .map(hydrateCourse)
+    .sort((a, b) => {
+      const catA = a.category || ""
+      const catB = b.category || ""
+      const titleA = a.title || ""
+      const titleB = b.title || ""
+      const category = catA.localeCompare(catB)
+      return category !== 0 ? category : titleA.localeCompare(titleB)
+    })
+}
+
+export function markStaticLmsCourseDeleted(identifier: string | number): void {
+  const course = STATIC_LMS_COURSE_DATA.find((item) => item.slug === identifier || item.id === Number(identifier))
+  if (course) {
+    (course as any).isDeleted = true
+  }
+}
+
+export function removeStaticLmsCourseCompletely(identifier: string | number): void {
+  const index = STATIC_LMS_COURSE_DATA.findIndex((item) => item.slug === identifier || item.id === Number(identifier))
+  if (index !== -1) {
+    STATIC_LMS_COURSE_DATA.splice(index, 1)
+  }
 }
 
 export function hasStaticLmsCourses(): boolean {
@@ -94,12 +110,12 @@ export function hasStaticLmsCourses(): boolean {
 }
 
 export function getStaticLmsCourseBySlug(slug: string): Course | null {
-  const course = STATIC_LMS_COURSE_DATA.find((item) => item.slug === slug)
+  const course = STATIC_LMS_COURSE_DATA.find((item) => item.slug === slug && !(item as any).isDeleted)
   return course ? hydrateCourse(course) : null
 }
 
 export function getStaticLmsCourseById(id: number): Course | null {
-  const course = STATIC_LMS_COURSE_DATA.find((item) => item.id === id)
+  const course = STATIC_LMS_COURSE_DATA.find((item) => item.id === id && !(item as any).isDeleted)
   return course ? hydrateCourse(course) : null
 }
 `
