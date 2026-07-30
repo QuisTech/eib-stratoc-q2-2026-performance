@@ -3,9 +3,9 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { Edit, BookOpen, Filter, Copy, Loader2, Trash2 } from "lucide-react"
+import { Edit, BookOpen, Filter, Copy, Loader2, Trash2, EyeOff, Flame } from "lucide-react"
 import { formatNaira } from "@/lib/utils"
-import { duplicateCourseAsLMS, deleteCourse } from "@/app/actions/lms"
+import { duplicateCourseAsLMS, softDeleteCourse, hardDeleteCourse } from "@/app/actions/lms"
 import { isSuperAdmin as checkIsSuperAdmin } from "@/lib/access-control"
 
 export function CourseManagement({ courses, userRole, userEmail }: { courses: any[]; userRole: string; userEmail?: string }) {
@@ -53,11 +53,22 @@ export function CourseManagement({ courses, userRole, userEmail }: { courses: an
     }
   }
 
-  async function handleDelete(slug: string, title: string) {
-    if (!confirm(`Are you strictly sure you want to permanently delete "${title}"? This will delete all enrollments and progress as well!`)) return
+  async function handleSoftDelete(slug: string, title: string) {
+    if (!confirm(`Soft Delete "${title}"?\n\nThis will hide the course from all learners and catalog views, but preserve past certificates and completion logs.`)) return
     try {
-      await deleteCourse(slug)
-      setDuplicateSuccess(`Deleted course "${title}"`)
+      await softDeleteCourse(slug)
+      setDuplicateSuccess(`Soft-deleted (hidden) course "${title}"`)
+      router.refresh()
+    } catch (err: any) {
+      setDuplicateError(err.message)
+    }
+  }
+
+  async function handleHardDelete(slug: string, title: string) {
+    if (!confirm(`HARD DELETE "${title}"?\n\nWARNING: This will PERMANENTLY purge this course, all student enrollments, quiz attempts, and certificates! This action CANNOT be undone.`)) return
+    try {
+      await hardDeleteCourse(slug)
+      setDuplicateSuccess(`Hard-deleted (permanently wiped) course "${title}"`)
       router.refresh()
     } catch (err: any) {
       setDuplicateError(err.message)
@@ -160,12 +171,22 @@ export function CourseManagement({ courses, userRole, userEmail }: { courses: an
                       </button>
                     )}
                     {isSuperAdmin && (
-                      <button
-                        onClick={() => handleDelete(c.slug, c.title)}
-                        className="inline-flex items-center gap-1.5 rounded-md border border-red-500 bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-500 hover:text-white dark:text-red-400"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" /> Delete
-                      </button>
+                      <>
+                        <button
+                          onClick={() => handleSoftDelete(c.slug, c.title)}
+                          title="Soft Delete: Hide course from catalog while preserving historical student records"
+                          className="inline-flex items-center gap-1.5 rounded-md border border-amber-500 bg-amber-500/10 px-3 py-1.5 text-xs font-medium text-amber-600 hover:bg-amber-500 hover:text-white dark:text-amber-400"
+                        >
+                          <EyeOff className="h-3.5 w-3.5" /> Soft Delete
+                        </button>
+                        <button
+                          onClick={() => handleHardDelete(c.slug, c.title)}
+                          title="Hard Delete: Permanently wipe course and all student data"
+                          className="inline-flex items-center gap-1.5 rounded-md border border-red-500 bg-red-500/10 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-500 hover:text-white dark:text-red-400"
+                        >
+                          <Flame className="h-3.5 w-3.5" /> Hard Delete
+                        </button>
+                      </>
                     )}
                   </td>
                 </tr>

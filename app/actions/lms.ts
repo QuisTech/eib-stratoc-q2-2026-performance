@@ -25,6 +25,8 @@ import {
   getStaticLmsCourseBySlug,
   getStaticLmsCourses,
   hasStaticLmsCourses,
+  markStaticLmsCourseDeleted,
+  removeStaticLmsCourseCompletely,
 } from "@/lib/static-lms-courses"
 
 const COURSE_CACHE_TAG = "lms-courses"
@@ -1045,21 +1047,44 @@ export async function exportAdminCSV(): Promise<string> {
   return csv
 }
 
-export async function deleteCourse(slug: string) {
+export async function softDeleteCourse(slug: string) {
   const user = await getSessionUser()
   if (!checkIsSuperAdmin(user)) throw new Error("Forbidden")
 
   const course = await getCourseBySlug(slug)
   if (!course) return
-  
+
+  // Mark soft deleted in Firestore
+  const courseRef = adminDb.collection("courses").doc(String(course.id))
+  await courseRef.set({ isDeleted: true, id: course.id, slug: course.slug }, { merge: true })
+
+  // Also mark soft deleted in static LMS catalog in memory
+  markStaticLmsCourseDeleted(course.id)
+  markStaticLmsCourseDeleted(slug)
+
+  // Invalidate global admin and catalog caches
+  invalidateAdminCaches()
+  invalidateCache("courses")
+  revalidateCacheTag(COURSE_CACHE_TAG)
+  revalidatePath("/lms")
+  revalidatePath("/lms/admin")
+}
+
+export async function hardDeleteCourse(slug: string) {
+  const user = await getSessionUser()
+  if (!checkIsSuperAdmin(user)) throw new Error("Forbidden")
+
+  const course = await getCourseBySlug(slug)
+  if (!course) return
+
   // 1. Fetch related enrollments to know which users were enrolled (needed for user cache invalidation)
   const enrollmentsSnap = await adminDb.collection("enrollments").where("courseId", "==", course.id).get()
   const userIds = Array.from(new Set(enrollmentsSnap.docs.map(d => d.data().userId)))
 
-  // 2. Perform batched deletions of all related documents to optimize Firestore writes
+  // 2. Perform batched hard deletion of course document and all related documents
   const batch = adminDb.batch()
   const courseRef = adminDb.collection("courses").doc(String(course.id))
-  batch.set(courseRef, { isDeleted: true, id: course.id, slug: course.slug }, { merge: true })
+  batch.delete(courseRef)
 
   enrollmentsSnap.docs.forEach(doc => batch.delete(doc.ref))
 
@@ -1079,12 +1104,20 @@ export async function deleteCourse(slug: string) {
     invalidateUserCourseCaches(uid, course.id)
   }
 
-  // 4. Invalidate global admin and catalog caches
+  // 4. Remove completely from static LMS catalog in memory
+  removeStaticLmsCourseCompletely(course.id)
+  removeStaticLmsCourseCompletely(slug)
+
+  // 5. Invalidate global admin and catalog caches
   invalidateAdminCaches()
   invalidateCache("courses")
   revalidateCacheTag(COURSE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
+}
+
+export async function deleteCourse(slug: string) {
+  return hardDeleteCourse(slug)
 }
 
 export async function duplicateCourseAsLMS(slug: string) {

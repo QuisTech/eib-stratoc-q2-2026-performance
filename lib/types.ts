@@ -9,13 +9,14 @@ export type Course = {
   durationHours: number;
   priceNaira: number;
   subsidiaries: string;
-  initiative: number | null;
-  videoUrl: string | null;
-  imageUrl: string | null;
-  authorId: string | null;
-  isBriefing: boolean | null;
-  customContent: string | null;
+  initiative?: number | null;
+  videoUrl?: string | null;
+  imageUrl?: string | null;
+  authorId?: string | null;
+  isBriefing?: boolean | null;
+  customContent?: string | null;
   enrollmentCount?: number;
+  isDeleted?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

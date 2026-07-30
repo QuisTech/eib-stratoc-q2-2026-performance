@@ -1,6 +1,6 @@
 import type { Course } from "@/lib/types"
 
-export type StaticLmsCourse = Omit<Course, "createdAt" | "updatedAt"> & {
+export type StaticLmsCourse = Partial<Omit<Course, "createdAt" | "updatedAt">> & {
   createdAt: string | Date
   updatedAt: string | Date
 }
@@ -1178,25 +1178,6 @@ export const STATIC_LMS_COURSE_DATA: StaticLmsCourse[] = [
     "imageUrl": "https://cdn.jsdelivr.net/gh/QuisTech/eib-lms-images@main/course-images/migrated-1784510986540-4hm245.png",
     "enrollmentCount": 11,
     "updatedAt": "2026-07-30T10:39:20.976Z"
-  },
-  {
-    "title": "construction project management",
-    "description": "Construction Project Management, Business Development, Quantity Surveying, Site Supervision, and Organizational Capacity Development Programme\n•\tUnderstand the construction project life cycle.\n•\tDefine project scope, objectives, and deliverables.\n•\tApply project planning principles.\n•\tUnderstand stakeholder management in construction projects.\nQuantity Surveying, Cost Estimation and Contract Administration\nLearning Objectives\n•\tPrepare accurate cost estimates.\n•\tDevelop Bills of Quantities (BOQs).\n•\tUnderstand contract administration procedures.\n•\tMonitor project costs effectively.\nEngineering Design Software and Digital Construction Tools\n•\tUtilize modern design software efficiently.\n•\tImprove engineering drawing accuracy.\n•\tApply Building Information Modelling (BIM) concepts.\n•\tEnhance collaboration using digital project management tools.\nIntegrated Construction Project Simulation\nLearning Objectives\n•\tComplete project implementation plan.\n•\tCost estimate.\n•\tSite supervision report.\n•\tTeam performance assessment.\nBusiness Development and Construction Marketing\n•\tDevelop strategies for acquiring new construction projects.\n•\tStrengthen client relationship management.\n•\tPrepare winning technical and financial proposals.\n•\tPromote estate development services effectively.\nMarketing, Project Sourcing and Corporate Branding\n•\tDevelop effective marketing strategies.\n•\tImprove project sourcing techniques.\n•\tStrengthen corporate branding.\n•\tUtilize dedicated logistics resources effectively.\nProject Reporting, Performance Management and Talent Development\n•\tUtilize modern project reporting systems.\n•\tImprove staff performance management.\n•\tDevelop succession plans.\n•\tStrengthen talent retention strategies.\nIntegrated Business Development and Project Delivery Exercise\n•\tTender review.\n•\tProposal preparation.\n•\tCost estimation.\n•\tProject planning.\n•\tDesign presentation.\n•\tClient pitch.\n•\tProgress reporting.\n",
-    "category": "Project Management",
-    "level": "Advanced",
-    "format": "Online",
-    "durationHours": 40,
-    "priceNaira": 0,
-    "subsidiaries": "Global, Briech Atlantic",
-    "videoUrl": null,
-    "imageUrl": null,
-    "isBriefing": false,
-    "id": 1785169581027,
-    "slug": "construction-project-management",
-    "authorId": "t8LmWyIT06Tz3yv7Im0TJXHv4Sz2",
-    "createdAt": "2026-07-27T16:26:21.027Z",
-    "updatedAt": "2026-07-27T16:26:21.027Z"
-  },
   {
     "category": "Project Management",
     "level": "Intermediate",
@@ -1218,6 +1199,8 @@ export const STATIC_LMS_COURSE_DATA: StaticLmsCourse[] = [
     "updatedAt": "2026-07-29T23:53:11.910Z"
   },
   {
+=======
+>>>>>>> dfb2be9 (feat(lms): hard delete construction project management course and implement soft & hard delete options in admin UI)
     "title": "Construction Project Management",
     "description": "Construction Project Management, Business Development, Quantity Surveying, Site Supervision, and Organizational Capacity Development Programme",
     "category": "Project Management",
@@ -2076,18 +2059,34 @@ function hydrateCourse(course: StaticLmsCourse): Course {
     ...course,
     createdAt: course.createdAt instanceof Date ? course.createdAt : new Date(course.createdAt),
     updatedAt: course.updatedAt instanceof Date ? course.updatedAt : new Date(course.updatedAt),
-  }
+  } as Course
 }
 
 export function getStaticLmsCourses(): Course[] {
-  return STATIC_LMS_COURSE_DATA.map(hydrateCourse).sort((a, b) => {
-    const catA = a.category || ""
-    const catB = b.category || ""
-    const titleA = a.title || ""
-    const titleB = b.title || ""
-    const category = catA.localeCompare(catB)
-    return category !== 0 ? category : titleA.localeCompare(titleB)
-  })
+  return STATIC_LMS_COURSE_DATA.filter((item) => !(item as any).isDeleted)
+    .map(hydrateCourse)
+    .sort((a, b) => {
+      const catA = a.category || ""
+      const catB = b.category || ""
+      const titleA = a.title || ""
+      const titleB = b.title || ""
+      const category = catA.localeCompare(catB)
+      return category !== 0 ? category : titleA.localeCompare(titleB)
+    })
+}
+
+export function markStaticLmsCourseDeleted(identifier: string | number): void {
+  const course = STATIC_LMS_COURSE_DATA.find((item) => item.slug === identifier || item.id === Number(identifier))
+  if (course) {
+    (course as any).isDeleted = true
+  }
+}
+
+export function removeStaticLmsCourseCompletely(identifier: string | number): void {
+  const index = STATIC_LMS_COURSE_DATA.findIndex((item) => item.slug === identifier || item.id === Number(identifier))
+  if (index !== -1) {
+    STATIC_LMS_COURSE_DATA.splice(index, 1)
+  }
 }
 
 export function hasStaticLmsCourses(): boolean {
@@ -2095,11 +2094,11 @@ export function hasStaticLmsCourses(): boolean {
 }
 
 export function getStaticLmsCourseBySlug(slug: string): Course | null {
-  const course = STATIC_LMS_COURSE_DATA.find((item) => item.slug === slug)
+  const course = STATIC_LMS_COURSE_DATA.find((item) => item.slug === slug && !(item as any).isDeleted)
   return course ? hydrateCourse(course) : null
 }
 
 export function getStaticLmsCourseById(id: number): Course | null {
-  const course = STATIC_LMS_COURSE_DATA.find((item) => item.id === id)
+  const course = STATIC_LMS_COURSE_DATA.find((item) => item.id === id && !(item as any).isDeleted)
   return course ? hydrateCourse(course) : null
 }
