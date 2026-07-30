@@ -1,6 +1,9 @@
 import { getSessionUser } from "@/app/actions/auth"
 import { NextResponse } from "next/server"
 import { isSuperAdmin as checkIsSuperAdmin } from "@/lib/access-control"
+import { writeFile, mkdir } from "fs/promises"
+import { existsSync } from "fs"
+import path from "path"
 
 export async function POST(req: Request) {
   try {
@@ -66,33 +69,57 @@ export async function POST(req: Request) {
     const fullPath = `${pathPrefix}/${filename}`
 
     // Upload to GitHub via REST API
-    const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${fullPath}`
-    const response = await fetch(apiUrl, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json',
-        'User-Agent': 'EIB-LMS-Upload'
-      },
-      body: JSON.stringify({
-        message: `Upload ${filename} via Course Builder`,
-        content: base64Content,
+    let publicUrl = ""
+    let githubSuccess = false
+    
+    try {
+      const apiUrl = `https://api.github.com/repos/${owner}/${repo}/contents/${fullPath}`
+      const response = await fetch(apiUrl, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+          'User-Agent': 'EIB-LMS-Upload'
+        },
+        body: JSON.stringify({
+          message: `Upload ${filename} via Course Builder`,
+          content: base64Content,
+        })
       })
-    })
 
-    if (!response.ok) {
-      const errorText = await response.text()
-      console.error("GitHub API error:", response.status, errorText)
-      throw new Error("Failed to upload file to CDN")
+      if (response.ok) {
+        githubSuccess = true
+        // Construct jsDelivr public URL
+        publicUrl = `https://cdn.jsdelivr.net/gh/${owner}/${repo}@main/${fullPath}`
+      } else {
+        const errorText = await response.text()
+        console.error("GitHub API error:", response.status, errorText)
+        console.error("GitHub API details:", { apiUrl, owner, repo, fullPath, fileSize: file.size })
+      }
+    } catch (githubError) {
+      console.error("GitHub upload failed:", githubError)
     }
 
-    // Construct jsDelivr public URL
-    const publicUrl = `https://cdn.jsdelivr.net/gh/${owner}/${repo}@main/${fullPath}`
+    // Fallback to local VPS storage
+    const localUploadDir = path.join(process.cwd(), 'public', 'uploads', isDocument ? 'documents' : 'images')
+    
+    // Create directory if it doesn't exist
+    if (!existsSync(localUploadDir)) {
+      await mkdir(localUploadDir, { recursive: true })
+    }
+
+    // Save file locally
+    const localFilePath = path.join(localUploadDir, filename)
+    await writeFile(localFilePath, buffer)
+
+    // Use local URL if GitHub failed, otherwise use CDN URL
+    const finalUrl = githubSuccess ? publicUrl : `/uploads/${isDocument ? 'documents' : 'images'}/${filename}`
 
     return NextResponse.json({
       success: true,
-      url: publicUrl,
+      url: finalUrl,
       filename: filename,
+      source: githubSuccess ? 'github' : 'local'
     })
 
   } catch (error) {

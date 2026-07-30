@@ -16,6 +16,9 @@ node_modules
 .next/
 .DS_Store
 
+# Uploaded files
+public/uploads/
+
 # Temporary data files and scripts
 *.csv
 generate_*.js
