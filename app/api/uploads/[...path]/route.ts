@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
-import { createReadStream, stat } from "fs"
+import { createReadStream } from "fs"
+import { stat } from "fs/promises"
 import { existsSync } from "fs"
 import path from "path"
 
