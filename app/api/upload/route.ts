@@ -25,26 +25,31 @@ export async function POST(req: Request) {
     }
 
     // Validate file type
-    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"]
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp", "application/pdf", "application/vnd.openxmlformats-officedocument.presentationml.presentation"]
     if (!allowedTypes.includes(file.type)) {
-      return NextResponse.json({ error: "Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed." }, { status: 400 })
+      return NextResponse.json({ error: "Invalid file type. Only JPEG, PNG, GIF, WebP, PDF, and PPTX are allowed." }, { status: 400 })
     }
 
-    // Validate file size (5MB limit)
-    const maxSize = 5 * 1024 * 1024 
+    // Validate file size (25MB limit for documents, 5MB for images)
+    const isDocument = file.type === "application/pdf" || file.type === "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+    const maxSize = isDocument ? 25 * 1024 * 1024 : 5 * 1024 * 1024 
     if (file.size > maxSize) {
-      return NextResponse.json({ error: "File too large. Maximum size is 5MB." }, { status: 400 })
+      return NextResponse.json({ error: `File too large. Maximum size is ${isDocument ? "25MB" : "5MB"}.` }, { status: 400 })
     }
 
     // Environment Check
     const token = process.env.GITHUB_TOKEN
     const owner = process.env.GITHUB_OWNER
     const repo = process.env.GITHUB_REPO
-    const pathPrefix = process.env.GITHUB_IMAGE_PATH || "course-images"
+    
+    // Determine path based on file type
+    const pathPrefix = isDocument 
+      ? (process.env.GITHUB_DOCUMENT_PATH || "course-documents") 
+      : (process.env.GITHUB_IMAGE_PATH || "course-images")
 
     if (!token || !owner || !repo) {
-      console.error("Missing GitHub environment variables for image upload.");
-      return NextResponse.json({ error: "Server misconfiguration for image uploads." }, { status: 500 })
+      console.error("Missing GitHub environment variables for file upload.");
+      return NextResponse.json({ error: "Server misconfiguration for file uploads." }, { status: 500 })
     }
 
     // Convert file to Base64 (GitHub API requires Base64 content)
@@ -55,8 +60,9 @@ export async function POST(req: Request) {
     // Generate unique filename
     const timestamp = Date.now()
     const randomString = Math.random().toString(36).substring(2, 8)
-    const extension = file.name.split(".").pop() || "png"
-    const filename = `course-image-${timestamp}-${randomString}.${extension}`
+    const extension = file.name.split(".").pop() || (isDocument ? "pdf" : "png")
+    const filePrefix = isDocument ? "course-document" : "course-image"
+    const filename = `${filePrefix}-${timestamp}-${randomString}.${extension}`
     const fullPath = `${pathPrefix}/${filename}`
 
     // Upload to GitHub via REST API
@@ -69,7 +75,7 @@ export async function POST(req: Request) {
         'User-Agent': 'EIB-LMS-Upload'
       },
       body: JSON.stringify({
-        message: `Upload ${filename} via Graphic Builder`,
+        message: `Upload ${filename} via Course Builder`,
         content: base64Content,
       })
     })
@@ -77,7 +83,7 @@ export async function POST(req: Request) {
     if (!response.ok) {
       const errorText = await response.text()
       console.error("GitHub API error:", response.status, errorText)
-      throw new Error("Failed to upload image to CDN")
+      throw new Error("Failed to upload file to CDN")
     }
 
     // Construct jsDelivr public URL
@@ -91,6 +97,6 @@ export async function POST(req: Request) {
 
   } catch (error) {
     console.error("Upload error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: error instanceof Error ? error.message : "Internal server error" }, { status: 500 })
   }
 }

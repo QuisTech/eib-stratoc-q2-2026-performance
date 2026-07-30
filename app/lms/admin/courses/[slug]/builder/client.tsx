@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { saveCustomCourseContent } from "@/app/actions/lms"
-import { ArrowLeft, Plus, Trash2, Save, Loader2, HelpCircle, Sparkles, Square } from "lucide-react"
+import { ArrowLeft, Plus, Trash2, Save, Loader2, HelpCircle, Sparkles, Square, Upload } from "lucide-react"
 
 import Link from "next/link"
 import { GraphicBuilder } from "@/components/lms/graphic-builder"
@@ -190,6 +190,33 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
     const updated = [...lessons]
     updated[lessonIndex].attachments = updated[lessonIndex].attachments.filter((_: any, i: number) => i !== attIndex)
     setLessons(updated)
+  }
+
+  const handleFileUpload = async (lessonIndex: number, attIndex: number, file: File) => {
+    try {
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to upload file")
+      }
+
+      // Update the attachment with the uploaded file URL
+      updateAttachment(lessonIndex, attIndex, "url", data.url)
+      if (!lessons[lessonIndex].attachments[attIndex].title) {
+        updateAttachment(lessonIndex, attIndex, "title", file.name)
+      }
+    } catch (error: any) {
+      console.error("File upload error:", error)
+      alert(error.message || "Failed to upload file")
+    }
   }
 
   // --- Quiz Logic ---
@@ -449,6 +476,18 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
                         className="flex-1 rounded-md border bg-background px-3 py-2 text-sm"
                         placeholder="URL (https://...)"
                       />
+                      <label className="cursor-pointer p-2 text-muted-foreground hover:text-primary">
+                        <Upload className="h-4 w-4" />
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept=".pdf,.pptx,.ppt"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) handleFileUpload(lIndex, aIndex, file)
+                          }}
+                        />
+                      </label>
                       <button
                         onClick={() => removeAttachment(lIndex, aIndex)}
                         className="p-2 text-muted-foreground hover:text-destructive"
