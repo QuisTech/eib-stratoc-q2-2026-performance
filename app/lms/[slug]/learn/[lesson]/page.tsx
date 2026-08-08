@@ -253,7 +253,8 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
             <Clock className="h-4 w-4" /> ~{lesson.minutes} min · {lesson.summary}
           </p>
 
-          {lesson.videoUrl && (
+          {/* Render top video iframe ONLY if it is a real video or if no labeledGraphic image exists */}
+          {lesson.videoUrl && !(lesson.labeledGraphic?.imageUrl && /\.(png|jpg|jpeg|webp)($|\?)/i.test(lesson.videoUrl)) && (
             <div className="mt-6 aspect-video w-full overflow-hidden rounded-xl border border-border shadow-sm">
               <iframe
                 src={lesson.videoUrl}
