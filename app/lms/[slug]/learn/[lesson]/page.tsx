@@ -43,9 +43,8 @@ export async function generateMetadata({
   const found = getLessons(course).find((l) => l.key === lessonKey)
   const title = `${found?.title ?? "Lesson"} · ${course.title} | EIB Group LMS`
 
-  const cleanImageUrl = course.imageUrl
-    ? course.imageUrl.split('?')[0]
-    : "https://lms.eibstratoc.com/eiblogo.png"
+  const baseCdn = `https://cdn.jsdelivr.net/gh/QuisTech/eib-lms-images@main/${slug}`
+  const ogImageUrl = `${baseCdn}/cover_og.jpg`
 
   return {
     metadataBase: new URL("https://lms.eibstratoc.com"),
@@ -53,10 +52,12 @@ export async function generateMetadata({
     description: course.description,
     icons: {
       icon: [
+        { url: "https://lms.eibstratoc.com/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+        { url: "https://lms.eibstratoc.com/favicon-16x16.png", sizes: "16x16", type: "image/png" },
         { url: "https://lms.eibstratoc.com/favicon.png", type: "image/png" },
         { url: "https://lms.eibstratoc.com/eiblogo.png", type: "image/png" },
       ],
-      shortcut: "https://lms.eibstratoc.com/favicon.png",
+      shortcut: "https://lms.eibstratoc.com/favicon-32x32.png",
       apple: "https://lms.eibstratoc.com/apple-touch-icon.png",
     },
     openGraph: {
@@ -67,11 +68,11 @@ export async function generateMetadata({
       type: "website",
       images: [
         {
-          url: cleanImageUrl,
-          secureUrl: cleanImageUrl,
+          url: ogImageUrl,
+          secureUrl: ogImageUrl,
           width: 1200,
           height: 630,
-          type: "image/png",
+          type: "image/jpeg",
           alt: title,
         },
       ],
@@ -80,7 +81,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title,
       description: course.description,
-      images: [cleanImageUrl],
+      images: [ogImageUrl],
     },
   }
 }

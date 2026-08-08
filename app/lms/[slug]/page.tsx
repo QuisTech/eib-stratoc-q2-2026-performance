@@ -42,9 +42,8 @@ export async function generateMetadata({
   const course = await getCourseBySlug(slug)
   if (!course) return { title: "Course not found | EIB Group LMS" }
 
-  const cleanImageUrl = course.imageUrl
-    ? course.imageUrl.split('?')[0]
-    : "https://lms.eibstratoc.com/eiblogo.png"
+  const baseCdn = `https://cdn.jsdelivr.net/gh/QuisTech/eib-lms-images@main/${slug}`
+  const ogImageUrl = `${baseCdn}/cover_og.jpg`
 
   return {
     metadataBase: new URL("https://lms.eibstratoc.com"),
@@ -68,11 +67,11 @@ export async function generateMetadata({
       type: "website",
       images: [
         {
-          url: cleanImageUrl,
-          secureUrl: cleanImageUrl,
+          url: ogImageUrl,
+          secureUrl: ogImageUrl,
           width: 1200,
           height: 630,
-          type: "image/png",
+          type: "image/jpeg",
           alt: course.title,
         },
       ],
@@ -81,7 +80,7 @@ export async function generateMetadata({
       card: "summary_large_image",
       title: `${course.title} | EIB Group LMS`,
       description: course.description,
-      images: [cleanImageUrl],
+      images: [ogImageUrl],
     },
   }
 }
