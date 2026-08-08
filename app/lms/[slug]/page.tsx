@@ -41,19 +41,45 @@ export async function generateMetadata({
   const { slug } = await params
   const course = await getCourseBySlug(slug)
   if (!course) return { title: "Course not found | EIB Group LMS" }
+
+  const cleanImageUrl = course.imageUrl
+    ? course.imageUrl.split('?')[0]
+    : "https://lms.eibstratoc.com/eiblogo.png"
+
   return {
+    metadataBase: new URL("https://lms.eibstratoc.com"),
     title: `${course.title} | EIB Group LMS`,
     description: course.description,
+    icons: {
+      icon: [
+        { url: "https://lms.eibstratoc.com/favicon.png", type: "image/png" },
+        { url: "https://lms.eibstratoc.com/eiblogo.png", type: "image/png" },
+      ],
+      shortcut: "https://lms.eibstratoc.com/favicon.png",
+      apple: "https://lms.eibstratoc.com/apple-touch-icon.png",
+    },
     openGraph: {
       title: `${course.title} | EIB Group LMS`,
       description: course.description,
-      images: course.imageUrl ? [{ url: `${course.imageUrl}?v=2`, width: 1200, height: 630 }] : [],
+      url: `https://lms.eibstratoc.com/lms/${slug}`,
+      siteName: "EIB Group LMS",
+      type: "website",
+      images: [
+        {
+          url: cleanImageUrl,
+          secureUrl: cleanImageUrl,
+          width: 1200,
+          height: 630,
+          type: "image/png",
+          alt: course.title,
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title: `${course.title} | EIB Group LMS`,
       description: course.description,
-      images: course.imageUrl ? [course.imageUrl] : [],
+      images: [cleanImageUrl],
     },
   }
 }

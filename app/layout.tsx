@@ -21,8 +21,26 @@ export const metadata: Metadata = {
   description:
     'The 90-day strategic plan for the EIB Group Training & Organizational Development function (July–September 2026): strategic goal, phased roadmap, ROI dashboard, and consolidated subsidiary input from the Performance Improvement Task Force.',
   icons: {
-    icon: '/favicon.png',
-    apple: '/favicon.png',
+    icon: [
+      { url: '/favicon.png', type: 'image/png' },
+      { url: '/eiblogo.png', type: 'image/png' },
+      { url: '/favicon.ico' },
+    ],
+    shortcut: '/favicon.png',
+    apple: '/apple-touch-icon.png',
+  },
+  openGraph: {
+    siteName: 'EIB Group LMS',
+    type: 'website',
+    images: [
+      {
+        url: 'https://lms.eibstratoc.com/eiblogo.png',
+        width: 1200,
+        height: 630,
+        type: 'image/png',
+        alt: 'EIB Group LMS',
+      },
+    ],
   },
 }
 

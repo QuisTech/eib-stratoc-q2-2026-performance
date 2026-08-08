@@ -37,11 +37,52 @@ export async function generateMetadata({
   params: Promise<Params>
 }): Promise<Metadata> {
   const { slug, lesson: rawLesson } = await params
-  const lesson = decodeURIComponent(rawLesson)
+  const lessonKey = decodeURIComponent(rawLesson)
   const course = await getCourseBySlug(slug)
   if (!course) return { title: "Lesson not found | EIB Group LMS" }
-  const found = getLessons(course).find((l) => l.key === lesson)
-  return { title: `${found?.title ?? "Lesson"} · ${course.title} | EIB Group LMS` }
+  const found = getLessons(course).find((l) => l.key === lessonKey)
+  const title = `${found?.title ?? "Lesson"} · ${course.title} | EIB Group LMS`
+
+  const cleanImageUrl = course.imageUrl
+    ? course.imageUrl.split('?')[0]
+    : "https://lms.eibstratoc.com/eiblogo.png"
+
+  return {
+    metadataBase: new URL("https://lms.eibstratoc.com"),
+    title,
+    description: course.description,
+    icons: {
+      icon: [
+        { url: "https://lms.eibstratoc.com/favicon.png", type: "image/png" },
+        { url: "https://lms.eibstratoc.com/eiblogo.png", type: "image/png" },
+      ],
+      shortcut: "https://lms.eibstratoc.com/favicon.png",
+      apple: "https://lms.eibstratoc.com/apple-touch-icon.png",
+    },
+    openGraph: {
+      title,
+      description: course.description,
+      url: `https://lms.eibstratoc.com/lms/${slug}/learn/${encodeURIComponent(lessonKey)}`,
+      siteName: "EIB Group LMS",
+      type: "website",
+      images: [
+        {
+          url: cleanImageUrl,
+          secureUrl: cleanImageUrl,
+          width: 1200,
+          height: 630,
+          type: "image/png",
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description: course.description,
+      images: [cleanImageUrl],
+    },
+  }
 }
 
 export default async function LessonPage({ params }: { params: Promise<Params> }) {
