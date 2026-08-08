@@ -52,10 +52,12 @@ export async function generateMetadata({
     description: course.description,
     icons: {
       icon: [
+        { url: "https://lms.eibstratoc.com/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+        { url: "https://lms.eibstratoc.com/favicon-16x16.png", sizes: "16x16", type: "image/png" },
         { url: "https://lms.eibstratoc.com/favicon.png", type: "image/png" },
         { url: "https://lms.eibstratoc.com/eiblogo.png", type: "image/png" },
       ],
-      shortcut: "https://lms.eibstratoc.com/favicon.png",
+      shortcut: "https://lms.eibstratoc.com/favicon-32x32.png",
       apple: "https://lms.eibstratoc.com/apple-touch-icon.png",
     },
     openGraph: {
