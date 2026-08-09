@@ -19,6 +19,8 @@ import { LabeledGraphic } from "@/components/lms/labeled-graphic"
 import { KnowledgeCheckSection } from "@/components/lms/knowledge-check-section"
 import { InteractiveTabs } from "@/components/lms/interactive-tabs"
 import { LessonFeedbackWidget } from "@/components/lms/lesson-feedback-widget"
+import { LessonVideoPlayer } from "@/components/lms/lesson-video-player"
+import { AudioReadThroughPlayer } from "@/components/lms/audio-read-through-player"
 import { ArrowLeft, CheckCircle2, Circle, Clock, Lightbulb, Lock, Paperclip } from "lucide-react"
 import { isCourseVisibleToUser } from "@/lib/utils"
 
@@ -254,17 +256,18 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
             <Clock className="h-4 w-4" /> ~{lesson.minutes} min · {lesson.summary}
           </p>
 
-          {/* Render top video iframe ONLY if it is a real video or if no labeledGraphic image exists */}
-          {lesson.videoUrl && !(lesson.labeledGraphic?.imageUrl && /\.(png|jpg|jpeg|webp)($|\?)/i.test(lesson.videoUrl)) && (
-            <div className="mt-6 aspect-video w-full overflow-hidden rounded-xl border border-border shadow-sm">
-              <iframe
-                src={lesson.videoUrl}
-                className="h-full w-full"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-          )}
+          {/* Video Player or Cinematic Placeholder */}
+          <LessonVideoPlayer
+            videoUrl={lesson.videoUrl}
+            minutes={lesson.minutes}
+            hasLabeledGraphic={!!lesson.labeledGraphic?.imageUrl}
+          />
+
+          {/* Web Speech API Audio Read-Through Player */}
+          <AudioReadThroughPlayer
+            lessonTitle={lesson.title}
+            sections={lesson.sections || []}
+          />
 
           <div className="mt-7 flex flex-col gap-7">
             {Array.isArray(lesson.sections) && lesson.sections.map((s, idx) => {
