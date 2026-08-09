@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useRef } from "react"
-import { Volume2, Play, Pause, RotateCcw, VolumeX, Sparkles, FastForward } from "lucide-react"
+import { Volume2, Play, Pause, RotateCcw, VolumeX, Sparkles, FastForward, User } from "lucide-react"
 
 interface Section {
   heading?: string
@@ -19,7 +19,8 @@ export function AudioReadThroughPlayer({ lessonTitle, sections }: AudioReadThrou
   const [rate, setRate] = useState(1) // 1x, 1.25x, 1.5x, 2x
   const [isSupported, setIsSupported] = useState(true)
   const [progressPercent, setProgressPercent] = useState(0)
-  const [currentParagraph, setCurrentParagraph] = useState(0)
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([])
+  const [selectedVoiceName, setSelectedVoiceName] = useState<string>("")
 
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
   const fullTextRef = useRef<string[]>([])
@@ -48,6 +49,50 @@ export function AudioReadThroughPlayer({ lessonTitle, sections }: AudioReadThrou
     fullTextRef.current = textBlocks
   }, [lessonTitle, sections])
 
+  // Load and prioritize Microsoft Edge Natural / Neural & Google Premium Voices
+  useEffect(() => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return
+
+    const loadVoices = () => {
+      const available = window.speechSynthesis.getVoices()
+      if (!available || available.length === 0) return
+
+      // Filter to English voices
+      const englishVoices = available.filter((v) => v.lang.startsWith("en"))
+      const pool = englishVoices.length > 0 ? englishVoices : available
+
+      // Sort voices by natural human quality priority
+      pool.sort((a, b) => {
+        const aName = a.name.toLowerCase()
+        const bName = b.name.toLowerCase()
+
+        // Rank 1: Microsoft Edge Online Natural Voices (e.g. Jenny Natural, Guy Natural, Aria Natural)
+        const aIsNatural = aName.includes("natural") || aName.includes("online")
+        const bIsNatural = bName.includes("natural") || bName.includes("online")
+        if (aIsNatural && !bIsNatural) return -1
+        if (!aIsNatural && bIsNatural) return 1
+
+        // Rank 2: Google & Apple Enhanced / Premium Voices
+        const aIsGoogleOrEnhanced = aName.includes("google") || aName.includes("enhanced") || aName.includes("premium")
+        const bIsGoogleOrEnhanced = bName.includes("google") || bName.includes("enhanced") || bName.includes("premium")
+        if (aIsGoogleOrEnhanced && !bIsGoogleOrEnhanced) return -1
+        if (!aIsGoogleOrEnhanced && bIsGoogleOrEnhanced) return 1
+
+        return 0
+      })
+
+      setVoices(pool)
+      if (!selectedVoiceName && pool[0]) {
+        setSelectedVoiceName(pool[0].name)
+      }
+    }
+
+    loadVoices()
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = loadVoices
+    }
+  }, [selectedVoiceName])
+
   // Stop speech synthesis on component unmount
   useEffect(() => {
     return () => {
@@ -66,7 +111,6 @@ export function AudioReadThroughPlayer({ lessonTitle, sections }: AudioReadThrou
       setIsPlaying(false)
       setIsPaused(false)
       setProgressPercent(100)
-      setCurrentParagraph(0)
       return
     }
 
@@ -75,19 +119,14 @@ export function AudioReadThroughPlayer({ lessonTitle, sections }: AudioReadThrou
     utterance.rate = rate
     utterance.pitch = 1.0
 
-    // Try selecting a natural sounding English voice
-    const voices = window.speechSynthesis.getVoices()
-    const preferredVoice = voices.find(
-      (v) => v.lang.startsWith("en") && (v.name.includes("Natural") || v.name.includes("Google") || v.name.includes("Enhanced"))
-    ) || voices.find((v) => v.lang.startsWith("en"))
-
-    if (preferredVoice) {
-      utterance.voice = preferredVoice
+    // Apply chosen voice
+    if (selectedVoiceName && voices.length > 0) {
+      const chosenVoice = voices.find((v) => v.name === selectedVoiceName)
+      if (chosenVoice) utterance.voice = chosenVoice
     }
 
     utterance.onboundary = (event) => {
       if (event.name === "sentence" || event.name === "word") {
-        // Calculate rough progress percentage
         const charLen = textToSpeak.length
         if (charLen > 0) {
           const pct = Math.min(100, Math.round((event.charIndex / charLen) * 100))
@@ -165,7 +204,7 @@ export function AudioReadThroughPlayer({ lessonTitle, sections }: AudioReadThrou
           <div>
             <div className="flex items-center gap-2">
               <span className="font-heading text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1">
-                <Sparkles className="h-3 w-3" /> Audio Read-Through
+                <Sparkles className="h-3.5 w-3.5" /> Human Voice Read-Through
               </span>
               {isPlaying && !isPaused && (
                 <span className="flex items-center gap-1 text-[11px] font-semibold text-emerald-600 animate-pulse">
@@ -174,13 +213,34 @@ export function AudioReadThroughPlayer({ lessonTitle, sections }: AudioReadThrou
               )}
             </div>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Listen to the complete lesson text spoken in natural audio playback.
+              Listen to the complete lesson spoken with natural neural voice synthesis.
             </p>
           </div>
         </div>
 
-        {/* Right audio controls */}
-        <div className="flex items-center gap-2 shrink-0">
+        {/* Right audio controls & voice dropdown */}
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          {/* Voice Dropdown Selector */}
+          {voices.length > 0 && (
+            <div className="flex items-center gap-1.5 rounded-xl border border-border bg-background px-2.5 py-1.5 text-xs text-muted-foreground">
+              <User className="h-3.5 w-3.5 text-primary shrink-0" />
+              <select
+                value={selectedVoiceName}
+                onChange={(e) => {
+                  setSelectedVoiceName(e.target.value)
+                  if (isPlaying) startSpeakingFromIndex(0)
+                }}
+                className="bg-transparent font-medium text-foreground text-xs focus:outline-none cursor-pointer max-w-[150px] truncate"
+              >
+                {voices.slice(0, 10).map((v) => (
+                  <option key={v.name} value={v.name}>
+                    {v.name.replace(/English|Microsoft|Google|\(.*?\)/gi, "").trim() || v.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
+
           {/* Speed Toggle */}
           <button
             type="button"
