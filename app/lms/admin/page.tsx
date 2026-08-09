@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { formatNaira } from "@/lib/utils"
-import { ArrowLeft, Users, BookOpen, GraduationCap, Award, Server } from "lucide-react"
+import { ArrowLeft, Users, BookOpen, GraduationCap, Award, Server, MessageSquare } from "lucide-react"
 import { ExportCsvButton } from "./export-csv-button"
 import { LearnerManagement } from "./learner-management"
 import { CourseManagement } from "./course-management"
@@ -66,12 +66,20 @@ export default async function AdminPage({
                 Team Learning Admin
               </h1>
               <Badge>Quota-safe view</Badge>
-              <Link
-                href="/lms/admin?full=1"
-                className="ml-auto inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-              >
-                Load full learner report
-              </Link>
+              <div className="ml-auto flex items-center gap-2">
+                <Link
+                  href="/lms/admin/feedback"
+                  className="inline-flex items-center gap-1.5 justify-center rounded-md border border-input bg-card px-3.5 py-2 text-sm font-medium hover:bg-accent hover:text-accent-foreground shadow-sm transition-colors"
+                >
+                  <MessageSquare className="h-4 w-4 text-primary" /> Staff Feedback Hub
+                </Link>
+                <Link
+                  href="/lms/admin?full=1"
+                  className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                >
+                  Load full learner report
+                </Link>
+              </div>
             </div>
             <p className="max-w-2xl text-pretty text-sm leading-relaxed text-muted-foreground">
               This view avoids the expensive group-wide learner scan. Open the full report only

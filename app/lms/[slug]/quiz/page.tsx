@@ -183,6 +183,7 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
           <QuizForm
             courseId={course.id}
             slug={slug}
+            courseTitle={course.title}
             questions={clientQuestions}
             passThreshold={policy.passThreshold}
             isLockedOutByAttempts={isLockedOutByAttempts}

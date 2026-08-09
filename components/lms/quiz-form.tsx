@@ -6,6 +6,7 @@ import Link from "next/link"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { submitQuiz } from "@/app/actions/lms"
+import { CourseCompletionSurvey } from "@/components/lms/course-completion-survey"
 import { Loader2, CheckCircle2, XCircle, Award, RotateCcw, AlertTriangle, Ban, Clock } from "lucide-react"
 
 type ClientQuestion = { 
@@ -188,6 +189,7 @@ function MatchingQuestionUI({
 export function QuizForm({
   courseId,
   slug,
+  courseTitle,
   questions,
   passThreshold,
   isLockedOutByAttempts,
@@ -201,6 +203,7 @@ export function QuizForm({
 }: {
   courseId: number
   slug: string
+  courseTitle?: string
   questions: ClientQuestion[]
   passThreshold: number
   isLockedOutByAttempts?: boolean
@@ -573,11 +576,16 @@ export function QuizForm({
 
 
       {result && (
-        <div className="mt-8 flex justify-center pb-8">
-          <Button render={<Link href={`/lms/${slug}`} />} size="lg" className="w-full sm:w-auto font-medium shadow-sm">
-            Return to Course Home
-          </Button>
-        </div>
+        <>
+          {result.passed && (
+            <CourseCompletionSurvey courseSlug={slug} courseTitle={courseTitle || slug} />
+          )}
+          <div className="mt-8 flex justify-center pb-8">
+            <Button render={<Link href={`/lms/${slug}`} />} size="lg" className="w-full sm:w-auto font-medium shadow-sm">
+              Return to Course Home
+            </Button>
+          </div>
+        </>
       )}
       {!result && !isLockedOutByAttempts && !isLockedOutByTime && (
         <>

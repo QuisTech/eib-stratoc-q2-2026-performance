@@ -18,6 +18,7 @@ import { ScormAccordion } from "@/components/lms/scorm-accordion"
 import { LabeledGraphic } from "@/components/lms/labeled-graphic"
 import { KnowledgeCheckSection } from "@/components/lms/knowledge-check-section"
 import { InteractiveTabs } from "@/components/lms/interactive-tabs"
+import { LessonFeedbackWidget } from "@/components/lms/lesson-feedback-widget"
 import { ArrowLeft, CheckCircle2, Circle, Clock, Lightbulb, Lock, Paperclip } from "lucide-react"
 import { isCourseVisibleToUser } from "@/lib/utils"
 
@@ -337,6 +338,9 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
               <Flashcards takeaways={lesson.takeaways} />
             </div>
           )}
+
+          {/* 1-Click Micro-Feedback Widget */}
+          <LessonFeedbackWidget courseSlug={slug} lessonKey={lesson.key} lessonTitle={lesson.title} />
 
           <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6">
             <div className="flex items-center gap-4">

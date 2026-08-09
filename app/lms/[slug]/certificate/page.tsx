@@ -8,6 +8,7 @@ import { INITIATIVE_NAMES } from "@/lib/lms-content"
 import { formatNaira } from "@/lib/utils"
 import { buttonVariants } from "@/components/ui/button"
 import { PrintActions } from "@/components/print-actions"
+import { CourseCompletionSurvey } from "@/components/lms/course-completion-survey"
 import { ArrowLeft, ShieldCheck, Award } from "lucide-react"
 
 type Params = { slug: string }
@@ -157,6 +158,10 @@ export default async function CertificatePage({
           </p>
         </div>
       </article>
+
+      <div className="no-print mt-6">
+        <CourseCompletionSurvey courseSlug={slug} courseTitle={course.title} />
+      </div>
     </main>
   )
 }
