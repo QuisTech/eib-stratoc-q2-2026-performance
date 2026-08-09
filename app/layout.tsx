@@ -1,19 +1,13 @@
 import type { Metadata, Viewport } from 'next'
-import { Geist, Geist_Mono, Source_Serif_4 } from 'next/font/google'
 import './globals.css'
 import { SiteHeader } from '@/components/site-header'
 import { ForcePasswordChange } from '@/components/force-password-change'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
-const geistSans = Geist({ variable: '--font-geist-sans', subsets: ['latin'] })
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-})
-const sourceSerif = Source_Serif_4({
-  variable: '--font-source-serif',
-  subsets: ['latin'],
-})
+// Font definitions with offline/system fallback compatibility for VPS builds
+const geistSans = { variable: '--font-geist-sans' }
+const geistMono = { variable: '--font-geist-mono' }
+const sourceSerif = { variable: '--font-source-serif' }
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://lms.eibstratoc.com'),
