@@ -6,9 +6,12 @@ import { Star, Send, Award, CheckCircle2 } from "lucide-react"
 interface CourseCompletionSurveyProps {
   courseSlug: string
   courseTitle: string
+  userName?: string
+  userEmail?: string
+  subsidiary?: string
 }
 
-export function CourseCompletionSurvey({ courseSlug, courseTitle }: CourseCompletionSurveyProps) {
+export function CourseCompletionSurvey({ courseSlug, courseTitle, userName, userEmail, subsidiary }: CourseCompletionSurveyProps) {
   const storageKey = `lms_fb_course_${courseSlug}`
 
   const [overallRating, setOverallRating] = useState(5)
@@ -45,6 +48,9 @@ export function CourseCompletionSurvey({ courseSlug, courseTitle }: CourseComple
       },
       npsScore,
       comment: comment.trim(),
+      userName,
+      userEmail,
+      subsidiary,
     }
 
     try {

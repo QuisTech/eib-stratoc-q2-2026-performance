@@ -343,7 +343,14 @@ export default async function LessonPage({ params }: { params: Promise<Params> }
           )}
 
           {/* 1-Click Micro-Feedback Widget */}
-          <LessonFeedbackWidget courseSlug={slug} lessonKey={lesson.key} lessonTitle={lesson.title} />
+          <LessonFeedbackWidget 
+            courseSlug={slug} 
+            lessonKey={lesson.key} 
+            lessonTitle={lesson.title}
+            userName={session?.user?.name || ""}
+            userEmail={session?.user?.email || ""}
+            subsidiary={session?.user?.subsidiary || ""}
+          />
 
           <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-border pt-6">
             <div className="flex items-center gap-4">

@@ -160,7 +160,13 @@ export default async function CertificatePage({
       </article>
 
       <div className="no-print mt-6">
-        <CourseCompletionSurvey courseSlug={slug} courseTitle={course.title} />
+        <CourseCompletionSurvey 
+          courseSlug={slug} 
+          courseTitle={course.title} 
+          userName={certName}
+          userEmail={certEmail}
+          subsidiary={session?.user?.subsidiary || ""}
+        />
       </div>
     </main>
   )

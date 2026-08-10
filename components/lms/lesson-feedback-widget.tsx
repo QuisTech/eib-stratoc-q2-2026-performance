@@ -7,6 +7,9 @@ interface LessonFeedbackWidgetProps {
   courseSlug: string
   lessonKey: string
   lessonTitle: string
+  userName?: string
+  userEmail?: string
+  subsidiary?: string
 }
 
 const QUICK_TAGS = [
@@ -17,7 +20,7 @@ const QUICK_TAGS = [
   "Formatting issue",
 ]
 
-export function LessonFeedbackWidget({ courseSlug, lessonKey, lessonTitle }: LessonFeedbackWidgetProps) {
+export function LessonFeedbackWidget({ courseSlug, lessonKey, lessonTitle, userName, userEmail, subsidiary }: LessonFeedbackWidgetProps) {
   const storageKey = `lms_fb_lesson_${courseSlug}_${lessonKey}`
   
   const [sentiment, setSentiment] = useState<"positive" | "negative" | null>(null)
@@ -62,6 +65,9 @@ export function LessonFeedbackWidget({ courseSlug, lessonKey, lessonTitle }: Les
       sentiment,
       tags: selectedTags,
       comment: comment.trim(),
+      userName,
+      userEmail,
+      subsidiary,
     }
 
     try {
