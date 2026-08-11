@@ -38,8 +38,8 @@ export async function POST(req: Request) {
       npsScore: typeof npsScore === "number" ? npsScore : null,
       comment: (comment || "").trim().slice(0, 1000), // Max 1000 chars to save storage
       userEmail: userEmail || "anonymous@company.com",
-      userName: userName || "Staff Member",
-      subsidiary: subsidiary || "Group HQ",
+      userName: userName || "Anonymous Learner",
+      subsidiary: subsidiary || "Unknown Subsidiary",
       createdAt: new Date().toISOString(),
       timestamp: Date.now(),
     }
