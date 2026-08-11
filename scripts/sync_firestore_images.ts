@@ -33,10 +33,12 @@ async function run() {
         updateData.customContent = staticCourse.customContent;
       }
       
-      await courseRef.update(updateData).catch(err => {
-        console.error(`Failed to update ${staticCourse.slug}`, err.message);
-      });
-      count++;
+      if (Object.keys(updateData).length > 0) {
+        await courseRef.update(updateData).catch(err => {
+          console.error(`Failed to update ${staticCourse.slug}`, err.message);
+        });
+        count++;
+      }
     }
   }
   

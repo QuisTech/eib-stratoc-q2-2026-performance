@@ -32,14 +32,16 @@ export async function POST(req: Request) {
         if (hasLocalImage) {
           updateData.imageUrl = staticCourse.imageUrl;
         }
-        if (hasLocalContentImages && typeof staticCourse.customContent !== 'string') {
+        if (hasLocalContentImages) {
           updateData.customContent = staticCourse.customContent;
         }
         
-        await courseRef.update(updateData).catch(err => {
-          console.error(`Failed to update ${staticCourse.slug}`, err.message);
-        });
-        count++;
+        if (Object.keys(updateData).length > 0) {
+          await courseRef.update(updateData).catch(err => {
+            console.error(`Failed to update ${staticCourse.slug}`, err.message);
+          });
+          count++;
+        }
       }
     }
     
