@@ -159,15 +159,17 @@ export default async function CertificatePage({
         </div>
       </article>
 
-      <div className="no-print mt-6">
-        <CourseCompletionSurvey 
-          courseSlug={slug} 
-          courseTitle={course.title} 
-          userName={certName}
-          userEmail={certEmail}
-          subsidiary={session?.user?.subsidiary || ""}
-        />
-      </div>
+      {session?.user && (
+        <div className="no-print mt-6">
+          <CourseCompletionSurvey 
+            courseSlug={slug} 
+            courseTitle={course.title} 
+            userName={certName}
+            userEmail={certEmail}
+            subsidiary={session.user.subsidiary || ""}
+          />
+        </div>
+      )}
     </main>
   )
 }

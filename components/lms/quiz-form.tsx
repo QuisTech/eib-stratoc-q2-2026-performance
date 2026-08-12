@@ -197,7 +197,9 @@ export function QuizForm({
   waitHoursLeft,
   waitPeriodHours,
   maxAttempts,
+  userName,
   userEmail,
+  subsidiary,
   quizSeed,
   alreadyPassed
 }: {
@@ -211,7 +213,9 @@ export function QuizForm({
   waitHoursLeft?: number
   waitPeriodHours?: number
   maxAttempts: number
+  userName?: string
   userEmail: string
+  subsidiary?: string
   quizSeed?: number
   alreadyPassed?: boolean
 }) {
@@ -578,7 +582,13 @@ export function QuizForm({
       {result && (
         <>
           {result.passed && (
-            <CourseCompletionSurvey courseSlug={slug} courseTitle={courseTitle || slug} />
+            <CourseCompletionSurvey
+              courseSlug={slug}
+              courseTitle={courseTitle || slug}
+              userName={userName}
+              userEmail={userEmail}
+              subsidiary={subsidiary}
+            />
           )}
           <div className="mt-8 flex justify-center pb-8">
             <Button render={<Link href={`/lms/${slug}`} />} size="lg" className="w-full sm:w-auto font-medium shadow-sm">

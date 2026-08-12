@@ -191,7 +191,9 @@ export default async function QuizPage({ params }: { params: Promise<Params> }) 
             waitHoursLeft={waitHoursLeft}
             waitPeriodHours={policy.waitPeriodHours}
             maxAttempts={policy.maxAttempts}
+            userName={session.user.name || ""}
             userEmail={session.user.email || "Unknown User"}
+            subsidiary={session.user.subsidiary || ""}
             quizSeed={quizSeed}
             alreadyPassed={alreadyPassed}
           />
