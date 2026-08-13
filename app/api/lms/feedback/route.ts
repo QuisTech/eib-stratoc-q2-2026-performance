@@ -65,13 +65,23 @@ export async function POST(req: Request) {
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url)
-    const limitCount = Math.min(Number(searchParams.get("limit")) || 50, 100) // Strictly cap reads (max 100)
+    const limitCount = Math.min(Number(searchParams.get("limit")) || 500, 1000) // Flexible cap reads (max 1000)
 
     if (!adminDb) {
       return NextResponse.json({ feedback: [], total: 0, message: "Firestore admin not initialized" })
     }
 
-    // Perform query with strict limit to save read quotas
+    // Get true total count from collection
+    let totalCount = 0
+    try {
+      const countSnap = await adminDb.collection("lms_feedback").count().get()
+      totalCount = countSnap.data().count
+    } catch {
+      // Fallback if count() API is unavailable
+      totalCount = 0
+    }
+
+    // Perform query to retrieve feedback items
     const snapshot = await adminDb
       .collection("lms_feedback")
       .orderBy("timestamp", "desc")
@@ -83,7 +93,7 @@ export async function GET(req: Request) {
       ...doc.data(),
     }))
 
-    return NextResponse.json({ feedback, total: feedback.length })
+    return NextResponse.json({ feedback, total: totalCount || feedback.length })
   } catch (error: any) {
     console.error("Failed to fetch feedback:", error?.message || error)
     return NextResponse.json({ feedback: [], total: 0, error: error?.message || "Quota or Network Error" })

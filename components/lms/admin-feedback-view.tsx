@@ -5,6 +5,7 @@ import { Star, ThumbsUp, ThumbsDown, MessageSquare, Award, Search, RefreshCw, Me
 
 export function AdminFeedbackView() {
   const [feedbackList, setFeedbackList] = useState<any[]>([])
+  const [totalCount, setTotalCount] = useState<number>(0)
   const [isLoading, setIsLoading] = useState(true)
   const [filterType, setFilterType] = useState<"all" | "lesson" | "course">("all")
   const [searchQuery, setSearchQuery] = useState("")
@@ -12,9 +13,10 @@ export function AdminFeedbackView() {
   const fetchFeedback = async () => {
     setIsLoading(true)
     try {
-      const res = await fetch("/api/lms/feedback?limit=100")
+      const res = await fetch("/api/lms/feedback?limit=1000")
       const data = await res.json()
       setFeedbackList(data.feedback || [])
+      setTotalCount(data.total || data.feedback?.length || 0)
     } catch (e) {
       console.error("Failed to load feedback:", e)
     } finally {
@@ -79,7 +81,7 @@ export function AdminFeedbackView() {
         <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-sm flex items-center justify-between">
           <div>
             <span className="text-xs font-medium text-muted-foreground block">Total Submissions</span>
-            <span className="text-2xl font-bold font-heading text-foreground">{feedbackList.length}</span>
+            <span className="text-2xl font-bold font-heading text-foreground">{totalCount || feedbackList.length}</span>
           </div>
           <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
             <MessageCircle className="h-5 w-5" />
