@@ -1,6 +1,5 @@
 export const SUPER_ADMIN_EMAILS = [
   "michael.marquis@eibgroup.com",
-  "michael.marquis@eibgrup.com",
   "training@eibstratoc.com"
 ];
 
