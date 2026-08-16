@@ -2,6 +2,8 @@ import type { Metadata } from "next"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { AdminFeedbackView } from "@/components/lms/admin-feedback-view"
+import { getSessionUser } from "@/app/actions/auth"
+import { isSuperAdmin } from "@/lib/access-control"
 
 export const dynamic = "force-dynamic"
 
@@ -51,6 +53,9 @@ export const metadata: Metadata = {
 }
 
 export default async function AdminFeedbackPage() {
+  const user = await getSessionUser()
+  const canFixInBuilder = isSuperAdmin(user)
+
   return (
     <main className="mx-auto max-w-6xl px-4 py-8 md:px-6">
       <div className="mb-5 flex items-center justify-between">
@@ -62,7 +67,7 @@ export default async function AdminFeedbackPage() {
         </Link>
       </div>
 
-      <AdminFeedbackView />
+      <AdminFeedbackView canFixInBuilder={canFixInBuilder} />
     </main>
   )
 }
