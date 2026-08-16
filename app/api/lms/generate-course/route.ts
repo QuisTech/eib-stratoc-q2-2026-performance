@@ -39,17 +39,112 @@ export async function POST(req: Request) {
     apiKey: selectedKey,
   })
 
-  const { title, category, customContext, existingLessons, existingQuiz, action } = await req.json()
+  const {
+    title,
+    category,
+    customContext,
+    existingLessons,
+    existingQuiz,
+    action,
+    lessonTitle,
+    sectionHeading,
+    sectionBody,
+    lessonSummary,
+    feedbackComment,
+  } = await req.json()
+
   const isAppendMode = action === "append_lesson" || (existingLessons && existingLessons.length > 0 && !action)
   const isAppendQuizMode = action === "append_quiz"
+  const isRefineSectionMode = action === "refine_section"
+  const isGenerateTabMode = action === "generate_tab"
+  const isGenerateKnowledgeCheckMode = action === "generate_knowledge_check"
 
-  const customInstructions = customContext?.trim()
-    ? `\n\nADDITIONAL INSTRUCTIONS FROM THE ADMIN:\n${customContext.trim()}`
+  const customInstructions = (customContext || feedbackComment)?.trim()
+    ? `\n\nADDITIONAL INSTRUCTIONS / STAFF FEEDBACK:\n${(customContext || feedbackComment).trim()}`
     : ""
 
   let prompt = ""
 
-  if (isAppendQuizMode) {
+  if (isRefineSectionMode) {
+    const currentBodyText = Array.isArray(sectionBody) ? sectionBody.join("\n\n") : (sectionBody || "")
+    prompt = `${EIB_GROUP_CONTEXT}
+
+You are a corporate training expert improving a specific curriculum section for the Nigerian conglomerate described above.
+Course Title: "${title}" (${category || "General"})
+Lesson: "${lessonTitle || "Lesson"}"
+Current Section Heading: "${sectionHeading || "Section"}"
+
+Current Section Content:
+${currentBodyText || "No content currently."}
+${customInstructions}
+
+Your task: Surgically rewrite and elevate ONLY this specific section.
+Requirements:
+1. Deliver exceptionally rich, substantive, expert-level, actionable corporate educational content.
+2. Directly address any staff feedback, clarity requests, or specific directives provided above.
+3. Keep Nigerian Naira (₦) for currency references if applicable, and refer to the company generically as "the organization" or "the company".
+4. Do NOT mention European Investment Bank or EU institutions.
+5. Return JSON with the revised "heading" and "body" (an array of strings, where each string is a paragraph).
+
+Output ONLY valid JSON with this exact structure:
+{
+  "heading": "Refined Section Heading",
+  "body": [
+    "Paragraph 1 with detailed explanations...",
+    "Paragraph 2 with actionable methodology...",
+    "Paragraph 3 with operational considerations..."
+  ]
+}`
+  } else if (isGenerateTabMode) {
+    prompt = `${EIB_GROUP_CONTEXT}
+
+You are a corporate training expert creating an interactive deep-dive tab / case study for a lesson in the Nigerian corporate context.
+Course Title: "${title}" (${category || "General"})
+Lesson Title: "${lessonTitle || "Lesson"}"
+${customInstructions}
+
+Your task: Generate ONE comprehensive, highly detailed interactive tab (e.g. In-Depth Case Study, Step-by-Step Implementation Framework, or Practical Checklist).
+Requirements:
+1. Write in rich markdown: use subheadings (e.g. ### Background & Context, ### Operational Execution, ### Lessons Learned & Risk Controls) and bullet points (•).
+2. Make it deeply educational, highly granular, and directly applicable.
+3. Return JSON with "tabTitle" (short, punchy title) and "content" (voluminous markdown text spanning multiple paragraphs and subsections).
+
+Output ONLY valid JSON with this exact structure:
+{
+  "tabTitle": "Case Study: Practical Operational Execution",
+  "content": "### Background & Context\\n\\nDetailed context and organizational challenges...\\n\\n### Operational Execution\\n\\nStep-by-step implementation strategy...\\n\\n### Key Takeaways\\n\\n• Strategic outcome 1\\n• Operational control 2"
+}`
+  } else if (isGenerateKnowledgeCheckMode) {
+    prompt = `${EIB_GROUP_CONTEXT}
+
+You are a corporate training expert creating an interactive matching knowledge check for a lesson.
+Course Title: "${title}" (${category || "General"})
+Lesson Title: "${lessonTitle || "Lesson"}"
+Lesson Summary: "${lessonSummary || ""}"
+${customInstructions}
+
+Your task: Generate ONE interactive matching exercise (type: "matching") specifically testing genuine understanding of the concepts in this lesson.
+Requirements:
+1. Provide a clear prompt asking learners to match the concepts with their corresponding applications or definitions.
+2. Provide exactly 3 or 4 pairs with "left" (concept/term) and "right" (definition/application).
+3. Include a comprehensive explanation.
+4. Return JSON matching the structure below.
+
+Output ONLY valid JSON with this exact structure:
+{
+  "knowledgeCheck": {
+    "type": "matching",
+    "id": "kc-${Date.now()}",
+    "prompt": "Match each operational concept with its correct organizational application:",
+    "pairs": [
+      { "left": "Concept A", "right": "Application A" },
+      { "left": "Concept B", "right": "Application B" },
+      { "left": "Concept C", "right": "Application C" }
+    ],
+    "explanation": "Detailed explanation of why these matches are correct."
+  }
+}`
+  } else if (isAppendQuizMode) {
     const existingCount = existingQuiz?.length || 0
     const existingLessonContext = existingLessons && existingLessons.length > 0 
       ? `The course currently has the following lessons:\n` + existingLessons.map((l: any) => `- ${l.title}: ${l.summary || 'No summary'}\n  Key Takeaways: ${l.takeaways?.join(', ') || 'None'}`).join("\n") 
@@ -78,7 +173,21 @@ Requirements:
 - The correct answer must require intelligent reasoning, not just recalling a basic definition.
 - All content must be relevant to the Nigerian corporate context.
 - CRITICAL: Do NOT use any subsidiary names. Use generic terms like "the organization".
-- Do NOT mention the European Investment Bank or the EU anywhere.${customInstructions}`
+- Do NOT mention the European Investment Bank or the EU anywhere.${customInstructions}
+
+Output ONLY valid JSON with this exact structure:
+{
+  "quiz": [
+    {
+      "type": "multiple_choice",
+      "id": "q1",
+      "prompt": "Question prompt?",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correctIndex": 0,
+      "explanation": "Detailed explanation..."
+    }
+  ]
+}`
   } else if (isAppendMode) {
     const existingLessonContext = existingLessons && existingLessons.length > 0 
       ? existingLessons.map((l: any) => `- ${l.title}: ${l.summary || 'No summary'}\n  Key Takeaways: ${l.takeaways?.join(', ') || 'None'}`).join("\n") 
@@ -113,7 +222,32 @@ Requirements:
 - INTERACTIVE TABS REQUIREMENT: You MUST include an "interactiveTabs" array to create a "Deep Dive" tabbed UI for this lesson. This should contain 2-4 tabs exploring specific sub-topics, frameworks, or case studies in extreme detail.
 - All content must be relevant to the Nigerian corporate context.
 - CRITICAL: Do NOT use any subsidiary names. Use generic terms like "the organization".
-- Do NOT mention the European Investment Bank or the EU anywhere.${customInstructions}`
+- Do NOT mention the European Investment Bank or the EU anywhere.${customInstructions}
+
+Output ONLY valid JSON with this exact structure:
+{
+  "lessons": [
+    {
+      "key": "lesson-new-id",
+      "title": "Lesson Title",
+      "minutes": 15,
+      "summary": "Short summary...",
+      "sections": [
+        {
+          "heading": "Section Heading",
+          "body": ["Paragraph 1...", "Paragraph 2..."]
+        }
+      ],
+      "takeaways": ["Takeaway 1", "Takeaway 2"],
+      "interactiveTabs": [
+        {
+          "tabTitle": "Tab 1 Title",
+          "content": "Detailed content..."
+        }
+      ]
+    }
+  ]
+}`
   } else {
     const existingLessonContext = existingLessons && existingLessons.length > 0 
       ? `\n\nExisting Lessons to build upon:\n` + existingLessons.map((l: any) => `- ${l.title}: ${l.summary || 'No summary'}\n  Key Takeaways: ${l.takeaways?.join(', ') || 'None'}`).join("\n") 
@@ -139,11 +273,9 @@ Requirements:
 7. QUIZ ANTI-CHEAT REQUIREMENT: For all quiz questions, do NOT make the correct answer the longest option. All options MUST be approximately the exact same length and structure to prevent length-bias guessing. All distractors must be highly plausible, confusing, and require deep reasoning to distinguish.
 8. INTERACTIVE TABS & CASE STUDY REQUIREMENT: For EVERY lesson, include an "interactiveTabs" array to create a "Deep Dive" tabbed UI with 4 to 5 voluminous tabs.
    - At least 1 tab per lesson MUST be an in-depth Real-World International Case Study with background context, operational execution, and key lessons learned.
-   - Use double-spaced paragraphs (\n\n), bullet points (•), and subheadings (e.g. BACKGROUND:, OUTCOMES:) so the UI renders clean, structured, non-overlapping typography.`
-  }
+   - Use double-spaced paragraphs (\n\n), bullet points (•), and subheadings (e.g. BACKGROUND:, OUTCOMES:) so the UI renders clean, structured, non-overlapping typography.
 
-  try {
-    const promptWithJsonInstruction = prompt + `\n\nCRITICAL: Output ONLY valid JSON. You MUST use this exact structure, including all keys and ensuring arrays are used where specified:
+Output ONLY valid JSON with this exact structure:
 {
   "lessons": [
     {
@@ -161,10 +293,6 @@ Requirements:
       "interactiveTabs": [
         {
           "tabTitle": "Tab 1 Title",
-          "content": "Detailed, highly voluminous markdown content spanning multiple paragraphs. Do NOT write just one sentence. Go extremely deep into the technical execution and details for this tab..."
-        },
-        {
-          "tabTitle": "Tab 2 Title",
           "content": "Detailed, highly voluminous markdown content spanning multiple paragraphs..."
         }
       ],
@@ -191,16 +319,21 @@ Requirements:
     }
   ]
 }`
+  }
 
-    const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
-    
-    // Switch to Groq llama-3.3-70b-versatile as Gemini hit billing limit
-    const aiModel = groq("llama-3.3-70b-versatile")
+  try {
+    let aiModel
+    if (process.env.GROQ_API_KEY) {
+      const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
+      aiModel = groq("llama-3.3-70b-versatile")
+    } else {
+      aiModel = google("gemini-2.5-flash")
+    }
 
     const result = await generateObject({
       model: aiModel,
-      prompt: promptWithJsonInstruction,
-      temperature: 0.3, // Slightly reduced temperature for better syntax adherence
+      prompt,
+      temperature: 0.3,
       output: 'no-schema',
     })
 

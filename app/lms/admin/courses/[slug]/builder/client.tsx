@@ -33,6 +33,183 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
   const appendMode = useRef<"none" | "lesson" | "quiz">("none")
 
   const [isGenerating, setIsGenerating] = useState(false)
+
+  // --- Surgical Section Refine State & Logic ---
+  const [activeRefineSec, setActiveRefineSec] = useState<{ lIndex: number; sIndex: number } | null>(null)
+  const [refinePrompt, setRefinePrompt] = useState("")
+  const [isRefining, setIsRefining] = useState(false)
+  const [refineSuccessMsg, setRefineSuccessMsg] = useState<string | null>(null)
+
+  // --- Tab & Knowledge Check Generation State ---
+  const [generatingTabForLesson, setGeneratingTabForLesson] = useState<number | null>(null)
+  const [generatingKcForLesson, setGeneratingKcForLesson] = useState<number | null>(null)
+  const [highlightedLessonKey, setHighlightedLessonKey] = useState<string | null>(null)
+  const [incomingFeedback, setIncomingFeedback] = useState<string | null>(null)
+
+  // Handle URL Params on mount (?lesson=...&feedback=...)
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search)
+      const lessonParam = params.get("lesson")
+      const feedbackParam = params.get("feedback")
+
+      if (lessonParam || feedbackParam) {
+        if (lessonParam) {
+          setHighlightedLessonKey(lessonParam)
+          setTimeout(() => {
+            const el = document.getElementById(`lesson-card-${lessonParam}`)
+            if (el) {
+              el.scrollIntoView({ behavior: "smooth", block: "center" })
+            }
+          }, 350)
+        }
+        if (feedbackParam) {
+          setIncomingFeedback(feedbackParam)
+          setRefinePrompt(`Incorporate staff feedback: ${feedbackParam}`)
+        }
+      }
+    }
+  }, [])
+
+  const handleRefineSection = async (lIndex: number, sIndex: number, promptText?: string) => {
+    const pText = (promptText || refinePrompt || "").trim()
+    if (!pText) return
+
+    setIsRefining(true)
+    setError(null)
+    setRefineSuccessMsg(null)
+
+    const sec = lessons[lIndex]?.sections?.[sIndex]
+    if (!sec) return
+
+    try {
+      const res = await fetch("/api/lms/generate-course", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "refine_section",
+          title: course.title,
+          category: course.category || "General",
+          lessonTitle: lessons[lIndex]?.title || "Lesson",
+          sectionHeading: sec.heading || "Section",
+          sectionBody: sec.body || [],
+          customContext: pText,
+        }),
+      })
+
+      const data = await res.json()
+      if (!res.ok || data.error) {
+        throw new Error(data.error || "Failed to refine section.")
+      }
+
+      if (data.body) {
+        const updated = [...lessons]
+        updated[lIndex].sections[sIndex] = {
+          heading: data.heading || sec.heading,
+          body: Array.isArray(data.body) ? data.body : [String(data.body)],
+        }
+        setLessons(updated)
+        setRefineSuccessMsg("Section refined successfully!")
+        setTimeout(() => setRefineSuccessMsg(null), 4000)
+      }
+    } catch (err: any) {
+      console.error("Section refine error:", err)
+      setError(err.message || "Failed to refine section.")
+    } finally {
+      setIsRefining(false)
+    }
+  }
+
+  const handleGenerateTab = async (lIndex: number, tabPrompt?: string) => {
+    setGeneratingTabForLesson(lIndex)
+    setError(null)
+
+    try {
+      const res = await fetch("/api/lms/generate-course", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "generate_tab",
+          title: course.title,
+          category: course.category || "General",
+          lessonTitle: lessons[lIndex]?.title,
+          customContext: tabPrompt || "Real-World Nigerian Corporate Case Study with operational execution and key lessons learned.",
+        }),
+      })
+
+      const data = await res.json()
+      if (!res.ok || data.error) {
+        throw new Error(data.error || "Failed to generate interactive tab.")
+      }
+
+      if (data.tabTitle && data.content) {
+        const updated = [...lessons]
+        if (!Array.isArray(updated[lIndex].interactiveTabs)) {
+          updated[lIndex].interactiveTabs = []
+        }
+        updated[lIndex].interactiveTabs.push({
+          tabTitle: data.tabTitle,
+          content: data.content,
+        })
+        setLessons(updated)
+      }
+    } catch (err: any) {
+      console.error("Tab generate error:", err)
+      setError(err.message || "Failed to generate tab.")
+    } finally {
+      setGeneratingTabForLesson(null)
+    }
+  }
+
+  const handleGenerateKnowledgeCheck = async (lIndex: number) => {
+    setGeneratingKcForLesson(lIndex)
+    setError(null)
+
+    try {
+      const res = await fetch("/api/lms/generate-course", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "generate_knowledge_check",
+          title: course.title,
+          category: course.category || "General",
+          lessonTitle: lessons[lIndex]?.title,
+          lessonSummary: lessons[lIndex]?.summary,
+        }),
+      })
+
+      const data = await res.json()
+      if (!res.ok || data.error) {
+        throw new Error(data.error || "Failed to generate knowledge check.")
+      }
+
+      if (data.knowledgeCheck) {
+        const updated = [...lessons]
+        updated[lIndex].knowledgeCheck = data.knowledgeCheck
+        setLessons(updated)
+      }
+    } catch (err: any) {
+      console.error("Knowledge check generate error:", err)
+      setError(err.message || "Failed to generate knowledge check.")
+    } finally {
+      setGeneratingKcForLesson(null)
+    }
+  }
+
+  const updateInteractiveTab = (lIndex: number, tIndex: number, field: string, value: string) => {
+    const updated = [...lessons]
+    updated[lIndex].interactiveTabs[tIndex] = {
+      ...updated[lIndex].interactiveTabs[tIndex],
+      [field]: value,
+    }
+    setLessons(updated)
+  }
+
+  const removeInteractiveTab = (lIndex: number, tIndex: number) => {
+    const updated = [...lessons]
+    updated[lIndex].interactiveTabs = updated[lIndex].interactiveTabs.filter((_: any, i: number) => i !== tIndex)
+    setLessons(updated)
+  }
   
   async function submitGeneration(payload: any, mode: "none" | "lesson" | "quiz") {
     setIsGenerating(true)
@@ -332,6 +509,32 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
         </div>
       )}
 
+      {incomingFeedback && (
+        <div className="mb-6 rounded-xl border border-amber-300 bg-amber-50/80 p-4 dark:border-amber-900/60 dark:bg-amber-950/30 flex items-start justify-between gap-3 animate-in fade-in duration-200">
+          <div className="flex items-start gap-2.5">
+            <Sparkles className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <h4 className="text-xs font-bold uppercase tracking-wider text-amber-900 dark:text-amber-200">
+                Staff Feedback Linked
+              </h4>
+              <p className="text-sm font-medium text-amber-950 dark:text-amber-100 mt-0.5">
+                &ldquo;{incomingFeedback}&rdquo;
+              </p>
+              <p className="text-xs text-amber-800/80 dark:text-amber-300/80 mt-1">
+                Target lesson focused. Click <strong>✨ AI Refine</strong> on any section below to apply this feedback in-place.
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIncomingFeedback(null)}
+            className="text-xs text-amber-800 dark:text-amber-300 hover:text-foreground font-semibold"
+          >
+            ✕ Dismiss
+          </button>
+        </div>
+      )}
+
       {error && <div className="mb-6 rounded-md bg-destructive/15 p-4 text-sm font-medium text-destructive">{error}</div>}
 
       {/* LESSONS SECTION */}
@@ -366,87 +569,360 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
         )}
 
         <div className="space-y-8">
-          {displayLessons.map((lesson, lIndex) => (
-            <div key={lesson.key || lIndex} className={`relative rounded-xl border bg-card p-6 shadow-sm ${isLoading ? "opacity-70 pointer-events-none" : ""}`}>
-              <button
-                onClick={() => removeLesson(lIndex)}
-                className="absolute right-4 top-4 text-muted-foreground hover:text-destructive"
+          {displayLessons.map((lesson, lIndex) => {
+            const isFocused =
+              highlightedLessonKey === lesson.key ||
+              highlightedLessonKey === `lesson-${lIndex + 1}` ||
+              highlightedLessonKey === String(lIndex)
+
+            return (
+              <div
+                key={lesson.key || lIndex}
+                id={`lesson-card-${lesson.key || lIndex}`}
+                className={`relative rounded-xl border bg-card p-6 shadow-sm transition-all duration-300 ${
+                  isFocused ? "ring-2 ring-indigo-500 shadow-indigo-100 dark:shadow-indigo-950/50" : ""
+                } ${isLoading ? "opacity-70 pointer-events-none" : ""}`}
               >
-                <Trash2 className="h-5 w-5" />
-              </button>
+                <button
+                  onClick={() => removeLesson(lIndex)}
+                  className="absolute right-4 top-4 text-muted-foreground hover:text-destructive"
+                >
+                  <Trash2 className="h-5 w-5" />
+                </button>
 
-              <div className="mb-6 grid gap-4 md:grid-cols-2 pr-8">
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Lesson Title</label>
+                {isFocused && (
+                  <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-indigo-100 dark:bg-indigo-950 px-3 py-1 text-xs font-semibold text-indigo-800 dark:text-indigo-200 border border-indigo-200 dark:border-indigo-800">
+                    <Sparkles className="h-3 w-3 text-indigo-600" /> Target Lesson from Feedback
+                  </div>
+                )}
+
+                <div className="mb-6 grid gap-4 md:grid-cols-2 pr-8">
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Lesson Title</label>
+                    <input
+                      value={lesson.title || ""}
+                      onChange={(e) => updateLesson(lIndex, "title", e.target.value)}
+                      className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                      placeholder="e.g. Introduction"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Video URL (Optional)</label>
+                    <input
+                      value={lesson.videoUrl || ""}
+                      onChange={(e) => updateLesson(lIndex, "videoUrl", e.target.value)}
+                      className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                      placeholder="e.g. https://www.youtube.com/embed/..."
+                    />
+                  </div>
+                </div>
+
+                <div className="mb-6 flex items-center gap-2">
                   <input
-                    value={lesson.title || ""}
-                    onChange={(e) => updateLesson(lIndex, "title", e.target.value)}
-                    className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-                    placeholder="e.g. Introduction"
+                    type="checkbox"
+                    id={`preview-${lIndex}`}
+                    checked={lesson.isPreview || false}
+                    onChange={(e) => updateLesson(lIndex, "isPreview", e.target.checked)}
+                    className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                  />
+                  <label htmlFor={`preview-${lIndex}`} className="text-sm font-medium text-foreground">
+                    Make this lesson a Free Preview
+                  </label>
+                  <span className="text-xs text-muted-foreground ml-2">(Allows users to view this lesson without logging in/enrolling)</span>
+                </div>
+
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Summary</label>
+                  <input
+                    value={lesson.summary || ""}
+                    onChange={(e) => updateLesson(lIndex, "summary", e.target.value)}
+                    className="w-full rounded-md border bg-background px-3 py-2 text-sm mb-6"
+                    placeholder="A brief summary of what this lesson covers"
                   />
                 </div>
-                <div>
-                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Video URL (Optional)</label>
-                  <input
-                    value={lesson.videoUrl || ""}
-                    onChange={(e) => updateLesson(lIndex, "videoUrl", e.target.value)}
-                    className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-                    placeholder="e.g. https://www.youtube.com/embed/..."
-                  />
+
+                <div className="mb-4">
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Content Sections</label>
+                  <div className="space-y-4">
+                    {(lesson.sections || []).map((sec: any, sIndex: number) => {
+                      const isRefiningThis =
+                        activeRefineSec?.lIndex === lIndex && activeRefineSec?.sIndex === sIndex
+
+                      return (
+                        <div key={sIndex} className="rounded-md border bg-muted/30 p-4">
+                          <div className="flex items-center justify-between gap-2 mb-2">
+                            <input
+                              value={sec.heading || ""}
+                              onChange={(e) => updateSection(lIndex, sIndex, "heading", e.target.value)}
+                              className="w-full font-medium bg-transparent border-b focus:outline-none focus:border-primary placeholder:text-muted-foreground text-sm"
+                              placeholder="Section Heading"
+                            />
+                            {userRole === "admin" && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (isRefiningThis) {
+                                    setActiveRefineSec(null)
+                                  } else {
+                                    setActiveRefineSec({ lIndex, sIndex })
+                                    if (!refinePrompt && incomingFeedback) {
+                                      setRefinePrompt(`Incorporate staff feedback: ${incomingFeedback}`)
+                                    }
+                                  }
+                                }}
+                                className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-950/40 dark:text-indigo-300 transition-colors"
+                                title="Surgically improve this section with AI"
+                              >
+                                <Sparkles className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
+                                <span>AI Refine</span>
+                              </button>
+                            )}
+                          </div>
+
+                          {/* Active Section AI Refine Drawer */}
+                          {isRefiningThis && (
+                            <div className="mb-3 rounded-xl border border-indigo-200 bg-indigo-50/70 p-3.5 dark:border-indigo-800/80 dark:bg-indigo-950/40 animate-in fade-in slide-in-from-top-1 duration-150">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-xs font-bold text-indigo-900 dark:text-indigo-200 flex items-center gap-1.5">
+                                  <Sparkles className="h-3.5 w-3.5 text-indigo-600" /> Refine this section in-place
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={() => setActiveRefineSec(null)}
+                                  className="text-[11px] text-muted-foreground hover:text-foreground"
+                                >
+                                  ✕ Close
+                                </button>
+                              </div>
+
+                              {/* Quick Presets */}
+                              <div className="flex flex-wrap gap-1.5 mb-2.5">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const p = incomingFeedback
+                                      ? `Incorporate staff feedback: ${incomingFeedback}`
+                                      : "Incorporate learner feedback to make this section clearer, more engaging, and address common points of confusion."
+                                    setRefinePrompt(p)
+                                    handleRefineSection(lIndex, sIndex, p)
+                                  }}
+                                  disabled={isRefining}
+                                  className="rounded-full bg-white dark:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-700 px-2.5 py-0.5 text-[11px] font-medium text-indigo-800 dark:text-indigo-200 hover:bg-indigo-100 transition-colors disabled:opacity-50"
+                                >
+                                  💬 Incorporate Staff Feedback
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const p = "Add a concrete, realistic Nigerian corporate case example with step-by-step execution and outcomes."
+                                    setRefinePrompt(p)
+                                    handleRefineSection(lIndex, sIndex, p)
+                                  }}
+                                  disabled={isRefining}
+                                  className="rounded-full bg-white dark:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-700 px-2.5 py-0.5 text-[11px] font-medium text-indigo-800 dark:text-indigo-200 hover:bg-indigo-100 transition-colors disabled:opacity-50"
+                                >
+                                  🇳🇬 Add Nigerian Case Example
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const p = "Make this section much more technical, detailed, and actionable for senior operators."
+                                    setRefinePrompt(p)
+                                    handleRefineSection(lIndex, sIndex, p)
+                                  }}
+                                  disabled={isRefining}
+                                  className="rounded-full bg-white dark:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-700 px-2.5 py-0.5 text-[11px] font-medium text-indigo-800 dark:text-indigo-200 hover:bg-indigo-100 transition-colors disabled:opacity-50"
+                                >
+                                  ⚡ Make More Technical & In-Depth
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const p = "Simplify the text, make it punchy, and structure key takeaways into clear bullet points."
+                                    setRefinePrompt(p)
+                                    handleRefineSection(lIndex, sIndex, p)
+                                  }}
+                                  disabled={isRefining}
+                                  className="rounded-full bg-white dark:bg-indigo-900/60 border border-indigo-200 dark:border-indigo-700 px-2.5 py-0.5 text-[11px] font-medium text-indigo-800 dark:text-indigo-200 hover:bg-indigo-100 transition-colors disabled:opacity-50"
+                                >
+                                  📋 Format with Clear Bullet Points
+                                </button>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <input
+                                  type="text"
+                                  value={refinePrompt}
+                                  onChange={(e) => setRefinePrompt(e.target.value)}
+                                  placeholder="Type custom instructions or paste feedback..."
+                                  className="flex-1 rounded-lg border border-indigo-200 dark:border-indigo-800 bg-white dark:bg-background px-3 py-1.5 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => handleRefineSection(lIndex, sIndex)}
+                                  disabled={isRefining || !refinePrompt.trim()}
+                                  className="inline-flex items-center gap-1 rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-indigo-700 disabled:opacity-50"
+                                >
+                                  {isRefining ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+                                  {isRefining ? "Rewriting..." : "Refine Now"}
+                                </button>
+                              </div>
+                              {refineSuccessMsg && (
+                                <p className="mt-1.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+                                  ✓ {refineSuccessMsg}
+                                </p>
+                              )}
+                            </div>
+                          )}
+
+                          <textarea
+                            value={(sec.body || []).join("\n\n")}
+                            onChange={(e) => updateSectionBody(lIndex, sIndex, e.target.value)}
+                            className="w-full min-h-[100px] resize-y rounded-md border bg-background p-3 text-sm"
+                            placeholder="Paragraph 1 (Supports Markdown: **bold**, *italic*, [link](url))&#10;&#10;Paragraph 2"
+                          />
+                        </div>
+                      )
+                    })}
+                    <button
+                      onClick={() => addSection(lIndex)}
+                      className="text-xs font-medium text-primary hover:underline"
+                    >
+                      + Add Section
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              <div className="mb-6 flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id={`preview-${lIndex}`}
-                  checked={lesson.isPreview || false}
-                  onChange={(e) => updateLesson(lIndex, "isPreview", e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                />
-                <label htmlFor={`preview-${lIndex}`} className="text-sm font-medium text-foreground">
-                  Make this lesson a Free Preview
-                </label>
-                <span className="text-xs text-muted-foreground ml-2">(Allows users to view this lesson without logging in/enrolling)</span>
-              </div>
-
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Summary</label>
-                <input
-                  value={lesson.summary || ""}
-                  onChange={(e) => updateLesson(lIndex, "summary", e.target.value)}
-                  className="w-full rounded-md border bg-background px-3 py-2 text-sm mb-6"
-                  placeholder="A brief summary of what this lesson covers"
-                />
-              </div>
-
-              <div className="mb-4">
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Content Sections</label>
-                <div className="space-y-4">
-                  {(lesson.sections || []).map((sec: any, sIndex: number) => (
-                    <div key={sIndex} className="rounded-md border bg-muted/30 p-4">
-                      <input
-                        value={sec.heading || ""}
-                        onChange={(e) => updateSection(lIndex, sIndex, "heading", e.target.value)}
-                        className="mb-3 w-full font-medium bg-transparent border-b focus:outline-none focus:border-primary placeholder:text-muted-foreground"
-                        placeholder="Section Heading"
-                      />
-                      <textarea
-                        value={(sec.body || []).join("\n\n")}
-                        onChange={(e) => updateSectionBody(lIndex, sIndex, e.target.value)}
-                        className="w-full min-h-[100px] resize-y rounded-md border bg-background p-3 text-sm"
-                        placeholder="Paragraph 1 (Supports Markdown: **bold**, *italic*, [link](url))&#10;&#10;Paragraph 2"
-                      />
+                {/* Interactive Deep-Dive Tabs Section */}
+                <div className="mt-6 border-t pt-4">
+                  <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+                    <div>
+                      <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block">
+                        Interactive Deep-Dive Tabs ({lesson.interactiveTabs?.length || 0})
+                      </label>
+                      <p className="text-[11px] text-muted-foreground">
+                        Tabbed UI for case studies, operational frameworks, or deep dive analysis.
+                      </p>
                     </div>
-                  ))}
-                  <button
-                    onClick={() => addSection(lIndex)}
-                    className="text-xs font-medium text-primary hover:underline"
-                  >
-                    + Add Section
-                  </button>
+                    <div className="flex items-center gap-2">
+                      {userRole === "admin" && (
+                        <button
+                          type="button"
+                          onClick={() => handleGenerateTab(lIndex)}
+                          disabled={generatingTabForLesson === lIndex}
+                          className="inline-flex items-center gap-1 rounded-md bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 px-2.5 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 transition-colors disabled:opacity-50"
+                        >
+                          {generatingTabForLesson === lIndex ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 text-indigo-600" />}
+                          ✨ Add Case Study Tab
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = [...lessons]
+                          if (!Array.isArray(updated[lIndex].interactiveTabs)) updated[lIndex].interactiveTabs = []
+                          updated[lIndex].interactiveTabs.push({ tabTitle: "New Tab", content: "Tab content here..." })
+                          setLessons(updated)
+                        }}
+                        className="text-xs font-medium text-primary hover:underline"
+                      >
+                        + Add Tab
+                      </button>
+                    </div>
+                  </div>
+
+                  {Array.isArray(lesson.interactiveTabs) && lesson.interactiveTabs.length > 0 && (
+                    <div className="space-y-3">
+                      {lesson.interactiveTabs.map((tab: any, tIndex: number) => (
+                        <div key={tIndex} className="rounded-lg border bg-muted/20 p-3.5 space-y-2">
+                          <div className="flex items-center justify-between gap-2">
+                            <input
+                              value={tab.tabTitle || ""}
+                              onChange={(e) => updateInteractiveTab(lIndex, tIndex, "tabTitle", e.target.value)}
+                              className="font-semibold text-xs bg-transparent border-b focus:outline-none focus:border-primary w-full"
+                              placeholder="Tab Title (e.g. Case Study: Crisis Response)"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeInteractiveTab(lIndex, tIndex)}
+                              className="text-muted-foreground hover:text-destructive p-1"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                          <textarea
+                            value={tab.content || ""}
+                            onChange={(e) => updateInteractiveTab(lIndex, tIndex, "content", e.target.value)}
+                            rows={4}
+                            className="w-full rounded-md border bg-background p-2.5 text-xs font-normal"
+                            placeholder="Markdown content for this tab..."
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
-              </div>
+
+                {/* Lesson Knowledge Check Section */}
+                <div className="mt-6 border-t pt-4">
+                  <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
+                    <div>
+                      <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground block">
+                        Lesson Knowledge Check (Matching Exercise)
+                      </label>
+                      <p className="text-[11px] text-muted-foreground">
+                        Interactive drag-and-drop checkpoint inside this lesson.
+                      </p>
+                    </div>
+                    {userRole === "admin" && (
+                      <button
+                        type="button"
+                        onClick={() => handleGenerateKnowledgeCheck(lIndex)}
+                        disabled={generatingKcForLesson === lIndex}
+                        className="inline-flex items-center gap-1 rounded-md bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 px-2.5 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 transition-colors disabled:opacity-50"
+                      >
+                        {generatingKcForLesson === lIndex ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 text-indigo-600" />}
+                        ✨ {lesson.knowledgeCheck ? "Regenerate Exercise" : "Add Knowledge Check"}
+                      </button>
+                    )}
+                  </div>
+
+                  {lesson.knowledgeCheck ? (
+                    <div className="rounded-lg border bg-muted/20 p-3.5 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-foreground">
+                          {lesson.knowledgeCheck.prompt || "Match the concepts:"}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = [...lessons]
+                            delete updated[lIndex].knowledgeCheck
+                            setLessons(updated)
+                          }}
+                          className="text-xs text-muted-foreground hover:text-destructive"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        {(lesson.knowledgeCheck.pairs || []).map((pair: any, pIdx: number) => (
+                          <div key={pIdx} className="p-2 rounded bg-background border flex justify-between gap-2">
+                            <span className="font-semibold text-primary">{pair.left}</span>
+                            <span className="text-muted-foreground">➔ {pair.right}</span>
+                          </div>
+                        ))}
+                      </div>
+                      {lesson.knowledgeCheck.explanation && (
+                        <p className="text-[11px] text-muted-foreground italic mt-1">
+                          Explanation: {lesson.knowledgeCheck.explanation}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-muted-foreground/80 italic">No knowledge check configured for this lesson.</p>
+                  )}
+                </div>
 
               <div>
                 <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Key Takeaways (one per line)</label>

@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Star, ThumbsUp, ThumbsDown, MessageSquare, Award, Search, RefreshCw, MessageCircle, ExternalLink } from "lucide-react"
+import { Star, ThumbsUp, ThumbsDown, MessageSquare, Award, Search, RefreshCw, MessageCircle, ExternalLink, Sparkles } from "lucide-react"
 
 export function AdminFeedbackView() {
   const [feedbackList, setFeedbackList] = useState<any[]>([])
@@ -278,9 +278,27 @@ export function AdminFeedbackView() {
                 )}
 
                 {/* Submitting User & Timestamp */}
-                <div className="flex items-center justify-between text-[11px] text-muted-foreground/80 border-t border-border/40 pt-2 mt-1">
+                <div className="flex items-center justify-between text-[11px] text-muted-foreground/80 border-t border-border/40 pt-2 mt-1 flex-wrap gap-2">
                   <span>Submitted by: <strong>{item.userName || item.userEmail}</strong> ({item.subsidiary || "Group HQ"})</span>
-                  <span>{item.createdAt ? new Date(item.createdAt).toLocaleDateString("en-NG") : "Recent"}</span>
+                  <div className="flex items-center gap-3">
+                    <span>{item.createdAt ? new Date(item.createdAt).toLocaleDateString("en-NG") : "Recent"}</span>
+                    {item.courseSlug && (
+                      <Link
+                        href={`/lms/admin/courses/${encodeURIComponent(item.courseSlug)}/builder?${new URLSearchParams({
+                          ...(item.lessonKey ? { lesson: item.lessonKey } : {}),
+                          ...(item.comment ? { feedback: item.comment } : {}),
+                        }).toString()}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 rounded-lg border border-indigo-200 dark:border-indigo-800 bg-indigo-50/80 dark:bg-indigo-950/40 px-2.5 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 transition-colors"
+                        title="Open Course Builder to refine this course with AI"
+                      >
+                        <Sparkles className="h-3 w-3 text-indigo-600 dark:text-indigo-400" />
+                        <span>Fix with AI in Builder</span>
+                        <ExternalLink className="h-2.5 w-2.5 opacity-60" />
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </div>
             )
