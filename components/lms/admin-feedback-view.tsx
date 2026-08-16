@@ -1,7 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Star, ThumbsUp, ThumbsDown, MessageSquare, Award, Search, RefreshCw, MessageCircle } from "lucide-react"
+import Link from "next/link"
+import { Star, ThumbsUp, ThumbsDown, MessageSquare, Award, Search, RefreshCw, MessageCircle, ExternalLink } from "lucide-react"
 
 export function AdminFeedbackView() {
   const [feedbackList, setFeedbackList] = useState<any[]>([])
@@ -170,6 +171,9 @@ export function AdminFeedbackView() {
           {filteredList.map((item) => {
             const isLesson = item.type === "lesson"
             const isPositive = item.sentiment === "positive" || item.rating === 1
+            const courseHref = item.courseSlug ? `/lms/${encodeURIComponent(item.courseSlug)}` : null
+            const lessonKey = item.lessonKey || item.lessonTitle
+            const lessonHref = item.courseSlug && lessonKey ? `/lms/${encodeURIComponent(item.courseSlug)}/learn/${encodeURIComponent(lessonKey)}` : courseHref
 
             return (
               <div
@@ -177,18 +181,59 @@ export function AdminFeedbackView() {
                 className="rounded-2xl border border-border/80 bg-card p-4 shadow-sm hover:border-border transition-all flex flex-col gap-2"
               >
                 <div className="flex items-start justify-between gap-3 flex-wrap">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold uppercase tracking-wider text-primary">
+                  <div className="flex-1 min-w-[240px]">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-md">
                         {isLesson ? "Lesson Feedback" : "Course Evaluation"}
                       </span>
-                      <span className="text-xs text-muted-foreground">· {item.courseTitle || item.courseSlug}</span>
+                      {courseHref ? (
+                        <Link
+                          href={courseHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-primary transition-colors group"
+                          title="Open course in new tab"
+                        >
+                          <span>· {item.courseTitle || item.courseSlug}</span>
+                          <ExternalLink className="h-3 w-3 opacity-60 group-hover:opacity-100 transition-opacity" />
+                        </Link>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">· {item.courseTitle || item.courseSlug}</span>
+                      )}
                     </div>
-                    {item.lessonTitle && (
-                      <h4 className="font-heading text-sm font-bold text-foreground mt-0.5">
-                        {item.lessonTitle}
-                      </h4>
-                    )}
+                    {isLesson && item.lessonTitle ? (
+                      lessonHref ? (
+                        <Link
+                          href={lessonHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group inline-flex items-center gap-1.5 mt-1"
+                          title="Open lesson in new tab"
+                        >
+                          <h4 className="font-heading text-sm font-bold text-foreground group-hover:text-primary group-hover:underline transition-colors">
+                            {item.lessonTitle}
+                          </h4>
+                          <ExternalLink className="h-3.5 w-3.5 text-muted-foreground opacity-60 group-hover:opacity-100 group-hover:text-primary transition-all" />
+                        </Link>
+                      ) : (
+                        <h4 className="font-heading text-sm font-bold text-foreground mt-0.5">
+                          {item.lessonTitle}
+                        </h4>
+                      )
+                    ) : !isLesson && courseHref ? (
+                      <Link
+                        href={courseHref}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group inline-flex items-center gap-1.5 mt-1"
+                        title="Open course overview in new tab"
+                      >
+                        <h4 className="font-heading text-sm font-bold text-foreground group-hover:text-primary group-hover:underline transition-colors">
+                          {item.courseTitle || item.courseSlug}
+                        </h4>
+                        <ExternalLink className="h-3.5 w-3.5 text-muted-foreground opacity-60 group-hover:opacity-100 group-hover:text-primary transition-all" />
+                      </Link>
+                    ) : null}
                   </div>
 
                   {/* Rating / Badge */}
