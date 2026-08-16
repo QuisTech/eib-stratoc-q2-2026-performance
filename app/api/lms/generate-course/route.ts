@@ -1,6 +1,6 @@
 import { getSessionUser } from "@/app/actions/auth"
 import { headers } from "next/headers"
-import { isSuperAdmin as checkIsSuperAdmin } from "@/lib/access-control"
+import { isStrictSuperAdmin } from "@/lib/access-control"
 import { generateObject } from "ai"
 import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { createGroq } from "@ai-sdk/groq"
@@ -24,7 +24,13 @@ CRITICAL RULE: NEVER use the terms "EIB Group", "DCI", "BLACK", "Giga Forensics"
 
 
 export async function POST(req: Request) {
-  // bypassed
+  const user = await getSessionUser()
+  if (!user || !isStrictSuperAdmin(user)) {
+    return new Response(
+      JSON.stringify({ error: "Unauthorized. AI course authoring and refinement is restricted to authorized Super Admins only." }),
+      { status: 403, headers: { 'Content-Type': 'application/json' } }
+    )
+  }
 
   const rawKeys = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY
   if (!rawKeys) {

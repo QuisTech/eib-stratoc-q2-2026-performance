@@ -1,7 +1,7 @@
 import { getSessionUser } from "@/app/actions/auth"
 import { headers } from "next/headers"
 import { redirect } from "next/navigation"
-import { isSuperAdmin as checkIsSuperAdmin } from "@/lib/access-control"
+import { isSuperAdmin as checkIsSuperAdmin, isStrictSuperAdmin } from "@/lib/access-control"
 import { getCourseBySlug, getAdminCourseBySlug } from "@/app/actions/lms"
 import CourseBuilderClient from "./client"
 
@@ -31,5 +31,7 @@ export default async function CourseBuilderPage({
     redirect("/lms/admin")
   }
 
-  return <CourseBuilderClient course={course} userRole={isSuperAdmin ? "admin" : role} />
+  const isStrict = isStrictSuperAdmin(session.user)
+
+  return <CourseBuilderClient course={course} userRole={isStrict ? "admin" : "learner"} />
 }
