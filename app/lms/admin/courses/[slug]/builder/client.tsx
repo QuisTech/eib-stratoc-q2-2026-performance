@@ -988,9 +988,10 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
                 />
               </div>
             </div>
-          ))}
-        </div>
+          )
+        })}
       </div>
+    </div>
 
       {/* QUIZ SECTION */}
       <div className="mb-12">
