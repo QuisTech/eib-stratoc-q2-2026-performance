@@ -28,17 +28,28 @@ export const metadata: Metadata = {
     ],
   },
   openGraph: {
+    title: 'EIB Group | 90-Day Strategic Plan (Q3 2026)',
+    description:
+      'The 90-day strategic plan for the EIB Group Training & Organizational Development function (July–September 2026): strategic goal, phased roadmap, ROI dashboard, and consolidated subsidiary input from the Performance Improvement Task Force.',
     siteName: 'EIB Group LMS',
     type: 'website',
     images: [
       {
-        url: 'https://lms.eibstratoc.com/eiblogo.png',
+        url: 'https://lms.eibstratoc.com/opengraph-image.jpg',
+        secureUrl: 'https://lms.eibstratoc.com/opengraph-image.jpg',
         width: 1200,
         height: 630,
-        type: 'image/png',
+        type: 'image/jpeg',
         alt: 'EIB Group LMS',
       },
     ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'EIB Group | 90-Day Strategic Plan (Q3 2026)',
+    description:
+      'The 90-day strategic plan for the EIB Group Training & Organizational Development function (July–September 2026): strategic goal, phased roadmap, ROI dashboard, and consolidated subsidiary input from the Performance Improvement Task Force.',
+    images: ['https://lms.eibstratoc.com/opengraph-image.jpg'],
   },
 }
 
