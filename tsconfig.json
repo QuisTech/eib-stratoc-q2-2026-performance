@@ -40,6 +40,6 @@
     "scripts",
     ".next",
     ".vercel",
-    "*.ts"
+    "lib/static-lms-courses.ts"
   ]
 }
