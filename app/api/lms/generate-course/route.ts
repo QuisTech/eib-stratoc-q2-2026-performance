@@ -2,7 +2,6 @@ import { getSessionUser } from "@/app/actions/auth"
 import { headers } from "next/headers"
 import { isStrictSuperAdmin } from "@/lib/access-control"
 import { generateObject } from "ai"
-import { createGoogleGenerativeAI } from "@ai-sdk/google"
 import { createGroq } from "@ai-sdk/groq"
 import { courseSchema } from "@/lib/lms-schema"
 
@@ -32,20 +31,16 @@ export async function POST(req: Request) {
     )
   }
 
-  const rawKeys = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY
-  if (!rawKeys) {
-    return new Response(JSON.stringify({ error: "API_KEY_MISSING", details: "No Gemini API Key is configured in Vercel Environment Variables." }), { status: 500, headers: { 'Content-Type': 'application/json' } })
+  const rawKey = process.env.GROQ_API_KEY
+  if (!rawKey) {
+    return new Response(JSON.stringify({ error: "API_KEY_MISSING", details: "No Groq API Key is configured in Vercel Environment Variables." }), { status: 500, headers: { 'Content-Type': 'application/json' } })
   }
 
-  // Support multiple API keys separated by commas for rate limit rotation
-  const keyList = rawKeys.split(",").map(k => k.trim()).filter(Boolean)
-  const selectedKey = keyList[Math.floor(Math.random() * keyList.length)]
-
-  const google = createGoogleGenerativeAI({
-    apiKey: selectedKey,
+  const groq = createGroq({
+    apiKey: rawKey,
   })
 
-  const {
+  let {
     title,
     category,
     customContext,
@@ -59,6 +54,26 @@ export async function POST(req: Request) {
     feedbackComment,
   } = await req.json()
 
+  // Token Safety: Ensure all data payloads passed into prompts continue to be trimmed/capped appropriately to avoid token context overflow
+  title = title ? String(title).substring(0, 300) : title;
+  category = category ? String(category).substring(0, 300) : category;
+  lessonTitle = lessonTitle ? String(lessonTitle).substring(0, 300) : lessonTitle;
+  sectionHeading = sectionHeading ? String(sectionHeading).substring(0, 300) : sectionHeading;
+  lessonSummary = lessonSummary ? String(lessonSummary).substring(0, 1000) : lessonSummary;
+  
+  if (Array.isArray(sectionBody)) {
+    sectionBody = sectionBody.map(s => String(s).substring(0, 2000));
+  } else if (sectionBody) {
+    sectionBody = String(sectionBody).substring(0, 8000);
+  }
+  
+  if (Array.isArray(existingLessons)) {
+    existingLessons = existingLessons.slice(-8); // Limit to last 8 lessons
+  }
+  if (Array.isArray(existingQuiz)) {
+    existingQuiz = existingQuiz.slice(-20); // Limit to last 20 quiz questions
+  }
+
   const isAppendMode = action === "append_lesson" || (existingLessons && existingLessons.length > 0 && !action)
   const isAppendQuizMode = action === "append_quiz"
   const isRefineSectionMode = action === "refine_section"
@@ -66,7 +81,7 @@ export async function POST(req: Request) {
   const isGenerateKnowledgeCheckMode = action === "generate_knowledge_check"
 
   const customInstructions = (customContext || feedbackComment)?.trim()
-    ? `\n\nADDITIONAL INSTRUCTIONS / STAFF FEEDBACK:\n${(customContext || feedbackComment).trim()}`
+    ? `\n\nADDITIONAL INSTRUCTIONS / STAFF FEEDBACK:\n${(customContext || feedbackComment).trim().substring(0, 3000)}`
     : ""
 
   let prompt = ""
@@ -328,20 +343,36 @@ Output ONLY valid JSON with this exact structure:
   }
 
   try {
-    let aiModel
-    if (process.env.GROQ_API_KEY) {
-      const groq = createGroq({ apiKey: process.env.GROQ_API_KEY })
-      aiModel = groq("llama-3.3-70b-versatile")
-    } else {
-      aiModel = google("gemini-2.5-flash")
+    let result;
+
+    const callGenerate = async (modelName: string) => {
+      return await generateObject({
+        model: groq(modelName),
+        prompt,
+        temperature: 0.3,
+        output: 'no-schema',
+      });
+    };
+
+    // Multi-Tier Fallback Cascade
+    try {
+      // Primary
+      result = await callGenerate("openai/gpt-oss-120b");
+    } catch (err1: any) {
+      console.warn("Primary model (openai/gpt-oss-120b) failed, falling back to Catch 1", err1?.message || err1);
+      try {
+        // Catch 1 (Fallback)
+        result = await callGenerate("llama-3.3-70b-versatile");
+      } catch (err2: any) {
+        console.warn("Catch 1 (llama-3.3-70b-versatile) failed, falling back to Catch 2", err2?.message || err2);
+        // Catch 2 (Lightweight Fallback)
+        result = await callGenerate("llama-3.1-8b-instant");
+      }
     }
 
-    const result = await generateObject({
-      model: aiModel,
-      prompt,
-      temperature: 0.3,
-      output: 'no-schema',
-    })
+    if (!result) {
+      throw new Error("All Groq fallback models failed to return a response.");
+    }
 
     return new Response(JSON.stringify(result.object), { headers: { 'Content-Type': 'application/json' } })
   } catch (err: any) {
