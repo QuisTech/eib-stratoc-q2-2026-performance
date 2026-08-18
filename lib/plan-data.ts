@@ -497,6 +497,13 @@ export const submissions: Submission[] = [
     challenges: [],
     note: "Morphed into BLACK — tracked under the BLACK subsidiary above.",
   },
+  {
+    subsidiary: "UVECH",
+    representative: "TBD",
+    state: "No response",
+    detail: "—",
+    challenges: [],
+  },
 ]
 
 // ── Derived analytics for the ROI dashboard ────────────────────
