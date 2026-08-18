@@ -276,10 +276,14 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
       if (data.lessons && mode === "lesson") {
         setLessons((prev) => [...prev, ...data.lessons])
       } else if (data.quiz && mode === "quiz") {
-        setQuiz((prev) => [...prev, ...data.quiz])
+        const newQuiz = data.quiz.map((q: any, i: number) => ({ ...q, id: `q-${Date.now()}-${i}` }))
+        setQuiz((prev) => [...prev, ...newQuiz])
       } else if (mode === "none") {
         if (data.lessons) setLessons(data.lessons)
-        if (data.quiz) setQuiz(data.quiz)
+        if (data.quiz) {
+          const newQuiz = data.quiz.map((q: any, i: number) => ({ ...q, id: `q-${Date.now()}-${i}` }))
+          setQuiz(newQuiz)
+        }
       }
     } catch (err: any) {
       console.error("Generation error:", err)
@@ -1124,7 +1128,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
                     <div key={oIndex} className="flex items-center gap-3">
                       <input
                         type="radio"
-                        name={`correct-${q.id || qIndex}`}
+                        name={`correct-${qIndex}`}
                         checked={parsedCorrect === oIndex}
                         onChange={() => updateQuestion(qIndex, "correctIndex", oIndex)}
                         className="h-4 w-4 text-primary"
