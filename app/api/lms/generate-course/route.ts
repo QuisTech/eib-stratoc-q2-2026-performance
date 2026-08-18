@@ -31,13 +31,17 @@ export async function POST(req: Request) {
     )
   }
 
-  const rawKey = process.env.GROQ_API_KEY
-  if (!rawKey) {
+  const rawKeys = process.env.GROQ_API_KEY
+  if (!rawKeys) {
     return new Response(JSON.stringify({ error: "API_KEY_MISSING", details: "No Groq API Key is configured in Vercel Environment Variables." }), { status: 500, headers: { 'Content-Type': 'application/json' } })
   }
 
+  // Support multiple API keys separated by commas for rate limit rotation
+  const keyList = rawKeys.split(",").map(k => k.trim()).filter(Boolean)
+  const selectedKey = keyList[Math.floor(Math.random() * keyList.length)]
+
   const groq = createGroq({
-    apiKey: rawKey,
+    apiKey: selectedKey,
   })
 
   let {
