@@ -158,6 +158,12 @@ function sanitizeCustomCourseData(data: any): any[] {
       sections: [{ heading: "Overview", body: [String(rawItem)] }] 
     }
 
+    // Ensure primitives
+    item.key = String(item.key || `lesson-${index}`)
+    item.title = String(item.title || "Untitled Lesson")
+    item.minutes = Number(item.minutes) || 15
+    item.summary = String(item.summary || "")
+
     // Clean sections
     if (item.sections) {
       item.sections = (Array.isArray(item.sections) ? item.sections : [item.sections]).map((s: any) => {
@@ -165,32 +171,66 @@ function sanitizeCustomCourseData(data: any): any[] {
         return {
           ...safeS,
           heading: String(safeS.heading || ""),
-          body: Array.isArray(safeS.body) ? safeS.body : (typeof safeS.body === 'string' ? [safeS.body] : [])
+          body: (Array.isArray(safeS.body) ? safeS.body : (typeof safeS.body === 'string' ? [safeS.body] : [])).map((b: any) => String(b || ""))
         }
       })
     } else {
       item.sections = []
     }
 
-    // Clean arrays
-    item.takeaways = Array.isArray(item.takeaways) ? item.takeaways : (typeof item.takeaways === 'string' ? [item.takeaways] : [])
-    item.attachments = Array.isArray(item.attachments) ? item.attachments : (item.attachments ? [item.attachments] : [])
-    item.interactiveTabs = Array.isArray(item.interactiveTabs) ? item.interactiveTabs : (item.interactiveTabs ? [item.interactiveTabs] : [])
+    // Clean simple arrays
+    item.takeaways = (Array.isArray(item.takeaways) ? item.takeaways : (typeof item.takeaways === 'string' ? [item.takeaways] : [])).map((t: any) => String(t || ""))
+    
+    // Clean attachments
+    item.attachments = (Array.isArray(item.attachments) ? item.attachments : (item.attachments ? [item.attachments] : [])).map((att: any) => {
+      const safeAtt = typeof att === 'object' && att !== null ? att : { title: String(att), url: "#" }
+      return {
+        title: String(safeAtt.title || ""),
+        url: String(safeAtt.url || "#")
+      }
+    })
+    
+    // Clean interactiveTabs
+    item.interactiveTabs = (Array.isArray(item.interactiveTabs) ? item.interactiveTabs : (item.interactiveTabs ? [item.interactiveTabs] : [])).map((tab: any) => {
+      const safeTab = typeof tab === 'object' && tab !== null ? tab : { tabTitle: "Topic", content: String(tab) }
+      return {
+        tabTitle: String(safeTab.tabTitle || "Topic"),
+        content: Array.isArray(safeTab.content) ? safeTab.content.join("\n\n") : String(safeTab.content || "")
+      }
+    })
     
     // Clean LabeledGraphic
     if (item.labeledGraphic) {
       item.labeledGraphic = typeof item.labeledGraphic === 'object' && item.labeledGraphic !== null ? { ...item.labeledGraphic } : { imageUrl: "", hotspots: [] }
-      item.labeledGraphic.hotspots = Array.isArray(item.labeledGraphic.hotspots) 
+      item.labeledGraphic.imageUrl = String(item.labeledGraphic.imageUrl || "")
+      item.labeledGraphic.hotspots = (Array.isArray(item.labeledGraphic.hotspots) 
         ? item.labeledGraphic.hotspots 
-        : (item.labeledGraphic.hotspots ? [item.labeledGraphic.hotspots] : [])
+        : (item.labeledGraphic.hotspots ? [item.labeledGraphic.hotspots] : [])).map((spot: any) => {
+          const safeSpot = typeof spot === 'object' && spot !== null ? spot : { id: "1", x: 50, y: 50, title: "Point", content: String(spot) }
+          return {
+            id: String(safeSpot.id || Math.random().toString()),
+            x: Number(safeSpot.x) || 50,
+            y: Number(safeSpot.y) || 50,
+            title: String(safeSpot.title || "Point"),
+            content: String(safeSpot.content || "")
+          }
+        })
     }
     
     // Clean KnowledgeCheck
     if (item.knowledgeCheck) {
       item.knowledgeCheck = typeof item.knowledgeCheck === 'object' && item.knowledgeCheck !== null ? { ...item.knowledgeCheck } : { type: "matching", id: "k-1", prompt: "Match the following", pairs: [], explanation: "" }
-      item.knowledgeCheck.pairs = Array.isArray(item.knowledgeCheck.pairs)
+      item.knowledgeCheck.prompt = String(item.knowledgeCheck.prompt || "Match the following")
+      item.knowledgeCheck.explanation = String(item.knowledgeCheck.explanation || "")
+      item.knowledgeCheck.pairs = (Array.isArray(item.knowledgeCheck.pairs)
         ? item.knowledgeCheck.pairs
-        : (item.knowledgeCheck.pairs ? [item.knowledgeCheck.pairs] : [])
+        : (item.knowledgeCheck.pairs ? [item.knowledgeCheck.pairs] : [])).map((pair: any) => {
+          const safePair = typeof pair === 'object' && pair !== null ? pair : { left: String(pair), right: "" }
+          return {
+            left: String(safePair.left || ""),
+            right: String(safePair.right || "")
+          }
+        })
     }
     
     return item
