@@ -1124,7 +1124,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
                     <div key={oIndex} className="flex items-center gap-3">
                       <input
                         type="radio"
-                        name={`correct-${q.id}`}
+                        name={`correct-${q.id || qIndex}`}
                         checked={parsedCorrect === oIndex}
                         onChange={() => updateQuestion(qIndex, "correctIndex", oIndex)}
                         className="h-4 w-4 text-primary"
