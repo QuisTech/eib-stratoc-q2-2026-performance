@@ -198,6 +198,9 @@ Output ONLY valid JSON with this exact structure:
     const existingLessonContext = existingLessons && existingLessons.length > 0 
       ? `The course currently has the following lessons:\n` + existingLessons.map((l: any) => `- ${l.title}: ${l.summary || 'No summary'}\n  Key Takeaways: ${l.takeaways?.join(', ') || 'None'}`).join("\n") 
       : "The course currently has no lessons."
+    const existingQuizContext = existingQuiz && existingQuiz.length > 0
+      ? `The course also currently has the following quiz questions:\n` + existingQuiz.map((q: any) => `- ${q.prompt}`).join("\n")
+      : ""
 
     prompt = `${EIB_GROUP_CONTEXT}
 
@@ -206,6 +209,7 @@ The course is titled "${title}" in the category of "${category}".
 
 The admin already has ${existingCount} quiz questions and wants to expand their Item Pool.
 ${existingLessonContext}
+${existingQuizContext}
 
 Your task is to generate EXACTLY 10 NEW highly detailed, challenging multiple-choice questions for the course. 
 EXTREME DIRECTIVE: The questions MUST STRICTLY AND ONLY test the actual subject matter and concepts taught in the existing lessons provided above. 
@@ -216,6 +220,7 @@ Ensure they test genuine understanding and are completely unique from standard t
 Requirements:
 - Generate exactly 10 questions inside the "quiz" array. 
 - Do NOT generate any lessons.
+- CRITICAL ANTI-DUPLICATION: You MUST review the existing quiz questions above. Your new questions MUST NOT cover the same specific concepts or use similar wording as the existing questions. You must find new angles or different aspects of the lessons to test.
 - Include a detailed explanation for every question.
 - CRITICAL ANTI-CHEAT REQUIREMENT: Do NOT make the correct answer the longest option. All options (A, B, C, D) MUST be approximately the exact same length and structure to prevent length-bias guessing.
 - DISTRACTOR QUALITY: All wrong options must be highly plausible, convincing, and confusing distractors that require deep conceptual understanding to distinguish. Do not use obvious throwaway answers.
