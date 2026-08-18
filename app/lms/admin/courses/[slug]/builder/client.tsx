@@ -1107,12 +1107,25 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
               ) : (
                 <div className="mb-4 space-y-2">
                   <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Options (Select the correct one)</label>
-                  {(q.options || []).map((opt: string, oIndex: number) => (
+                  {(q.options || []).map((opt: string, oIndex: number) => {
+                    let parsedCorrect = q.correctIndex
+                    if (typeof parsedCorrect === 'string') {
+                      const up = parsedCorrect.toUpperCase()
+                      if (up === 'A') parsedCorrect = 0
+                      else if (up === 'B') parsedCorrect = 1
+                      else if (up === 'C') parsedCorrect = 2
+                      else if (up === 'D') parsedCorrect = 3
+                      else parsedCorrect = Number(parsedCorrect) || 0
+                    } else {
+                      parsedCorrect = Number(parsedCorrect) || 0
+                    }
+
+                    return (
                     <div key={oIndex} className="flex items-center gap-3">
                       <input
                         type="radio"
                         name={`correct-${q.id}`}
-                        checked={Number(q.correctIndex) === oIndex}
+                        checked={parsedCorrect === oIndex}
                         onChange={() => updateQuestion(qIndex, "correctIndex", oIndex)}
                         className="h-4 w-4 text-primary"
                       />
@@ -1123,7 +1136,8 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
                         placeholder={`Option ${oIndex + 1}`}
                       />
                     </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
 

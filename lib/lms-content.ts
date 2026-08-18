@@ -941,7 +941,19 @@ function sanitizeCustomQuizData(data: any[]): any[] {
     } else {
       q.type = 'multiple_choice'
       q.options = Array.isArray(q.options) ? q.options : (typeof q.options === 'string' ? [q.options] : [])
-      q.correctIndex = Number(q.correctIndex) || 0
+      
+      let ci = q.correctIndex
+      if (typeof ci === 'string') {
+        const upper = ci.toUpperCase()
+        if (upper === 'A') ci = 0
+        else if (upper === 'B') ci = 1
+        else if (upper === 'C') ci = 2
+        else if (upper === 'D') ci = 3
+        else ci = Number(ci) || 0
+      } else {
+        ci = Number(ci) || 0
+      }
+      q.correctIndex = ci
     }
     return q
   })

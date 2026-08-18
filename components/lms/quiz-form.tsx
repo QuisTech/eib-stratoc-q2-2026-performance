@@ -267,9 +267,10 @@ export function QuizForm({
   }
 
   useEffect(() => {
+    if (result) return; // Do not re-shuffle if we already have a result! (Next.js background revalidation changes questions prop)
     setShuffled(buildShuffled())
     setIsMounted(true)
-  }, [questions])
+  }, [questions, result])
 
   useEffect(() => {
     // Only enforce anti-cheating when mounted, actively taking the quiz, and no pending submission
