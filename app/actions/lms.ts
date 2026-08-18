@@ -363,7 +363,8 @@ export async function getAdminCourses(): Promise<Course[]> {
       desc.startsWith("Construction Project Management, Business Development") ||
       ((c as any).durationHours >= 40 && title.includes("construction project management"))
 
-    return !isDel && !isLongDescriptionCourse
+    const isGhost = !c.slug || c.slug === "undefined" || !c.title
+    return !isDel && !isLongDescriptionCourse && !isGhost
   })
 }
 
