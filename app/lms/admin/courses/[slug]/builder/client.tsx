@@ -43,6 +43,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
   // --- Tab & Knowledge Check Generation State ---
   const [generatingTabForLesson, setGeneratingTabForLesson] = useState<number | null>(null)
   const [generatingKcForLesson, setGeneratingKcForLesson] = useState<number | null>(null)
+  const [generatingTakeawaysForLesson, setGeneratingTakeawaysForLesson] = useState<number | null>(null)
   const [highlightedLessonKey, setHighlightedLessonKey] = useState<string | null>(null)
   const [incomingFeedback, setIncomingFeedback] = useState<string | null>(null)
 
@@ -193,6 +194,41 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
       setError(err.message || "Failed to generate knowledge check.")
     } finally {
       setGeneratingKcForLesson(null)
+    }
+  }
+
+  const handleGenerateTakeaways = async (lIndex: number) => {
+    setGeneratingTakeawaysForLesson(lIndex)
+    setError(null)
+
+    try {
+      const res = await fetch("/api/lms/generate-course", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "generate_takeaways",
+          title: course.title,
+          category: course.category || "General",
+          lessonTitle: lessons[lIndex]?.title,
+          lessonSummary: lessons[lIndex]?.summary,
+        }),
+      })
+
+      const data = await res.json()
+      if (!res.ok || data.error) {
+        throw new Error(data.error || "Failed to generate takeaways.")
+      }
+
+      if (data.takeaways) {
+        const updated = [...lessons]
+        updated[lIndex].takeaways = data.takeaways
+        setLessons(updated)
+      }
+    } catch (err: any) {
+      console.error("Takeaways generate error:", err)
+      setError(err.message || "Failed to generate takeaways.")
+    } finally {
+      setGeneratingTakeawaysForLesson(null)
     }
   }
 
@@ -925,7 +961,20 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
                 </div>
 
               <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Key Takeaways (one per line)</label>
+                <div className="flex items-center justify-between mb-1.5 flex-wrap gap-2">
+                  <label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Key Takeaways (one per line)</label>
+                  {userRole === "admin" && (
+                    <button
+                      type="button"
+                      onClick={() => handleGenerateTakeaways(lIndex)}
+                      disabled={generatingTakeawaysForLesson === lIndex}
+                      className="inline-flex items-center gap-1 rounded-md bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 px-2.5 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 transition-colors disabled:opacity-50"
+                    >
+                      {generatingTakeawaysForLesson === lIndex ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 text-indigo-600" />}
+                      ✨ Generate Takeaways
+                    </button>
+                  )}
+                </div>
                 <textarea
                   value={(lesson.takeaways || []).join("\n")}
                   onChange={(e) => updateLesson(lIndex, "takeaways", e.target.value.split("\n"))}

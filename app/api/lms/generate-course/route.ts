@@ -83,6 +83,7 @@ export async function POST(req: Request) {
   const isRefineSectionMode = action === "refine_section"
   const isGenerateTabMode = action === "generate_tab"
   const isGenerateKnowledgeCheckMode = action === "generate_knowledge_check"
+  const isGenerateTakeawaysMode = action === "generate_takeaways"
 
   const customInstructions = (customContext || feedbackComment)?.trim()
     ? `\n\nADDITIONAL INSTRUCTIONS / STAFF FEEDBACK:\n${(customContext || feedbackComment).trim().substring(0, 3000)}`
@@ -138,6 +139,29 @@ Output ONLY valid JSON with this exact structure:
 {
   "tabTitle": "Case Study: Practical Operational Execution",
   "content": "### Background & Context\\n\\nDetailed context and organizational challenges...\\n\\n### Operational Execution\\n\\nStep-by-step implementation strategy...\\n\\n### Key Takeaways\\n\\n• Strategic outcome 1\\n• Operational control 2"
+}`
+  } else if (isGenerateTakeawaysMode) {
+    prompt = `${EIB_GROUP_CONTEXT}
+
+You are a corporate training expert creating key takeaways for a lesson.
+Course Title: "${title}" (${category || "General"})
+Lesson Title: "${lessonTitle || "Lesson"}"
+Lesson Summary: "${lessonSummary || ""}"
+${customInstructions}
+
+Your task: Generate 3 to 5 extremely crisp, actionable, high-level key takeaways for this lesson.
+Requirements:
+1. Each takeaway must be a single sentence or a very brief paragraph.
+2. Focus on the core strategic and operational insights.
+3. Return JSON with a "takeaways" array of strings.
+
+Output ONLY valid JSON with this exact structure:
+{
+  "takeaways": [
+    "First crucial insight and application.",
+    "Second operational takeaway.",
+    "Third strategic principle."
+  ]
 }`
   } else if (isGenerateKnowledgeCheckMode) {
     prompt = `${EIB_GROUP_CONTEXT}
