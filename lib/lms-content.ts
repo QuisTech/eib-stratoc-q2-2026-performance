@@ -148,6 +148,8 @@ function sanitizeCustomCourseData(data: any): any[] {
   let items = Array.isArray(data) ? data : (data?.lessons || [])
   if (!Array.isArray(items)) return []
   
+  const seenKeys = new Set<string>()
+
   return items.filter(Boolean).map((rawItem: any, index: number) => {
     // If the AI returned a pure string instead of a lesson object, coerce it into a valid lesson
     const item = typeof rawItem === 'object' && rawItem !== null ? { ...rawItem } : { 
@@ -158,8 +160,17 @@ function sanitizeCustomCourseData(data: any): any[] {
       sections: [{ heading: "Overview", body: [String(rawItem)] }] 
     }
 
-    // Ensure primitives
-    item.key = String(item.key || `lesson-${index}`)
+    // Ensure primitives and deduplicate keys
+    let rawKey = String(item.key || `lesson-${index}`)
+    let uniqueKey = rawKey
+    let counter = 1
+    while (seenKeys.has(uniqueKey)) {
+      uniqueKey = `${rawKey}-${counter}`
+      counter++
+    }
+    seenKeys.add(uniqueKey)
+    item.key = uniqueKey
+    
     item.title = String(item.title || "Untitled Lesson")
     item.minutes = Number(item.minutes) || 15
     item.summary = String(item.summary || "")
