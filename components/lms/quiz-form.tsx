@@ -490,17 +490,18 @@ export function QuizForm({
         )}
         {shuffled.map((sq, qi) => {
         const qResult = result?.details[sq.originalIndex]
-        
-        // If results exist, only show questions that were missed
-        if (result && qResult?.isCorrect) return null;
 
         return (
-          <Card key={sq.q.id} className={qResult ? "border-destructive bg-destructive/5" : ""}>
+          <Card key={sq.q.id} className={qResult ? (qResult.isCorrect ? "border-[var(--chart-1)] bg-[var(--chart-1)]/5" : "border-destructive bg-destructive/5") : ""}>
             <CardContent className="p-5">
               <div className="flex items-start gap-3">
                 {qResult && (
                   <div className="mt-0.5 shrink-0">
-                    <XCircle className="h-5 w-5 text-destructive" />
+                    {qResult.isCorrect ? (
+                      <CheckCircle2 className="h-5 w-5 text-[var(--chart-1)]" />
+                    ) : (
+                      <XCircle className="h-5 w-5 text-destructive" />
+                    )}
                   </div>
                 )}
                 <div className="flex-1 overflow-hidden">

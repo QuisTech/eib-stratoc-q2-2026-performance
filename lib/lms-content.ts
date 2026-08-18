@@ -941,6 +941,7 @@ function sanitizeCustomQuizData(data: any[]): any[] {
     } else {
       q.type = 'multiple_choice'
       q.options = Array.isArray(q.options) ? q.options : (typeof q.options === 'string' ? [q.options] : [])
+      q.correctIndex = Number(q.correctIndex) || 0
     }
     return q
   })

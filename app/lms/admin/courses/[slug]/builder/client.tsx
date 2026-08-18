@@ -1112,7 +1112,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
                       <input
                         type="radio"
                         name={`correct-${q.id}`}
-                        checked={q.correctIndex === oIndex}
+                        checked={Number(q.correctIndex) === oIndex}
                         onChange={() => updateQuestion(qIndex, "correctIndex", oIndex)}
                         className="h-4 w-4 text-primary"
                       />
