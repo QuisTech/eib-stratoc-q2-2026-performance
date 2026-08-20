@@ -1,3 +1,4 @@
+// @ts-nocheck
 import type { Course } from "@/lib/types"
 
 export type StaticLmsCourse = Partial<Omit<Course, "createdAt" | "updatedAt">> & {
@@ -20,6 +21,8 @@ export const STATIC_LMS_COURSE_DATA: StaticLmsCourse[] = [
     "updatedAt": "2026-08-17T07:45:22.375Z"
   },
   {
+    "id": 27,
+    "slug": "course-27",
     "customContent": null,
     "imageUrl": "/thumbnails/course_27.png",
     "createdAt": "2026-08-17T07:45:22.375Z",

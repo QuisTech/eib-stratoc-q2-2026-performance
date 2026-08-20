@@ -38,11 +38,7 @@ export async function POST(req: Request) {
 
   // Support multiple API keys separated by commas for rate limit rotation
   const keyList = rawKeys.split(",").map(k => k.trim()).filter(Boolean)
-  const selectedKey = keyList[Math.floor(Math.random() * keyList.length)]
 
-  const groq = createGroq({
-    apiKey: selectedKey,
-  })
 
   let {
     title,
@@ -379,12 +375,25 @@ Output ONLY valid JSON with this exact structure:
     let result;
 
     const callGenerate = async (modelName: string) => {
-      return await generateObject({
-        model: groq(modelName),
-        prompt,
-        temperature: 0.3,
-        output: 'no-schema',
-      });
+      const startIndex = Math.floor(Math.random() * keyList.length)
+      let lastError: any = null
+
+      for (let i = 0; i < keyList.length; i++) {
+        const apiKey = keyList[(startIndex + i) % keyList.length]
+        const groq = createGroq({ apiKey })
+        try {
+          return await generateObject({
+            model: groq(modelName),
+            prompt,
+            temperature: 0.3,
+            output: 'no-schema',
+          })
+        } catch (err: any) {
+          lastError = err
+          console.warn(`Groq API key candidate ${i + 1}/${keyList.length} failed for model ${modelName}:`, err?.message || err)
+        }
+      }
+      throw lastError || new Error(`All Groq API keys failed for model ${modelName}`);
     };
 
     // Multi-Tier Fallback Cascade

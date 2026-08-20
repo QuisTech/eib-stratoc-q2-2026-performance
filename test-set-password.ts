@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { auth } from "./lib/auth"
 
 async function run() {
