@@ -15,15 +15,75 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
   const [error, setError] = useState<string | null>(null)
 
   // Initialize state from existing customContent if it exists
-  let initialLessons = []
-  let initialQuiz = []
-  if (course.customContent) {
-    try {
-      const parsed = JSON.parse(course.customContent)
-      initialLessons = parsed.lessons || []
-      initialQuiz = parsed.quiz || []
-    } catch (e) {}
-  }
+  const initialLessons = (() => {
+    let raw: any[] = []
+    if (course.customContent) {
+      try {
+        const parsed = typeof course.customContent === "string" ? JSON.parse(course.customContent) : course.customContent
+        raw = Array.isArray(parsed.lessons) ? parsed.lessons : (Array.isArray(parsed) ? parsed : [])
+      } catch (e) {}
+    }
+    return raw.map((l: any, i: number) => ({
+      ...l,
+      key: l.key ? String(l.key) : `lesson-${Date.now()}-${i}`,
+      sections: Array.isArray(l.sections) && l.sections.length > 0 ? l.sections : [{ heading: "", body: [""] }],
+      takeaways: Array.isArray(l.takeaways) ? l.takeaways : [],
+      attachments: Array.isArray(l.attachments) ? l.attachments : [],
+    }))
+  })()
+
+  const initialQuiz = (() => {
+    let raw: any[] = []
+    if (course.customContent) {
+      try {
+        const parsed = typeof course.customContent === "string" ? JSON.parse(course.customContent) : course.customContent
+        raw = Array.isArray(parsed.quiz) ? parsed.quiz : (Array.isArray(parsed) ? parsed : [])
+      } catch (e) {}
+    }
+    const seenIds = new Set<string>()
+    return raw.filter(Boolean).map((q: any, i: number) => {
+      let id = q.id ? String(q.id).trim() : `q-${i + 1}`
+      if (seenIds.has(id)) {
+        id = `${id}-${i + 1}-${Math.random().toString(36).substring(2, 6)}`
+      }
+      seenIds.add(id)
+
+      let ci = q.correctIndex
+      const answerStr = q.answer || q.correctAnswer || q.correct_answer || q.correct
+      if (typeof ci === 'string') {
+        const up = ci.trim().toUpperCase()
+        if (up === 'A' || up === '0') ci = 0
+        else if (up === 'B' || up === '1') ci = 1
+        else if (up === 'C' || up === '2') ci = 2
+        else if (up === 'D' || up === '3') ci = 3
+        else {
+          const num = parseInt(ci, 10)
+          ci = isNaN(num) ? -1 : num
+        }
+      } else if (typeof ci !== 'number' || isNaN(ci)) {
+        ci = -1
+      }
+
+      const options = Array.isArray(q.options) && q.options.length > 0
+        ? q.options
+        : (typeof q.options === 'string' ? [q.options] : ["", "", "", ""])
+
+      if ((ci < 0 || ci >= options.length) && answerStr) {
+        const found = options.findIndex((opt: string) => opt.toLowerCase() === String(answerStr).trim().toLowerCase())
+        if (found !== -1) ci = found
+      }
+      if (ci < 0 || ci >= options.length) ci = 0
+
+      return {
+        ...q,
+        id,
+        prompt: q.prompt || q.question || q["the organization"] || "",
+        options,
+        correctIndex: ci,
+        explanation: q.explanation || "",
+      }
+    })
+  })()
 
   const [lessons, setLessons] = useState<any[]>(initialLessons)
   const [quiz, setQuiz] = useState<any[]>(initialQuiz)
@@ -276,12 +336,18 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
       if (data.lessons && mode === "lesson") {
         setLessons((prev) => [...prev, ...data.lessons])
       } else if (data.quiz && mode === "quiz") {
-        const newQuiz = data.quiz.map((q: any, i: number) => ({ ...q, id: `q-${Date.now()}-${i}` }))
+        const newQuiz = data.quiz.map((q: any, i: number) => ({
+          ...q,
+          id: `q-${Date.now()}-${i}-${Math.random().toString(36).substring(2, 6)}`
+        }))
         setQuiz((prev) => [...prev, ...newQuiz])
       } else if (mode === "none") {
         if (data.lessons) setLessons(data.lessons)
         if (data.quiz) {
-          const newQuiz = data.quiz.map((q: any, i: number) => ({ ...q, id: `q-${Date.now()}-${i}` }))
+          const newQuiz = data.quiz.map((q: any, i: number) => ({
+            ...q,
+            id: `q-${Date.now()}-${i}-${Math.random().toString(36).substring(2, 6)}`
+          }))
           setQuiz(newQuiz)
         }
       }
@@ -346,10 +412,10 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
 
   // --- Lessons Logic ---
   const addLesson = () => {
-    setLessons([
-      ...lessons,
+    setLessons((prev) => [
+      ...prev,
       {
-        key: `lesson-${Date.now()}`,
+        key: `lesson-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
         title: "New Lesson",
         minutes: 15,
         summary: "",
@@ -362,51 +428,95 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
   }
 
   const removeLesson = (index: number) => {
-    setLessons(lessons.filter((_, i) => i !== index))
+    setLessons((prev) => prev.filter((_, i) => i !== index))
   }
 
   const updateLesson = (index: number, field: string, value: any) => {
-    const updated = [...lessons]
-    updated[index] = { ...updated[index], [field]: value }
-    setLessons(updated)
+    setLessons((prev) => {
+      const updated = [...prev]
+      if (updated[index]) {
+        updated[index] = { ...updated[index], [field]: value }
+      }
+      return updated
+    })
   }
 
   const updateSection = (lessonIndex: number, sectionIndex: number, field: string, value: string) => {
-    const updated = [...lessons]
-    updated[lessonIndex].sections[sectionIndex] = { ...updated[lessonIndex].sections[sectionIndex], [field]: value }
-    setLessons(updated)
+    setLessons((prev) => {
+      const updated = [...prev]
+      if (updated[lessonIndex] && updated[lessonIndex].sections?.[sectionIndex]) {
+        updated[lessonIndex].sections[sectionIndex] = {
+          ...updated[lessonIndex].sections[sectionIndex],
+          [field]: value
+        }
+      }
+      return updated
+    })
   }
 
   const updateSectionBody = (lessonIndex: number, sectionIndex: number, value: string) => {
-    const updated = [...lessons]
-    // split text area by double newlines into array
-    updated[lessonIndex].sections[sectionIndex].body = value.split("\n\n")
-    setLessons(updated)
+    setLessons((prev) => {
+      const updated = [...prev]
+      if (updated[lessonIndex] && updated[lessonIndex].sections?.[sectionIndex]) {
+        updated[lessonIndex].sections[sectionIndex].body = value.split("\n\n")
+      }
+      return updated
+    })
   }
 
   const addSection = (lessonIndex: number) => {
-    const updated = [...lessons]
-    updated[lessonIndex].sections.push({ heading: "", body: [""] })
-    setLessons(updated)
+    setLessons((prev) => {
+      const updated = [...prev]
+      if (updated[lessonIndex]) {
+        if (!Array.isArray(updated[lessonIndex].sections)) updated[lessonIndex].sections = []
+        updated[lessonIndex].sections.push({ heading: "", body: [""] })
+      }
+      return updated
+    })
+  }
+
+  const removeSection = (lessonIndex: number, sectionIndex: number) => {
+    setLessons((prev) => {
+      const updated = [...prev]
+      if (updated[lessonIndex] && Array.isArray(updated[lessonIndex].sections)) {
+        updated[lessonIndex].sections = updated[lessonIndex].sections.filter((_: any, i: number) => i !== sectionIndex)
+      }
+      return updated
+    })
   }
 
   const addAttachment = (lessonIndex: number) => {
-    const updated = [...lessons]
-    if (!updated[lessonIndex].attachments) updated[lessonIndex].attachments = []
-    updated[lessonIndex].attachments.push({ title: "", url: "" })
-    setLessons(updated)
+    setLessons((prev) => {
+      const updated = [...prev]
+      if (updated[lessonIndex]) {
+        if (!Array.isArray(updated[lessonIndex].attachments)) updated[lessonIndex].attachments = []
+        updated[lessonIndex].attachments.push({ title: "", url: "" })
+      }
+      return updated
+    })
   }
 
   const updateAttachment = (lessonIndex: number, attIndex: number, field: string, value: string) => {
-    const updated = [...lessons]
-    updated[lessonIndex].attachments[attIndex] = { ...updated[lessonIndex].attachments[attIndex], [field]: value }
-    setLessons(updated)
+    setLessons((prev) => {
+      const updated = [...prev]
+      if (updated[lessonIndex] && updated[lessonIndex].attachments?.[attIndex]) {
+        updated[lessonIndex].attachments[attIndex] = {
+          ...updated[lessonIndex].attachments[attIndex],
+          [field]: value
+        }
+      }
+      return updated
+    })
   }
 
   const removeAttachment = (lessonIndex: number, attIndex: number) => {
-    const updated = [...lessons]
-    updated[lessonIndex].attachments = updated[lessonIndex].attachments.filter((_: any, i: number) => i !== attIndex)
-    setLessons(updated)
+    setLessons((prev) => {
+      const updated = [...prev]
+      if (updated[lessonIndex] && Array.isArray(updated[lessonIndex].attachments)) {
+        updated[lessonIndex].attachments = updated[lessonIndex].attachments.filter((_: any, i: number) => i !== attIndex)
+      }
+      return updated
+    })
   }
 
   const handleFileUpload = async (lessonIndex: number, attIndex: number, file: File) => {
@@ -427,7 +537,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
 
       // Update the attachment with the uploaded file URL
       updateAttachment(lessonIndex, attIndex, "url", data.url)
-      if (!lessons[lessonIndex].attachments[attIndex].title) {
+      if (!lessons[lessonIndex]?.attachments?.[attIndex]?.title) {
         updateAttachment(lessonIndex, attIndex, "title", file.name)
       }
     } catch (error: any) {
@@ -438,10 +548,10 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
 
   // --- Quiz Logic ---
   const addQuestion = () => {
-    setQuiz([
-      ...quiz,
+    setQuiz((prev) => [
+      ...prev,
       {
-        id: `q-${Date.now()}`,
+        id: `q-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
         prompt: "",
         options: ["", "", "", ""],
         correctIndex: 0,
@@ -451,19 +561,35 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
   }
 
   const removeQuestion = (index: number) => {
-    setQuiz(quiz.filter((_, i) => i !== index))
+    setQuiz((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const clearAllQuestions = () => {
+    if (window.confirm("Are you sure you want to delete all quiz questions for this course? This will allow you to start fresh or generate new ones.")) {
+      setQuiz([])
+    }
   }
 
   const updateQuestion = (index: number, field: string, value: any) => {
-    const updated = [...quiz]
-    updated[index] = { ...updated[index], [field]: value }
-    setQuiz(updated)
+    setQuiz((prev) => {
+      const updated = [...prev]
+      if (updated[index]) {
+        updated[index] = { ...updated[index], [field]: value }
+      }
+      return updated
+    })
   }
 
   const updateOption = (qIndex: number, optIndex: number, value: string) => {
-    const updated = [...quiz]
-    updated[qIndex].options[optIndex] = value
-    setQuiz(updated)
+    setQuiz((prev) => {
+      const updated = [...prev]
+      if (updated[qIndex]) {
+        const options = [...(updated[qIndex].options || [])]
+        options[optIndex] = value
+        updated[qIndex] = { ...updated[qIndex], options }
+      }
+      return updated
+    })
   }
 
   return (
@@ -489,6 +615,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
             <div className="flex gap-2">
               {isLoading ? (
                 <button
+                  type="button"
                   onClick={() => stop()}
                   className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-red-600 px-6 text-sm font-medium text-white hover:bg-red-700"
                 >
@@ -497,6 +624,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
                 </button>
               ) : (
                 <button
+                  type="button"
                   onClick={handleGenerateWithGemini}
                   disabled={loading}
                   className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-indigo-600 px-6 text-sm font-medium text-white hover:bg-indigo-700 disabled:opacity-50"
@@ -508,6 +636,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
             </div>
           )}
           <button
+            type="button"
             onClick={handleSave}
             disabled={loading || isLoading}
             className="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-6 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
@@ -584,6 +713,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
           <div className="flex gap-2">
             {userRole === "admin" && (
               <button
+                type="button"
                 onClick={handleAppendWithGemini}
                 disabled={isLoading || loading}
                 className="inline-flex items-center gap-1.5 rounded-md bg-indigo-100 px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-200 disabled:opacity-50"
@@ -593,6 +723,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
               </button>
             )}
             <button
+              type="button"
               onClick={addLesson}
               disabled={isLoading}
               className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-foreground hover:bg-accent/80 disabled:opacity-50"
@@ -604,7 +735,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
 
         {displayLessons.length === 0 && (
           <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
-            No lessons added yet. Click "Add Lesson" to begin.
+            No lessons added yet. Click &quot;Add Lesson&quot; to begin.
           </div>
         )}
 
@@ -624,8 +755,10 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
                 } ${isLoading ? "opacity-70 pointer-events-none" : ""}`}
               >
                 <button
+                  type="button"
                   onClick={() => removeLesson(lIndex)}
-                  className="absolute right-4 top-4 text-muted-foreground hover:text-destructive"
+                  className="absolute right-4 top-4 text-muted-foreground hover:text-destructive p-1 rounded-md hover:bg-destructive/10 transition-colors"
+                  title="Delete this lesson"
                 >
                   <Trash2 className="h-5 w-5" />
                 </button>
@@ -715,6 +848,16 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
                               >
                                 <Sparkles className="h-3.5 w-3.5 text-indigo-600 dark:text-indigo-400" />
                                 <span>AI Refine</span>
+                              </button>
+                            )}
+                            {lesson.sections.length > 1 && (
+                              <button
+                                type="button"
+                                onClick={() => removeSection(lIndex, sIndex)}
+                                className="p-1 rounded text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                                title="Delete this section"
+                              >
+                                <Trash2 className="h-4 w-4" />
                               </button>
                             )}
                           </div>
@@ -825,6 +968,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
                       )
                     })}
                     <button
+                      type="button"
                       onClick={() => addSection(lIndex)}
                       className="text-xs font-medium text-primary hover:underline"
                     >
@@ -1018,6 +1162,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
                         />
                       </label>
                       <button
+                        type="button"
                         onClick={() => removeAttachment(lIndex, aIndex)}
                         className="p-2 text-muted-foreground hover:text-destructive"
                       >
@@ -1026,6 +1171,7 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
                     </div>
                   ))}
                   <button
+                    type="button"
                     onClick={() => addAttachment(lIndex)}
                     className="text-xs font-medium text-primary hover:underline"
                   >
@@ -1048,20 +1194,40 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
 
       {/* QUIZ SECTION */}
       <div className="mb-12">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold">Course Final Quiz</h2>
-          <div className="flex gap-2">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h2 className="text-xl font-bold">Course Final Quiz ({quiz.length})</h2>
+            <p className="text-xs text-muted-foreground">
+              {quiz.length > 10
+                ? "More than 10 questions configured: the engine will dynamically pull 10 randomized questions per learner attempt (Item Pool)."
+                : "Questions configured for the final assessment."}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {quiz.length > 0 && (
+              <button
+                type="button"
+                onClick={clearAllQuestions}
+                disabled={isLoading || loading}
+                className="inline-flex items-center gap-1.5 rounded-md border border-destructive/30 bg-destructive/10 px-3 py-1.5 text-sm font-medium text-destructive hover:bg-destructive/20 disabled:opacity-50 transition-colors"
+                title="Remove all questions to start fresh or regenerate"
+              >
+                <Trash2 className="h-4 w-4" /> Clear All Questions
+              </button>
+            )}
             {userRole === "admin" && (
               <button
+                type="button"
                 onClick={handleAppendQuizWithGemini}
                 disabled={isLoading || loading}
-                className="inline-flex items-center gap-1.5 rounded-md bg-indigo-100 px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-200 disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-md bg-indigo-100 px-3 py-1.5 text-sm font-medium text-indigo-700 hover:bg-indigo-200 disabled:opacity-50 dark:bg-indigo-950/50 dark:text-indigo-300 dark:hover:bg-indigo-900/60"
               >
                 {isLoading && appendMode.current === "quiz" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
                 Append 10 Questions with Spark
               </button>
             )}
             <button
+              type="button"
               onClick={addQuestion}
               disabled={isLoading}
               className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-accent-foreground hover:bg-accent/80 disabled:opacity-50"
@@ -1073,89 +1239,98 @@ export default function CourseBuilderClient({ course, userRole }: { course: any;
 
         {displayQuiz.length === 0 && (
           <div className="rounded-lg border border-dashed p-8 text-center text-sm text-muted-foreground">
-            No quiz questions added yet.
+            No quiz questions added yet. Click &quot;Add Question&quot; or &quot;Append 10 Questions with Spark&quot; to build your quiz.
           </div>
         )}
 
         <div className="space-y-8">
-          {displayQuiz.map((q, qIndex) => (
-            <div key={q.id || qIndex} className={`relative rounded-xl border bg-card p-6 shadow-sm ${isLoading ? "opacity-70 pointer-events-none" : ""}`}>
-              <button
-                onClick={() => removeQuestion(qIndex)}
-                className="absolute right-4 top-4 text-muted-foreground hover:text-destructive"
-              >
-                <Trash2 className="h-5 w-5" />
-              </button>
+          {displayQuiz.map((q, qIndex) => {
+            const questionKey = q.id || `q-${qIndex}`
+            return (
+              <div key={questionKey} className={`relative rounded-xl border bg-card p-6 shadow-sm ${isLoading ? "opacity-70 pointer-events-none" : ""}`}>
+                <button
+                  type="button"
+                  onClick={() => removeQuestion(qIndex)}
+                  className="absolute right-4 top-4 p-1.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                  title="Delete this question"
+                >
+                  <Trash2 className="h-5 w-5" />
+                </button>
 
-              <div className="mb-4 pr-8">
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Question Prompt</label>
-                <input
-                  value={q.prompt || ""}
-                  onChange={(e) => updateQuestion(qIndex, "prompt", e.target.value)}
-                  className="w-full font-medium rounded-md border bg-background px-3 py-2"
-                  placeholder="What is..."
-                />
-              </div>
-
-              {q.type === "matching" ? (
-                <div className="mb-4 space-y-2">
-                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Matching Pairs</label>
-                  {(q.pairs || []).map((pair: any, pIndex: number) => (
-                    <div key={pIndex} className="flex items-center gap-2">
-                      <div className="w-1/2 rounded-md border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">{pair.left}</div>
-                      <div className="w-1/2 rounded-md border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">{pair.right}</div>
-                    </div>
-                  ))}
-                  <p className="text-xs text-muted-foreground mt-1">Editing pairs in the builder is disabled. Delete and recreate if needed.</p>
+                <div className="mb-2">
+                  <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Question {qIndex + 1}</span>
                 </div>
-              ) : (
-                <div className="mb-4 space-y-2">
-                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Options (Select the correct one)</label>
-                  {(q.options || []).map((opt: string, oIndex: number) => {
-                    let parsedCorrect = q.correctIndex
-                    if (typeof parsedCorrect === 'string') {
-                      const up = parsedCorrect.toUpperCase()
-                      if (up === 'A') parsedCorrect = 0
-                      else if (up === 'B') parsedCorrect = 1
-                      else if (up === 'C') parsedCorrect = 2
-                      else if (up === 'D') parsedCorrect = 3
-                      else parsedCorrect = Number(parsedCorrect) || 0
-                    } else {
-                      parsedCorrect = Number(parsedCorrect) || 0
-                    }
 
-                    return (
-                    <div key={oIndex} className="flex items-center gap-3">
-                      <input
-                        type="radio"
-                        name={`correct-${qIndex}`}
-                        checked={parsedCorrect === oIndex}
-                        onChange={() => updateQuestion(qIndex, "correctIndex", oIndex)}
-                        className="h-4 w-4 text-primary"
-                      />
-                      <input
-                        value={opt}
-                        onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
-                        className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-                        placeholder={`Option ${oIndex + 1}`}
-                      />
-                    </div>
-                    )
-                  })}
+                <div className="mb-4 pr-8">
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Question Prompt</label>
+                  <input
+                    value={q.prompt || ""}
+                    onChange={(e) => updateQuestion(qIndex, "prompt", e.target.value)}
+                    className="w-full font-medium rounded-md border bg-background px-3 py-2 text-sm"
+                    placeholder="What is..."
+                  />
                 </div>
-              )}
 
-              <div>
-                <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Explanation (Shown after answering)</label>
-                <input
-                  value={q.explanation || ""}
-                  onChange={(e) => updateQuestion(qIndex, "explanation", e.target.value)}
-                  className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-                  placeholder="Why is this the correct answer?"
-                />
+                {q.type === "matching" ? (
+                  <div className="mb-4 space-y-2">
+                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Matching Pairs</label>
+                    {(q.pairs || []).map((pair: any, pIndex: number) => (
+                      <div key={pIndex} className="flex items-center gap-2">
+                        <div className="w-1/2 rounded-md border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">{pair.left}</div>
+                        <div className="w-1/2 rounded-md border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">{pair.right}</div>
+                      </div>
+                    ))}
+                    <p className="text-xs text-muted-foreground mt-1">Editing pairs in the builder is disabled. Delete and recreate if needed.</p>
+                  </div>
+                ) : (
+                  <div className="mb-4 space-y-2">
+                    <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Options (Select the correct one)</label>
+                    {(q.options || []).map((opt: string, oIndex: number) => {
+                      let parsedCorrect = q.correctIndex
+                      if (typeof parsedCorrect === 'string') {
+                        const up = parsedCorrect.toUpperCase()
+                        if (up === 'A' || up === '0') parsedCorrect = 0
+                        else if (up === 'B' || up === '1') parsedCorrect = 1
+                        else if (up === 'C' || up === '2') parsedCorrect = 2
+                        else if (up === 'D' || up === '3') parsedCorrect = 3
+                        else parsedCorrect = Number(parsedCorrect) || 0
+                      } else {
+                        parsedCorrect = Number(parsedCorrect) || 0
+                      }
+
+                      return (
+                      <div key={oIndex} className="flex items-center gap-3">
+                        <input
+                          type="radio"
+                          name={`correct-${questionKey}`}
+                          checked={parsedCorrect === oIndex}
+                          onChange={() => updateQuestion(qIndex, "correctIndex", oIndex)}
+                          className="h-4 w-4 text-primary"
+                        />
+                        <input
+                          value={opt}
+                          onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
+                          className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                          placeholder={`Option ${oIndex + 1}`}
+                        />
+                      </div>
+                      )
+                    })}
+                  </div>
+                )}
+
+                <div>
+                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-muted-foreground">Explanation (Shown after answering)</label>
+                  <input
+                    value={q.explanation || ""}
+                    onChange={(e) => updateQuestion(qIndex, "explanation", e.target.value)}
+                    className="w-full rounded-md border bg-background px-3 py-2 text-sm"
+                    placeholder="Why is this the correct answer?"
+                  />
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
       </div>
     </div>

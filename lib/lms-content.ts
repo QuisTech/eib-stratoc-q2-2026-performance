@@ -922,12 +922,14 @@ const CONCEPT_BANK: Record<string, BankQuestion[]> = {
   ],
 }
 
-function sanitizeCustomQuizData(data: any[]): any[] {
+export function sanitizeCustomQuizData(data: any[]): any[] {
   if (!Array.isArray(data)) return []
+  const seenIds = new Set<string>()
+
   return data.filter(Boolean).map((rawQ: any, index: number) => {
     // If the AI returned a pure string instead of a question object, coerce it
     const q = typeof rawQ === 'object' && rawQ !== null ? { ...rawQ } : {
-      id: `q-${index}`,
+      id: `q-${index + 1}`,
       prompt: String(rawQ),
       type: 'multiple_choice',
       options: ["True", "False"],
@@ -935,26 +937,73 @@ function sanitizeCustomQuizData(data: any[]): any[] {
       explanation: ""
     }
 
-    if (q.type === 'matching' || q.pairs) {
+    // Prompt fallback: support prompt, question, 'the organization', title, or generic text
+    const prompt = q.prompt || q.question || q["the organization"] || q.title || `Question ${index + 1}`
+    q.prompt = String(prompt).trim()
+
+    // ID deduplication and generation
+    let id = q.id ? String(q.id).trim() : `q-${index + 1}`
+    if (seenIds.has(id)) {
+      id = `${id}-${index + 1}`
+    }
+    seenIds.add(id)
+    q.id = id
+
+    if (q.type === 'matching' || (Array.isArray(q.pairs) && q.pairs.length > 0)) {
       q.type = 'matching'
-      q.pairs = Array.isArray(q.pairs) ? q.pairs : (q.pairs ? [q.pairs] : [])
+      q.pairs = Array.isArray(q.pairs) ? q.pairs.filter((p: any) => p && typeof p === 'object' && p.left && p.right) : []
+      if (q.pairs.length === 0) {
+        q.type = 'multiple_choice'
+        q.options = ["Option A", "Option B"]
+        q.correctIndex = 0
+      }
     } else {
       q.type = 'multiple_choice'
-      q.options = Array.isArray(q.options) ? q.options : (typeof q.options === 'string' ? [q.options] : [])
       
-      let ci = q.correctIndex
-      if (typeof ci === 'string') {
-        const upper = ci.toUpperCase()
-        if (upper === 'A') ci = 0
-        else if (upper === 'B') ci = 1
-        else if (upper === 'C') ci = 2
-        else if (upper === 'D') ci = 3
-        else ci = Number(ci) || 0
-      } else {
-        ci = Number(ci) || 0
+      // Clean and sanitize options
+      const rawOptions = Array.isArray(q.options) ? q.options : (typeof q.options === 'string' ? [q.options] : [])
+      let cleanOptions = rawOptions.map((opt: any) => String(opt ?? "").trim()).filter(Boolean)
+      if (cleanOptions.length < 2) {
+        cleanOptions = ["Option A", "Option B", "Option C", "Option D"]
       }
+      q.options = cleanOptions
+      
+      // Resolve correctIndex accurately
+      let ci = q.correctIndex
+      const answerStr = q.answer || q.correctAnswer || q.correct_answer || q.correct
+      
+      if (typeof ci === 'string') {
+        const upper = ci.trim().toUpperCase()
+        if (upper === 'A' || upper === '0') ci = 0
+        else if (upper === 'B' || upper === '1') ci = 1
+        else if (upper === 'C' || upper === '2') ci = 2
+        else if (upper === 'D' || upper === '3') ci = 3
+        else {
+          const num = parseInt(ci, 10)
+          ci = isNaN(num) ? -1 : num
+        }
+      } else if (typeof ci !== 'number' || isNaN(ci)) {
+        ci = -1
+      }
+      
+      // If ci is invalid or missing, attempt to find answer string in options
+      if ((ci < 0 || ci >= q.options.length) && answerStr) {
+        const normAns = String(answerStr).trim().toLowerCase()
+        const found = q.options.findIndex((opt: string) => opt.toLowerCase() === normAns || opt.toLowerCase().startsWith(normAns))
+        if (found !== -1) {
+          ci = found
+        }
+      }
+
+      // If still out of bounds, default safely to 0
+      if (ci < 0 || ci >= q.options.length) {
+        ci = 0
+      }
+
       q.correctIndex = ci
     }
+
+    q.explanation = q.explanation ? String(q.explanation).trim() : "No explanation provided."
     return q
   })
 }
@@ -965,7 +1014,9 @@ export function getQuiz(course: Course, seed?: number): QuizQuestion[] {
   let pool: QuizQuestion[] = []
   if (course.customContent) {
     try {
-      const parsed = JSON.parse(course.customContent)
+      const parsed = typeof course.customContent === "string"
+        ? JSON.parse(course.customContent)
+        : course.customContent
       if (parsed.quiz && Array.isArray(parsed.quiz)) {
         pool = sanitizeCustomQuizData(parsed.quiz)
       } else if (Array.isArray(parsed)) {

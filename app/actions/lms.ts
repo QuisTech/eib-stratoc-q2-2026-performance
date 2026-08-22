@@ -225,16 +225,16 @@ const getCachedCourseBySlug = unstable_cache(
 
 const getCachedCourseById = unstable_cache(
   async (courseId: number) => {
-    const staticCourse = getStaticLmsCourseById(courseId)
-    if (staticCourse) return staticCourse
-    if (hasStaticLmsCourses() && !ALLOW_FIRESTORE_COURSE_FALLBACK) return null
-
+    let liveCourse: Course | null = null
     try {
       const doc = await adminDb.collection("courses").doc(String(courseId)).get()
       if (doc.exists) {
-        const course = doc.data() as Course
-        if ((course as any).isDeleted) return null
-        return course
+        liveCourse = toCacheSafeValue(doc.data()) as Course
+      } else {
+        const querySnap = await adminDb.collection("courses").where("id", "==", Number(courseId)).limit(1).get()
+        if (!querySnap.empty) {
+          liveCourse = toCacheSafeValue(querySnap.docs[0].data()) as Course
+        }
       }
     } catch (error) {
       if (isFirestoreQuotaError(error)) {
@@ -244,7 +244,12 @@ const getCachedCourseById = unstable_cache(
       }
     }
 
-    return null
+    if (liveCourse) {
+      if ((liveCourse as any).isDeleted) return null
+      return liveCourse
+    }
+
+    return getStaticLmsCourseById(courseId) || null
   },
   ["lms-course-by-id-v1"],
   { tags: [COURSE_CACHE_TAG], revalidate: 60 * 60 }
@@ -925,17 +930,19 @@ export async function updateCourse(slug: string, data: any) {
   if (!existing) throw new Error("Course not found")
   if (!checkIsSuperAdmin(user) && existing.authorId !== user.id) throw new Error("Forbidden")
 
-  await adminDb.collection("courses").doc(String(existing.id)).update({
+  await adminDb.collection("courses").doc(String(existing.id)).set({
+    ...existing,
     ...data,
     isBriefing: !!data.isBriefing,
     updatedAt: new Date()
-  })
+  }, { merge: true })
 
   invalidateCache("courses")
   revalidateCacheTag(COURSE_CACHE_TAG)
   revalidateCacheTag(ADMIN_SOURCE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
+  revalidatePath(`/lms/${slug}`)
 }
 
 export async function saveCustomCourseContent(slug: string, content: string) {
@@ -946,12 +953,21 @@ export async function saveCustomCourseContent(slug: string, content: string) {
   if (!existing) throw new Error("Course not found")
   if (!checkIsSuperAdmin(user) && existing.authorId !== user.id) throw new Error("Forbidden")
 
-  await adminDb.collection("courses").doc(String(existing.id)).update({ customContent: content })
+  await adminDb.collection("courses").doc(String(existing.id)).set({
+    ...existing,
+    customContent: content,
+    updatedAt: new Date()
+  }, { merge: true })
+
   invalidateCache("courses")
   revalidateCacheTag(COURSE_CACHE_TAG)
   revalidateCacheTag(ADMIN_SOURCE_CACHE_TAG)
   revalidatePath(`/lms/admin`)
-  revalidatePath(`/lms/courses/${slug}`)
+  revalidatePath(`/lms/admin/courses/${slug}/builder`)
+  revalidatePath(`/lms/${slug}`)
+  revalidatePath(`/lms/${slug}/quiz`)
+  revalidatePath(`/lms/${slug}/learn`)
+  revalidatePath(`/lms`)
 }
 
 export async function setInitialRole(userId: string, requestedRole: string) {

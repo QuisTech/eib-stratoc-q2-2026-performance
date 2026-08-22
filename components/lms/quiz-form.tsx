@@ -491,9 +491,10 @@ export function QuizForm({
         )}
         {shuffled.map((sq, qi) => {
         const qResult = result?.details[sq.originalIndex]
+        const cardKey = sq.q.id ? `${sq.q.id}-${sq.originalIndex}` : `sq-${sq.originalIndex}`
 
         return (
-          <Card key={sq.q.id} className={qResult ? (qResult.isCorrect ? "border-[var(--chart-1)] bg-[var(--chart-1)]/5" : "border-destructive bg-destructive/5") : ""}>
+          <Card key={cardKey} className={qResult ? (qResult.isCorrect ? "border-[var(--chart-1)] bg-[var(--chart-1)]/5" : "border-destructive bg-destructive/5") : ""}>
             <CardContent className="p-5">
               <div className="flex items-start gap-3">
                 {qResult && (

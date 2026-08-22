@@ -4,88 +4,68 @@ This document serves as the comprehensive, up-to-date record of the architecture
 
 ## 1. Core Architecture & Tech Stack
 
-- **Framework**: Next.js 16 (App Router)
+- **Framework**: Next.js 16 (App Router) & React 19
 - **Styling**: Tailwind CSS & shadcn/ui components
-- **Authentication**: `better-auth` (v1.6.20) with Email/Password & Role-based Access Control (RBAC).
-- **Database**: PostgreSQL (Neon/Local) managed via Drizzle ORM.
+- **Authentication**: Firebase Authentication (Client SDK) with server-side Firebase Admin session cookies (`adminAuth.createSessionCookie` / `adminAuth.verifySessionCookie`) and Role-Based Access Control (RBAC).
+- **Database & Structured LMS Data**: Google Cloud Firestore (`firebase-admin/firestore`) for real-time state (users, enrollments, lesson progress, quiz attempts, and certificates).
+- **Hybrid Static Catalog Layer**: High-speed, pre-compiled course catalog (`lib/static-lms-courses.ts`) backed by an in-memory TTL caching and request deduplication layer (`lib/firebase-admin.ts`) to prevent Firestore quota exhaustion.
 - **Deployment**: 
   - **Cloud**: Vercel (for internet-facing access)
-  - **On-Premise / VM Ready**: Designed to run entirely offline on an internal network via `npm run start` and PM2.
+  - **On-Premise / VM Ready**: Designed to run on an internal network via `npm run start` and PM2 standalone bundles.
 
 ## 2. Key Features Implemented
 
 ### A. Role-Based Access Control (RBAC) & Visibility
 The platform supports strict hierarchical access levels to silo data appropriately:
 - **Learner (`learner`)**: Can enroll in courses, view modules, take quizzes, and track personal progress via their own portal.
-- **Subsidiary Manager (`lead`)**: Elevated privileges. Has access to the Team Admin dashboard but can *only* see staff belonging to their specific subsidiary, as well as anyone enrolled in courses they authored.
-- **Group Head (`group_head` & `group_head_standard`)**: Strategic oversight. Has access to the Team Admin dashboard but can *only* see the enrollment and progress metrics for the specific courses they have authored.
-- **Super Admin (`admin`)**: Full, unrestricted global access. Can view all users across all subsidiaries, reset any user's password, and delete user accounts.
+- **Subsidiary Manager (`lead`)**: Elevated privileges. Has access to the Team Admin dashboard to view staff belonging to their specific subsidiary and courses they authored.
+- **Group Head (`group_head` & `group_head_standard`)**: Strategic oversight. Has access to the Team Admin dashboard for enrollment and progress metrics across authored strategic courses.
+- **Super Admin (`admin`)**: Full, unrestricted global access. Can view all users across all subsidiaries, manage roles, and monitor Firestore quotas.
 
-### B. Custom Course Builder (Offline-First)
-- **Static/Programmatic Generation**: Instead of relying on external LLMs that require internet access, the platform includes a deterministic course builder.
-- **Rich Content Attachments**: Group Heads can attach URLs and text content to lessons.
-- **Schema**: Supports robust relational data models linking `Course` -> `Module` -> `Lesson` -> `Quiz`.
+### B. Custom Course Builder & Interactive Quizzes
+- **Offline-First / Fast Static Caching**: Deterministic course catalog generated and synced to static TypeScript modules for zero-latency page loads.
+- **Rich Content Attachments & Media**: Supports embedded video URLs, local thumbnails, structured lessons, and interactive knowledge checks.
+- **Knowledge Assessment**: Comprehensive quiz evaluation with automated grading and pass/fail thresholds.
 
-### C. User & Password Management (Admin Utilities)
-Designed specifically for the constraints of an on-premise, internal deployment where setting up an SMTP email server is undesirable:
-- **Self-Service**: Logged-in users can change their password securely from the `/lms/settings` page.
-- **Admin Failsafe Reset**: Super Admins can instantly force-reset a forgotten user's password from the Admin Dashboard to a configurable temporary default. This was implemented natively using `better-auth/crypto` to securely hash the password and update the database directly, bypassing restrictive plugin requirements.
-- **Secure User Deletion**: Super Admins have the ability to permanently delete test accounts or separated staff. This triggers a cascading deletion, ensuring all related data (enrollments, lesson progress, quiz attempts, and certificates) are safely purged without leaving dangling references in the database.
+### C. User & Session Management
+- **Secure Session Cookies**: 7-day HTTP-only session cookies verified on the server side via Firebase Admin.
+- **Self-Service**: Logged-in users can update their profile and settings from `/lms/settings`.
+- **Admin Utilities**: Super Admins can manage users, update custom claims, and adjust roles directly from the Admin Portal.
 
-### D. Hybrid Sync Engine (Cloud ↔ On-Premise)
-To ensure the on-premise database and the cloud database remain identical:
-- **Upsert Logic**: Uses Postgres `ON CONFLICT DO UPDATE` to safely merge records without duplication.
-- **Manual Sync**: A "Click to Sync" button on the Admin Dashboard for instant synchronization.
-- **Automated Background Sync**: An authenticated `/api/sync/run` endpoint designed to be triggered by a local `crontab` every 15 minutes, ensuring invisible, continuous alignment between the offline VM and the cloud.
+### D. Hybrid Sync Engine (Firestore ↔ Static Catalog & Deployment)
+- **Live Sync & Deploy**: An authenticated `/api/admin/sync` endpoint that pulls latest courses from Firestore, regenerates the static catalog, and triggers deployment updates.
+- **Quota Safeguards**: Firestore query deduplication, batch caching, and quota fallback mechanisms ensure uninterrupted user experience even during high load.
 
-### E. Analytics & Reporting
-Robust oversight tools for Group Heads built directly into the Admin Dashboard:
-- **Detailed CSV Exports**: Admins can generate and download a comprehensive CSV report containing all learner details, enrollments, progress, and statuses.
-- **Public Certificate Verification**: The CSV report contains dynamically generated, secure URLs to each completed learner's certificate. Because these links use an unguessable CUID, certificates can be securely shared with and verified by third parties (e.g., HR or Auditors) without requiring a platform login.
+### E. Analytics & Certificate Issuance
+- **Certificate Generation**: Automated issuance of unique serial-numbered certificates upon 100% course and quiz completion.
+- **Reporting & Exports**: Admin tools for tracking team completion rates and exporting training metrics.
 
-## 3. Database Schema Overview
+## 3. Data Collections Overview (Cloud Firestore)
 
-The Drizzle ORM schema (`lib/db/schema.ts`) includes the following core tables:
-- **`user` / `account` / `session`**: Managed by `better-auth`.
-- **`course`**: Stores course metadata, category, and pricing.
-- **`module` & `lesson`**: Hierarchical content structure.
-- **`quiz` & `quizQuestion`**: Assessment engine.
-- **`enrollment`**: Tracks learner progress (Not Started, In Progress, Completed).
+- **`users`**: User profiles, roles, assigned subsidiary, and timestamps.
+- **`courses`**: Course metadata, category, pricing, duration, modules, lessons, and quiz definitions.
+- **`enrollments`**: User course enrollment records and overall progress percentages.
+- **`lessonProgress`**: Granular tracking of completed lessons per user per course.
+- **`quizAttempts`**: Submitted quiz answers, scores, and pass statuses.
+- **`certificates`**: Issued completion certificates with unique serial keys.
 
 ## 4. Environment Configuration
 
 Critical environment variables required for the platform to function:
 ```env
-# Database Connection
-DATABASE_URL="postgres://..."
+# Firebase Client SDK
+NEXT_PUBLIC_FIREBASE_API_KEY="..."
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN="..."
+NEXT_PUBLIC_FIREBASE_PROJECT_ID="..."
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET="..."
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID="..."
+NEXT_PUBLIC_FIREBASE_APP_ID="..."
 
-# Authentication
-BETTER_AUTH_SECRET="your-secret-key"
-BETTER_AUTH_URL="http://localhost:3000"
+# Firebase Admin SDK
+FIREBASE_PROJECT_ID="..."
+FIREBASE_CLIENT_EMAIL="..."
+FIREBASE_PRIVATE_KEY="..."
 
-# Sync Engine
-SYNC_SECRET="eib-secret-sync-2026"
-CLOUD_API_URL="https://your-cloud-domain.com"
-
-# Password Management
-DEFAULT_RESET_PASSWORD="ChangeMeImmediately123!"
+# LMS Configuration
+LMS_ALLOW_FIRESTORE_COURSE_FALLBACK="true"
 ```
-
-## 5. Next Steps / Ongoing Work
-- **CI/CD Automation**: Configuring a GitHub Action or Webhook on the on-premise VM for auto-deploy on `main` push.
-
-## 6. Recent Challenges and Resolutions (July 2026)
-
-During the finalization of the on-premise deployment, several edge-case challenges were resolved:
-
-1. **422 - Failed to Create User (Better Auth Admin Plugin)**
-   - *Issue*: The official `better-auth` `admin()` plugin caused silent 422 errors during user registration and password resets due to strict internal schemas and SMTP dependencies.
-   - *Resolution*: Stripped out the `admin()` plugin entirely. Replaced it with a native, robust Admin Dashboard UI using manual `better-auth/crypto` for password hashing, enabling offline, internal-only password resets without an SMTP server.
-
-2. **Multi-Domain CSRF Blocks (Failed to get session)**
-   - *Issue*: Better Auth rejected session requests (returning 500 APIErrors) when the app was accessed via the on-premise domain (`https://lms.eibstratoc.com`) because `BETTER_AUTH_URL` was strictly set to the Vercel cloud domain.
-   - *Resolution*: Replaced the rigid `baseURL` configuration in `lib/auth.ts` with a `trustedOrigins` array, explicitly whitelisting all internal IPs, Vercel domains, and on-premise domains to bypass CSRF blocks gracefully. Added `try/catch` boundaries to gracefully log out users instead of crashing the server if network fetches fail.
-
-3. **On-Premise Schema Mismatches & PM2 Caching**
-   - *Issue*: The on-premise server crashed with `column "videoUrl" does not exist` after a `git pull`, despite the cloud database working perfectly. This occurred because `.env.production` is `.gitignore`'d (preventing connection string updates) and PM2 permanently cached an old offline database URL.
-   - *Resolution*: Overwrote the local `.env.production` file on the VM to perfectly match the Neon cloud database, removed `channel_binding=require` to ensure compatibility with the VM's older Node/pg driver, and executed a hard process reset (`pm2 delete eib-lms-production && pm2 start ecosystem.config.js --env production`) to flush PM2's memory.

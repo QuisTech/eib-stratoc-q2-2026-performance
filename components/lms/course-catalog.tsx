@@ -1,8 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import type { Enrollment } from "@/lib/db/schema"
-import type { Course } from "@/lib/types"
+import type { Course, Enrollment } from "@/lib/types"
 import { CourseCard } from "@/components/lms/course-card"
 import { formatNaira } from "@/lib/utils"
 import { isSuperAdmin as checkIsSuperAdmin } from "@/lib/access-control"
