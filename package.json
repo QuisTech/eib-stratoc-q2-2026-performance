@@ -1,6 +1,7 @@
 {
-  "name": "my-project",
+  "name": "eib-stratoc-q2-2026-performance",
   "version": "0.1.0",
+  "description": "Enterprise LMS platform for EIB Group subsidiaries with role-based training, AI course builder, and verifiable certifications.",
   "private": true,
   "scripts": {
     "dev": "next dev",
