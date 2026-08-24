@@ -302,13 +302,14 @@ export async function getCourses(): Promise<Course[]> {
   const staticCourses = getStaticLmsCourses()
   let liveCourses: Course[] = []
 
-  const cached = getCached<Course[]>("courses")
+  const cached = getCached<Course[]>("courses") || getCached<Course[]>("admin_courses")
   if (cached) {
     liveCourses = cached
   } else {
     try {
       liveCourses = await getCachedCoursesFromFirestore()
       setCache("courses", liveCourses)
+      setCache("admin_courses", liveCourses)
     } catch (error) {
       console.error("Firestore error while loading LMS courses.", error)
     }
@@ -342,10 +343,17 @@ export async function getAdminCourses(): Promise<Course[]> {
   const staticCourses = getStaticLmsCourses()
   let liveCourses: Course[] = []
 
-  try {
-    liveCourses = await getCachedCoursesFromFirestore()
-  } catch (error) {
-    console.error("Firestore error while loading admin LMS courses; serving static catalog only.", error)
+  const cached = getCached<Course[]>("admin_courses") || getCached<Course[]>("courses")
+  if (cached) {
+    liveCourses = cached
+  } else {
+    try {
+      liveCourses = await getCachedCoursesFromFirestore()
+      setCache("admin_courses", liveCourses)
+      setCache("courses", liveCourses)
+    } catch (error) {
+      console.error("Firestore error while loading admin LMS courses; serving static catalog only.", error)
+    }
   }
 
   const merged = new Map<string, Course>()
@@ -916,8 +924,8 @@ export async function createCourse(data: any) {
   await adminDb.collection("courses").doc(String(id)).set(courseData)
 
   invalidateCache("courses")
+  invalidateCache("admin_courses")
   revalidateCacheTag(COURSE_CACHE_TAG)
-  revalidateCacheTag(ADMIN_SOURCE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
 }
@@ -938,8 +946,8 @@ export async function updateCourse(slug: string, data: any) {
   }, { merge: true })
 
   invalidateCache("courses")
+  invalidateCache("admin_courses")
   revalidateCacheTag(COURSE_CACHE_TAG)
-  revalidateCacheTag(ADMIN_SOURCE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
   revalidatePath(`/lms/${slug}`)
@@ -960,8 +968,8 @@ export async function saveCustomCourseContent(slug: string, content: string) {
   }, { merge: true })
 
   invalidateCache("courses")
+  invalidateCache("admin_courses")
   revalidateCacheTag(COURSE_CACHE_TAG)
-  revalidateCacheTag(ADMIN_SOURCE_CACHE_TAG)
   revalidatePath(`/lms/admin`)
   revalidatePath(`/lms/admin/courses/${slug}/builder`)
   revalidatePath(`/lms/${slug}`)
@@ -1146,9 +1154,9 @@ export async function softDeleteCourse(slug: string) {
   markStaticLmsCourseDeleted(course.id)
   markStaticLmsCourseDeleted(slug)
 
-  // Invalidate global admin and catalog caches
-  invalidateAdminCaches()
+  // Invalidate course caches only
   invalidateCache("courses")
+  invalidateCache("admin_courses")
   revalidateCacheTag(COURSE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
@@ -1195,6 +1203,7 @@ export async function hardDeleteCourse(slug: string) {
   // 5. Invalidate global admin and catalog caches
   invalidateAdminCaches()
   invalidateCache("courses")
+  invalidateCache("admin_courses")
   revalidateCacheTag(COURSE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
@@ -1224,8 +1233,8 @@ export async function duplicateCourseAsLMS(slug: string) {
   })
 
   invalidateCache("courses")
+  invalidateCache("admin_courses")
   revalidateCacheTag(COURSE_CACHE_TAG)
-  revalidateCacheTag(ADMIN_SOURCE_CACHE_TAG)
   revalidatePath("/lms")
   revalidatePath("/lms/admin")
   return { newSlug }
