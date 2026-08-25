@@ -27,6 +27,7 @@ import {
   hasStaticLmsCourses,
 } from "@/lib/static-lms-courses"
 import * as StaticLmsModule from "@/lib/static-lms-courses"
+import { getStaticAdminSourceDataFallback } from "@/lib/static-admin-snapshot"
 
 const markStaticLmsCourseDeleted =
   typeof (StaticLmsModule as any).markStaticLmsCourseDeleted === "function"
@@ -180,20 +181,28 @@ const getCachedCoursesFromFirestore = unstable_cache(
 
 const getCachedAdminSourceData = unstable_cache(
   async () => {
-    const [usersList, enrollmentsList, certificatesList] = await Promise.all([
-      getAllUsers(),
-      getAllEnrollments(),
-      getAllCertificates(),
-    ])
+    try {
+      const [usersList, enrollmentsList, certificatesList] = await Promise.all([
+        getAllUsers(),
+        getAllEnrollments(),
+        getAllCertificates(),
+      ])
 
-    return {
-      users: (Array.isArray(usersList) ? usersList : []).map(toCacheSafeValue) as User[],
-      enrollments: (Array.isArray(enrollmentsList) ? enrollmentsList : []).map(toCacheSafeValue) as Enrollment[],
-      certificates: (Array.isArray(certificatesList) ? certificatesList : []).map(toCacheSafeValue) as Certificate[],
+      return {
+        users: (Array.isArray(usersList) ? usersList : []).map(toCacheSafeValue) as User[],
+        enrollments: (Array.isArray(enrollmentsList) ? enrollmentsList : []).map(toCacheSafeValue) as Enrollment[],
+        certificates: (Array.isArray(certificatesList) ? certificatesList : []).map(toCacheSafeValue) as Certificate[],
+      }
+    } catch (error) {
+      if (isFirestoreQuotaError(error)) {
+        console.error("Firestore quota exhausted while loading admin source data. Serving static snapshot fallback.", error)
+        return getStaticAdminSourceDataFallback()
+      }
+      throw error
     }
   },
   ["lms-admin-source-v1"],
-  { tags: [ADMIN_SOURCE_CACHE_TAG], revalidate: 30 * 60 }
+  { tags: [ADMIN_SOURCE_CACHE_TAG], revalidate: 60 * 60 }
 )
 
 const getCachedCourseBySlug = unstable_cache(
@@ -447,7 +456,6 @@ export async function enrollInCourse(courseId: number) {
 
     await recomputeCourseProgress(userId, courseId)
   }
-  invalidateAdminCaches()
   revalidatePath("/lms")
   revalidatePath("/lms", "layout")
 }
@@ -476,7 +484,6 @@ export async function unenrollFromCourse(courseId: number) {
   invalidateUserCourseCaches(userId, courseId)
   revalidateCacheTag(`lms-state-${userId}-${courseId}`)
 
-  invalidateAdminCaches()
   revalidatePath("/lms")
   revalidatePath("/lms", "layout")
 }
